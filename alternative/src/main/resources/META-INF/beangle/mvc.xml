@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<mvc>
+  <profile name="openurp-edu-program-alternative" package="org.openurp.edu.program.alternative.web.action">
+    <url path="/alternative" suffix=""  style="seo" />
+    <interceptors>
+      <interceptor name="web.Interceptor.hibernate"/>
+      <interceptor name="web.Interceptor.security"/>
+     </interceptors>
+  </profile>
+</mvc>
