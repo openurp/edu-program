@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <parent>
+    <groupId>org.openurp.edu.program</groupId>
+    <artifactId>openurp-edu-program-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.openurp.edu.program</groupId>
+  <artifactId>openurp-edu-program-studentapp</artifactId>
+  <packaging>war</packaging>
+  <name>Openurp Edu Program Studentapp</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openurp.app</groupId>
+      <artifactId>openurp-app-boot</artifactId>
+      <version>${openurp.app.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openurp.edu.grade</groupId>
+      <artifactId>openurp-edu-grade-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+  </dependencies>
+</project>
+

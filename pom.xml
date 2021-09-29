@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.openurp</groupId>
+    <artifactId>openurp-parent</artifactId>
+    <version>0.2.28</version>
+  </parent>
+  <groupId>org.openurp.edu.program</groupId>
+  <artifactId>openurp-edu-program-parent</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>OpenURP Edu Program Parent</name>
+
+  <modules>
+    <module>studentapp</module>
+  </modules>
+
+  <properties>
+    <openurp.app.version>0.1.12</openurp.app.version>
+    <openurp.api.version>0.8.1</openurp.api.version>
+  </properties>
+
+</project>
