@@ -22,10 +22,13 @@ import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.transfer.excel.ExcelSchema
+import org.beangle.data.transfer.importer.ImportSetting
+import org.beangle.data.transfer.importer.listener.ForeignerListener
 import org.beangle.webmvc.api.annotation.response
 import org.beangle.webmvc.api.view.{Stream, View}
 import org.beangle.webmvc.entity.action.RestfulAction
 import org.openurp.base.edu.model.{Course, Project, Student}
+import org.openurp.edu.program.alternative.web.helper.StdAlternativeCourseImportListener
 import org.openurp.edu.program.domain.CoursePlanProvider
 import org.openurp.edu.program.model.StdAlternativeCourse
 import org.openurp.starter.edu.helper.ProjectSupport
@@ -132,7 +135,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse] with ProjectSupport 
       val builder = OqlBuilder.from(classOf[StdAlternativeCourse],
         "stdAlternativeCourse")
       builder.where("stdAlternativeCourse.std.id=:stdId", stdAlternativeCourse.std.id)
-        .where("stdAlternativeCourse.std.project= :project", project)
+        .where("stdAlternativeCourse.std.project = :project", project)
       if (stdCourseSubId != 0) {
         builder.where("stdAlternativeCourse.id !=:stdCourseSubId", stdCourseSubId)
       }
@@ -199,5 +202,19 @@ class StdAction extends RestfulAction[StdAlternativeCourse] with ProjectSupport 
     val os = new ByteArrayOutputStream()
     schema.generate(os)
     Stream(new ByteArrayInputStream(os.toByteArray), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "学生个人替代课程模板.xlsx")
+  }
+
+
+  protected override def configImport(setting: ImportSetting): Unit = {
+    setting.listeners = List(new StdAlternativeCourseImportListener(entityDao, getProject))
+  }
+
+  def newCourses(): View = {
+    getDate("beginOn").foreach(beginOn => {
+      getDate("endOn").foreach(endOn => {
+        put("courses", entityDao.search(getQueryBuilder))
+      })
+    })
+    forward()
   }
 }
