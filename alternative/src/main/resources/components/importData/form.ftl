@@ -11,7 +11,6 @@
     [/@]
     [@b.formfoot]
       [@b.submit value="提交" onsubmit="validateExtendName"/]
-      [@b.reset/]
     [#list Parameters?keys as key]
           [#if key!='method']<input type="hidden" name="${key}" value="${Parameters[key]}" />[/#if]
      [/#list]
@@ -32,7 +31,7 @@
           alert("请选择文件");
           return false;
         }
-        var index1 = value.indexOf(".xlsx");
+        var index1 = value.indexOf(".xls");
         var index2 = value.indexOf(".xlsx");
         if(index1 < 0 || index2 < 0){
             alert("只能接受以xls或者xlsx结尾的电子表格");

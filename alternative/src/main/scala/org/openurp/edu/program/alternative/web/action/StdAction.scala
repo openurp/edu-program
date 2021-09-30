@@ -179,7 +179,6 @@ class StdAction extends RestfulAction[StdAlternativeCourse] with ProjectSupport 
     !courseOrigins.exists(c => courseSubstitutes.contains(c))
   }
 
-
   @response
   def downloadTemplate(): Any = {
     val project = getProject
@@ -203,7 +202,6 @@ class StdAction extends RestfulAction[StdAlternativeCourse] with ProjectSupport 
     schema.generate(os)
     Stream(new ByteArrayInputStream(os.toByteArray), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "学生个人替代课程模板.xlsx")
   }
-
 
   protected override def configImport(setting: ImportSetting): Unit = {
     setting.listeners = List(new StdAlternativeCourseImportListener(entityDao, getProject))

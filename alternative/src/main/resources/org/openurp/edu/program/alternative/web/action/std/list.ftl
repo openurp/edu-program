@@ -6,7 +6,7 @@
         bar.addItem("${b.text('action.modify')}",action.edit());
         bar.addItem("${b.text('action.delete')}",action.remove());
         bar.addItem("交换",action.multi('exchange',"确定选择选中记录的原课程和替代课程？"));
-        bar.addItem("导入",action.method('importForm'));
+        bar.addItem("导入",action.method('importForm',null,null,"_blank"));
     [/@]
     [@b.row]
         [@b.boxcol/]
