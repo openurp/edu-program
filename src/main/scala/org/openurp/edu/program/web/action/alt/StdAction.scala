@@ -1,34 +1,38 @@
 /*
- * OpenURP, Agile University Resource Planning Solution.
- *
- * Copyright © 2014, The OpenURP Software.
+ * Copyright (C) 2014, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful.
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.openurp.edu.program.web.action.alt
 
+import org.beangle.commons.activation.MediaTypes
 import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
-import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.doc.excel.schema.ExcelSchema
+import org.beangle.doc.transfer.importer.ImportSetting
+import org.beangle.web.action.annotation.response
+import org.beangle.web.action.view.{Stream, View}
+import org.beangle.webmvc.support.action.{ImportSupport, RestfulAction}
 import org.openurp.base.edu.model.Course
+import org.openurp.base.model.Project
 import org.openurp.base.std.model.Student
-import org.openurp.base.web.tag.ProjectHelper.getProject
 import org.openurp.edu.program.domain.CoursePlanProvider
 import org.openurp.edu.program.model.StdAlternativeCourse
-import org.openurp.starter.edu.helper.ProjectSupport
+import org.openurp.edu.program.web.helper.StdAlternativeCourseImportListener
+import org.openurp.starter.web.support.ProjectSupport
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.time.Instant
@@ -37,7 +41,7 @@ import scala.collection.mutable
 /**
  * 可代替课程的维护响应类
  */
-class StdAction extends RestfulAction[StdAlternativeCourse] , ProjectSupport {
+class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, ImportSupport[StdAlternativeCourse] {
 
   var coursePlanProvider: CoursePlanProvider = _
 
@@ -65,7 +69,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse] , ProjectSupport {
   }
 
   def exchange(): View = {
-    val ids = longIds("stdAlternativeCourse")
+    val ids = getLongIds("stdAlternativeCourse")
     val subs = entityDao.find(classOf[StdAlternativeCourse], ids)
     for (sub <- subs) {
       sub.exchange()
@@ -103,7 +107,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse] , ProjectSupport {
       case Some(o) => builder.orderBy(o)
     }
 
-    builder.where("stdAlternativeCourse.std.state.department in (:departments)", getDeparts)
+    queryByDepart(builder, "stdAlternativeCourse.std.state.department")
     builder.limit(getPageLimit)
     put("stdAlternativeCourses", entityDao.search(builder))
     forward()
@@ -183,7 +187,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse] , ProjectSupport {
     query.where("c.project=:project and c.endOn is null", project)
     query.orderBy("c.code")
     query.select("c.code,c.name")
-    val courses = entityDao.search(query).map(x => x(0) + " " + x(1))
+    val courses = entityDao.search(query).map(x => x(0).toString + " " + x(1))
 
     val schema = new ExcelSchema()
     val sheet = schema.createScheet("数据模板")
@@ -197,7 +201,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse] , ProjectSupport {
     code.add("课程信息").data(courses)
     val os = new ByteArrayOutputStream()
     schema.generate(os)
-    Stream(new ByteArrayInputStream(os.toByteArray), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "学生个人替代课程模板.xlsx")
+    Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "学生个人替代课程模板.xlsx")
   }
 
   protected override def configImport(setting: ImportSetting): Unit = {
