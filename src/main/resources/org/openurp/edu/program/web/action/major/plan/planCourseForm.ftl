@@ -3,16 +3,28 @@
     <input type="hidden" name="planId" value="${plan.id}"/>
     <input type="hidden" name="planCourse.group.id" value="${courseGroup.id}"/>
     <input type="hidden" name="stage" value="${(courseGroup.stage.name)!}"/>
+    <input type="hidden" name="planCourse.id" value=""/>
+    <input type="hidden" name="planCourse.course.id" id="planCourse_course_id" value=""/>
+    <input type="hidden" name="toGroups" value="1"/>
     <table width="100%" valign="top" class="grid-table">
+       <tr>
+         <td class="grayStyle" width="25%">&nbsp;课程代码<font color="red">*</font></td>
+         <td class="brightStyle" colspan="3">
+              <input type="text" name="planCourse.course.code" id="planCourse_course_code" value="" readonly size="20" maxlength="20"/>
+              <input type="button" value="选择课程" onclick="openCourseListDialog();"  class="buttonStyle"/>
+         </td>
+       </tr>
        <tr>
          <td class="grayStyle" width="25%">&nbsp;课程名称<font color="red">*</font></td>
          <td class="brightStyle" colspan="3">
-              <input type="hidden" name="planCourse.id" value=""/>
-              <input type="hidden" name="toGroups" value="1"/>
-              <input type="hidden" name="planCourse.course.id" id="planCourse_course_id" value=""/>
-              <input type="text" name="planCourse.course.name" id="planCourse_course_name" value="" readonly size="20" maxlength="20"/>
-              <input type="button" value="选择课程" onclick="openCourseListDialog();"  class="buttonStyle"/>
+           <span id='planCourse_course_name'></span>&nbsp;
+           <span id='planCourse_course_defaultCredits'></span>学分
+           <span id='planCourse_course_creditHours'></span>学时
          </td>
+       </tr>
+       <tr>
+         <td class="grayStyle" width="25%">&nbsp;开课院系</td>
+         <td class="brightStyle" colspan="3"><span id='planCourse_department_name'></span></td>
        </tr>
        <tr>
          <td class="grayStyle" width="25%">&nbsp;开课学期<font color="red">*</font></td>
@@ -41,13 +53,10 @@
            </td>
        </tr>
        <tr>
-        <td class="grayStyle" width="25%">&nbsp;学分</td>
-         <td class="brightStyle" width="25%">
-             <span id='t_planCourse.course.defaultCredits'></span>
-         </td>
-         <td class="grayStyle" width="25%">&nbsp;学时</td>
-         <td class="brightStyle" width="25%">
-             <span id='t_planCourse.course.creditHours'></span>
+         <td class="grayStyle" width="25%">&nbsp;顺序号</td>
+         <td class="brightStyle" colspan="3">
+              <input type="text" name="planCourse.idx" style="width:40px" maxlength="3" value=""/>
+              <span style="font-size:0.8rem;color: #999;">整数1开始，默认为0,按照学期排序+代码排序</span>
          </td>
        </tr>
        <tr>
@@ -63,12 +72,14 @@
     function clearPlanCourseForm() {
         var planCourseForm = document.planCourseForm;
         planCourseForm["planCourse.course.id"].value = '';
-        planCourseForm["planCourse.course.name"].value = '';
+        planCourseForm["planCourse.course.code"].value = '';
         planCourseForm["planCourse.terms"].value = '';
         planCourseForm["planCourse.termText"].value = '';
         planCourseForm["planCourse.weekstate"].value = '';
-        jQuery('#t_planCourse\\.course\\.credits').html('');
-        jQuery('#t_planCourse\\.course\\.creditHours').html('');
+        planCourseForm["planCourse.idx"].value = '';
+        jQuery('#planCourse_course_defaultCredits').html('');
+        jQuery('#planCourse_course_creditHours').html('');
+        jQuery('#planCourse_course_name').html('');
         jQuery(planCourseForm["planCourse.remark"]).html('');
         jQuery(':radio[name=planCourse\\.compulsory]', planCourseForm).prop('checked',false);
         [#if courseGroup.autoAddup]
@@ -92,12 +103,14 @@
         var planCourseForm = document.planCourseForm;
         clearPlanCourseForm();
         planCourseForm["planCourse.course.id"].value = course.id;
-        planCourseForm["planCourse.course.name"].value = course.name;
-        jQuery('#t_planCourse\\.course\\.defaultCredits').html(course.defaultCredits);
+        planCourseForm["planCourse.course.code"].value = course.code;
+        jQuery('#planCourse_course_defaultCredits').html(course.defaultCredits);
+        jQuery('#planCourse_course_name').html(course.name);
+        jQuery('#planCourse_department_name').html(course.department.name);
         if(course.creditHours != null) {
-            if(course.creditHours != null) {
-              jQuery('#t_planCourse\\.course\\.creditHours').html(course.creditHours);
-            }
+          if(course.creditHours != null) {
+            jQuery('#planCourse_course_creditHours').html(course.creditHours);
+          }
         }
     }
 
@@ -112,7 +125,6 @@
         jQuery.validity.start();
         jQuery('#planCourse_department_id').require();
         jQuery('#planCourse_course_id').require();
-        jQuery('#planCourse_course_name').require();
         jQuery('#planCourse_terms').assert(
           function(termInput) {
               return checkTerms(termInput, ${plan.program.startTerm},${plan.program.endTerm});

@@ -45,6 +45,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
 
     val departmentList = getDeparts
     put("departments", departmentList)
+    put("levels", project.levels)
     put("educationTypes", getCodes(classOf[EducationType]))
 
     put("stdTypes", getCodes(classOf[StdType]))

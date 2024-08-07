@@ -22,8 +22,8 @@
             bar.addItem("${b.text("action.new")}","newPlanCourse()");
             bar.addItem("${b.text("action.modify")}","editPlanCourse()");
             bar.addItem("${b.text("action.delete")}","removePlanCourse()");
-            bar.addItem("批量添加", "openBatchAddCourseDialog()");
-            bar.addItem("批量修改", "openBatchEditCourseDialog()");
+            [#--bar.addItem("批量添加", "openBatchAddCourseDialog()");
+            bar.addItem("批量修改", "openBatchEditCourseDialog()");--]
         [/@]
         [@b.row]
             [@b.boxcol /]
@@ -185,7 +185,7 @@
     var planCourses ={};
     [#list courseGroup.planCourses as pc]
       [#assign c=pc.course/]
-      planCourses['pc${pc.id}']={'id':'${pc.id}','terms':'${pc.terms}','termText':'${pc.termText!}','compulsory':${pc.compulsory?c},'course':{'id':'${c.id}','code':'${c.code}','name':'${c.name}','defaultCredits':'${c.defaultCredits}','creditHours':'${c.creditHours}','weekHours':'${c.weekHours}','department':{'id':'${c.department.id}'}}}
+      planCourses['pc${pc.id}']={'id':'${pc.id}','idx':${pc.idx},'terms':'${pc.terms}','termText':'${pc.termText!}','compulsory':${pc.compulsory?c},'course':{'id':'${c.id}','code':'${c.code}','name':'${c.name}','defaultCredits':'${c.defaultCredits}','creditHours':'${c.creditHours}','weekHours':'${c.weekHours}','department':{'id':'${c.department.id}','name':'${c.department.name?js_string}'}}}
     [/#list]
     function batchEditCourses() {
         if(validateBatchCourses(document.batchEditCourseForm)){
@@ -276,22 +276,23 @@
       form['planCourse.id'].value = planCourse.id;
       form['planCourse.terms'].value = planCourse.terms.replace(/^,/, '').replace(/,$/, '');
       form['planCourse.termText'].value = planCourse.termText;
+      form['planCourse.idx'].value = planCourse.idx;
       if(!form['planCourse.terms'].value) form['planCourse.terms'].value="*";
       if(planCourse.weekstate) form['planCourse.weekstate'].value = planCourse.weekstate;
       jQuery(':radio[name=planCourse\\.compulsory]', form).prop('checked',false);
       if(planCourse.compulsory) {
-          jQuery(':radio[name=planCourse\\.compulsory][value=1]', form).prop("checked",true);
+        jQuery(':radio[name=planCourse\\.compulsory][value=1]', form).prop("checked",true);
       } else {
-          jQuery(':radio[name=planCourse\\.compulsory][value=0]', form).prop("checked",true);
+        jQuery(':radio[name=planCourse\\.compulsory][value=0]', form).prop("checked",true);
       }
 
       if (null != planCourse.department) {
-         jQuery(form['planCourse.department.id']).val(planCourse.department.id);
+       jQuery("#planCourse_department_name").html(planCourse.department.name);
       }
       if(null != planCourse.remark) {
-          jQuery(form['planCourse.remark']).html(planCourse.remark);
+        jQuery(form['planCourse.remark']).html(planCourse.remark);
       } else {
-          jQuery(form['planCourse.remark']).html('');
+        jQuery(form['planCourse.remark']).html('');
       }
       openPlanCourseDialog();
     }
