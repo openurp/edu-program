@@ -52,6 +52,7 @@ class PlanServiceImpl extends PlanService {
   override def statPlanCredits(plan: CoursePlan): Float = {
     entityDao.refresh(plan)
     val stat = PlanGroupStat.stat(plan, codeService.get(classOf[TeachingNature]))
+    var updated = false
     stat.updates() foreach { gs =>
       val group = gs.group.asInstanceOf[AbstractCourseGroup]
       group.credits = gs.credits
@@ -59,10 +60,11 @@ class PlanServiceImpl extends PlanService {
       group.hourRatios = gs.hourRatios
       group.termCredits = gs.termCreditString
       group.terms = gs.terms
+      updated = true
     }
-    Properties.set(plan, "credits", stat.credits)
     plan match
       case mp: AbstractCoursePlan =>
+        if mp.credits != stat.credits then updated = true
         mp.credits = stat.credits
         mp.creditHours = stat.creditHours
         mp.hourRatios = CreditHours.toRatios(stat.hours)
@@ -70,8 +72,10 @@ class PlanServiceImpl extends PlanService {
       case _ =>
 
     entityDao.saveOrUpdate(plan, plan.program)
-    entityDao.evict(plan)
-    entityDao.evict(plan.program)
+    if (updated) {
+      entityDao.evict(plan)
+      entityDao.evict(plan.program)
+    }
     plan.credits
   }
 

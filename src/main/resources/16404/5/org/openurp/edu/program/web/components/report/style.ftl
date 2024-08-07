@@ -93,9 +93,30 @@
   .table-repeat-header{
      visibility:collapse;
   }
+  .prerequisite-screen{
+    display:block;
+  }
+  .prerequisite-print{
+    display:none;
+  }
+  .prerequisite-caption{
+    inline-size: fit-content;
+    position: absolute;
+    display: inline-block;
+    bottom: 0px;
+    text-align: right;
+    transform: rotate(-90deg) translateY(100%);
+    transform-origin: left bottom;
+  }
   @media print {
     .table-repeat-header{
        visibility:initial;
+    }
+    .prerequisite-screen{
+      display:none;
+    }
+    .prerequisite-print{
+      display:block;
     }
   }
 </style>

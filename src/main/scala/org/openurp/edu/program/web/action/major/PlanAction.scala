@@ -304,6 +304,12 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
       }
     }
     entityDao.saveOrUpdate(program)
+    entityDao.findBy(classOf[MajorPlan], "program", program) foreach { plan =>
+      val allCourses = plan.planCourses.map(_.course).toSet
+      val obsolete = program.labels.filter(x => !allCourses.contains(x.course))
+      program.labels.subtractAll(obsolete)
+      entityDao.saveOrUpdate(program)
+    }
     "ok"
   }
 

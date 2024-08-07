@@ -1,6 +1,6 @@
 [@b.head /]
-  <link rel="stylesheet" type="text/css" href="${b.base}/static/edu/program/css/plan.css" />
-  <script type="module" charset="utf-8" src="${b.base}/static/edu/program/js/plan.js"></script>
+  <link rel="stylesheet" type="text/css" href="${b.base}/static/edu/program/css/outline.css" />
+  <script type="module" charset="utf-8" src="${b.base}/static/edu/program/js/outline.js"></script>
   <style>
   body{
     font-family:'Times New Roman',宋体;
@@ -72,15 +72,16 @@
   <main>
     <article id="article" class="page-body-module" style="padding:10px 20px;">
       <div class="page-body-module-content">
-      [#if doc??]
-        [#include "/org/openurp/edu/program/web/components/info/docinfo.ftl"/]
-      [/#if]
-      <div style="margin-top:20px;">
-        <h1>
-          <a class="q-anchor q-heading-anchor" name="九、专业教学计划表（附表）"></a>九、专业教学计划表（附表）
-        </h1>
+        [#if doc??]
+          [#include "/org/openurp/edu/program/web/components/info/docinfo.ftl"/]
+        [/#if]
+        <div style="margin-top:20px;">
+          <h1>
+            <a class="q-anchor q-heading-anchor" name="九、专业教学计划表（附表）"></a>九、专业教学计划表（附表）
+          </h1>
+        </div>
+        [#include "/org/openurp/edu/program/web/components/info/planinfo.ftl"/]
       </div>
-      [#include "/org/openurp/edu/program/web/components/info/planinfo.ftl"/]
     </article>
   </main>
   <aside id="page-right-aside">

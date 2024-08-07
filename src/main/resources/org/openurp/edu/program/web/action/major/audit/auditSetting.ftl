@@ -1,6 +1,6 @@
 [@b.head /]
-  <link rel="stylesheet" type="text/css" href="${b.base}/static/edu/program/css/plan.css" />
-  <script type="module" charset="utf-8" src="${b.base}/static/edu/program/js/plan.js"></script>
+  <link rel="stylesheet" type="text/css" href="${b.base}/static/edu/program/css/outline.css" />
+  <script type="module" charset="utf-8" src="${b.base}/static/edu/program/js/outline.js"></script>
   <style>
   body{
     font-family:'Times New Roman',宋体;
@@ -57,36 +57,6 @@
     <div id="catalogs" class="page-body-module">
       <div class="page-body-module-title">章节</div>
       <div class="page-body-module-content"></div>
-    </div>
-  </aside>
-  <main>
-    <article id="article" class="page-body-module" style="padding:10px 20px;">
-      <div class="page-body-module-content">
-      [#if doc??]
-        [#include "../revise/docinfo.ftl"/]
-      [/#if]
-      <div>
-        <h1>
-          <a class="q-anchor q-heading-anchor" name="九、专业教学计划表（附表）"></a>九、专业教学计划表（附表）
-        </h1>
-      </div>
-        [#include "../revise/planinfo.ftl"/]
-    </article>
-  </main>
-  <aside id="page-right-aside">
-    <div id="toolboxes">
-      <div class="page-body-module">
-        [#list tags as tag]
-        <div class="page-body-module-title"><i class="fa-solid fa-tags"></i> ${tag.name}</div>
-        <div class="page-body-module-content">
-           <ol id="tag_${tag.id}_courses" style="padding-left:2rem;">
-           [#list program.labels as l]
-             [#if l.tag == tag]<li>${l.course.name}</li>[/#if]
-           [/#list]
-           </ol>
-        </div>
-        [/#list]
-      </div>
       <div>
         [@b.form name="auditForm" action="!audit" theme="list" title="方案审核"]
           [#assign passedValue][#if program.status.id==50||program.status.id=100||program.status.id<2]1[#else]0[/#if][/#assign]
@@ -108,6 +78,37 @@
             }
           }
         </script>
+      </div>
+    </div>
+  </aside>
+  <main>
+    <article id="article" class="page-body-module" style="padding:10px 20px;">
+      <div class="page-body-module-content">
+        [#if doc??]
+          [#include "/org/openurp/edu/program/web/components/info/docinfo.ftl"/]
+        [/#if]
+        <div>
+          <h1>
+            <a class="q-anchor q-heading-anchor" name="九、专业教学计划表（附表）"></a>九、专业教学计划表（附表）
+          </h1>
+        </div>
+        [#include "/org/openurp/edu/program/web/components/info/planinfo.ftl"/]
+      </div>
+    </article>
+  </main>
+  <aside id="page-right-aside">
+    <div id="toolboxes">
+      <div class="page-body-module">
+        [#list tags as tag]
+        <div class="page-body-module-title"><i class="fa-solid fa-tags"></i> ${tag.name}</div>
+        <div class="page-body-module-content">
+           <ol id="tag_${tag.id}_courses" style="padding-left:2rem;">
+           [#list program.labels as l]
+             [#if l.tag == tag]<li>${l.course.name}</li>[/#if]
+           [/#list]
+           </ol>
+        </div>
+        [/#list]
       </div>
     </div>
   </aside>

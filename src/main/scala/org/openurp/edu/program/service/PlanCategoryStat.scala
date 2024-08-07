@@ -93,7 +93,7 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
 
   def isPurePractical(course: Course, courseJournal: CourseJournal, courseType: CourseType): Option[Boolean] = {
     if (courseJournal.hours.isEmpty) {
-      Some(course.practical || courseType.practical)
+      Some(course.practical || courseType.module.exists(_.practical))
     } else {
       val hours = courseJournal.hours.filter(_.creditHours > 0)
       if (hours.size == 1) {
@@ -122,7 +122,7 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
           }
         case None =>
           cj.hours foreach { h =>
-            if (c.practical || g.courseType.practical) { //实践课
+            if (c.practical || g.courseType.module.nonEmpty && g.courseType.module.get.practical) { //实践课
               if (h.nature.id == practicalNature.id) {
                 practical.addCourse(c.defaultCredits, Map(practicalNature -> h.creditHours), pc.terms)
               } else {
@@ -202,16 +202,17 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
   def getPracticalCredits(): Double = {
     var total = 0d
     var innerHours = 0
-    for (cs <- categoryStats) {
+    for (cs <- categoryStats.sortBy(_.name)) {
       if (cs.practical) {
-        if (!cs.name.contains("通识")) {
-          if (cs.credits > 0) total += cs.credits
-          else innerHours += cs.hours
-        }
+        if (cs.credits > 0) total += cs.credits
+        else innerHours += cs.hours
       }
     }
+    println(s"total:${total},转算：${innerHours},转算学分:${innerHours / 16.0}")
     val c = total + innerHours / 16.0
-    if (c % 1 > 0.5) c.intValue + 0.5 else c.intValue
+    if (c % 1 >= 0.5) {
+      if c % 1 >= 0.7 then c.intValue + 1 else c.intValue + 0.5
+    } else c.intValue
   }
 
   def getCompulsoryStat(containsPractical: Boolean): CategoryStat = {

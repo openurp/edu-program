@@ -66,7 +66,7 @@ class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     put("auditMessages", auditMessages)
     put("depart", depart)
     put("grade", grade)
-    put("auditables", Set(AuditStatus.Submited, AuditStatus.RejectedByDepart))
+    put("auditables", Set(AuditStatus.Submited, AuditStatus.PassedByDepart, AuditStatus.RejectedByDepart))
     forward()
   }
 

@@ -54,7 +54,7 @@
         <td>[#if totalHours>0]${(theoreticalStat.getHour("1")*1.0/plan.creditHours)?string("##.00%")}[/#if]</td>
         <td>[#if totalHours>0]${(practicalStat.getHour("9")*1.0/plan.creditHours)?string("##.00%")}[/#if]</td>
       </tr>
-      <tr><td colspan="11" style="text-align:left;">注：选修课包括限选课；实践教学含课内实践、实验和实训等环节；比重为占总学分或总学时的比例。</td></tr>
+      <tr><td colspan="11" style="text-align:left;">注：选修课包括限选课；实践教学含课内实践、实验和实训等环节；比重为占总学分或总学时的比例。实践学时不含按周开展实践教学活动的课程学时。</td></tr>
     </tbody>
   </table>
   <table class="doc-table" style="page-break-inside: avoid;">

@@ -21,17 +21,19 @@ import org.beangle.commons.collection.Collections
 import org.openurp.code.edu.model.TeachingNature
 import org.openurp.code.service.CodeService
 import org.openurp.edu.program.model.MajorPlan
-import org.openurp.edu.program.service.{PlanChecker, PlanCategoryStat}
+import org.openurp.edu.program.service.{PlanCategoryStat, PlanChecker}
 
 /** 学分学时比例检查
  * 1）选修课比例>=20%
- * 2）实践学时>=25%
+ * 2）理工实践学时>=25%
+ * 3）经管文法实践学时>=20%
  */
 class CreditStatPlanChecker extends PlanChecker {
 
   var codeService: CodeService = _
   var minOptionalRatio = 20
-  var minPracticalHourRatio = 25
+  var minLiteralPracticalHourRatio = 20
+  var minEnginePracticalHourRatio = 25
 
   override def check(plan: MajorPlan): Seq[String] = {
     val natures = codeService.get(classOf[TeachingNature])
@@ -43,11 +45,19 @@ class CreditStatPlanChecker extends PlanChecker {
     if (optionalRatio < minOptionalRatio) {
       rs.addOne(s"选修课学分${optionalCredits}占比为${optionalRatio}%，不能低于${minOptionalRatio}%")
     }
-    val practicalHour = stat.getPracticalStat().getHour(TeachingNature.Practice.toString)
-    val practicalRatio = (practicalHour * 1.0 / plan.creditHours * 100).toInt
-    if (practicalRatio < minPracticalHourRatio) {
-      rs.addOne(s"实践学时${practicalHour}占比为${practicalRatio}%，不能低于${minPracticalHourRatio}%")
+
+    plan.program.degree foreach { degree =>
+      val practicalHour = stat.getPracticalStat().getHour(TeachingNature.Practice.toString)
+      val practicalRatio = (practicalHour * 1.0 / plan.creditHours * 100).toInt
+      var minPracticalHourRatio = minLiteralPracticalHourRatio
+      if (degree.name.startsWith("理学") || degree.name.startsWith("工学")) {
+        minPracticalHourRatio = minEnginePracticalHourRatio
+      }
+      if (practicalRatio < minPracticalHourRatio) {
+        rs.addOne(s"实践学时${practicalHour}占比为${practicalRatio}%，不能低于${minPracticalHourRatio}%")
+      }
     }
+
     rs.toSeq
   }
 }

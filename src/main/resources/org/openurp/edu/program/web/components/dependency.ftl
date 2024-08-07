@@ -1,7 +1,7 @@
 [#ftl/]
 @startuml
 left to right direction
-skinparam linetype ortho
+'skinparam linetype ortho
 'skinparam packageStyle
 'skinparam nodesep 100
 'skinparam ranksep 10

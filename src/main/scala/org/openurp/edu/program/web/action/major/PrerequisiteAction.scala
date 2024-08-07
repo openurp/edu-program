@@ -17,23 +17,22 @@
 
 package org.openurp.edu.program.web.action.major
 
-import net.sourceforge.plantuml.{OptionFlags, Run}
+import jakarta.servlet.http.Part
+import org.beangle.commons.codec.binary.Base64
 import org.beangle.commons.collection.Collections
-import org.beangle.commons.io.Files
-import org.beangle.commons.io.Files.stringWriter
+import org.beangle.commons.io.IOs
 import org.beangle.commons.lang.Chars
-import org.beangle.data.dao.EntityDao
+import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.Ems
-import org.beangle.template.freemarker.Configurer
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.{Status, Stream, View}
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.Course
 import org.openurp.edu.program.model.*
-import org.openurp.edu.program.web.helper.PrerequisiteHelper
+import org.openurp.edu.program.service.{ImageUtil, PrerequisiteHelper}
 import org.openurp.starter.web.support.ProjectSupport
 
-import java.io.File
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, File, FileOutputStream}
 import scala.collection.mutable
 
 class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite], ProjectSupport {
@@ -49,10 +48,17 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
     val planCourses = Collections.newBuffer[PlanCourse]
     plan.groups foreach { g =>
       g.planCourses foreach { pc =>
-        if (prerequisites.contains(pc.course)) then planCourses.addOne(pc)
+        if prerequisites.contains(pc.course) then planCourses.addOne(pc)
       }
     }
-    put("planCourses", planCourses.groupBy(_.group))
+    val q = OqlBuilder.from(classOf[Program], "p")
+    q.where("p.project=:project", program.project)
+    q.where("p.department=:department", program.department)
+    q.where("p.grade=:grade", program.grade)
+    q.where("p.id<>:program", program.id)
+    val others = entityDao.search(q)
+    put("others", others)
+    put("groupCourses", planCourses.groupBy(_.group))
     forward()
   }
 
@@ -88,7 +94,7 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
     }
     put("termsCourses", termsCourses)
     put("stageCourses", stageCourses)
-    put("planCourses", candidates.groupBy(_.group))
+    put("groupCourses", candidates.groupBy(_.group))
     forward()
   }
 
@@ -117,19 +123,32 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
         }
       }
     }
+
+    val obsolete = program.prerequisites.filter(x => !choosed.contains(x.course))
+    removed.addAll(obsolete)
     program.prerequisites.subtractAll(removed)
     entityDao.remove(removed)
     entityDao.saveOrUpdate(newer)
-    generateDependencyImg(program)
+    if (removed.size + newer.size > 0) {
+      val file = new File(Ems.home + s"/edu/program/webapp/${program.id}/prerequisite.png")
+      if (file.exists()) file.delete()
+    }
+    PrerequisiteHelper.generateDependencyImg(entityDao, program, new File(Ems.home + s"/edu/program/webapp/${program.id}/"))
     redirect("info", s"&program.id=${program.id}", "操作成功")
   }
 
-  def dependencyData(): View = {
+  /** 返回antv-x6所需的json数据
+   *
+   * @return
+   */
+  def data(): View = {
     val program = entityDao.get(classOf[Program], getLongId("program"))
     val pres = entityDao.findBy(classOf[ProgramPrerequisite], "program", program).toBuffer
     val plan = entityDao.findBy(classOf[MajorPlan], "program", program).head
     put("program", program)
-    val preData = PrerequisiteHelper.build(plan, pres, true, false)
+
+    val ignoreTermGap = getBoolean("ignoreTermGap", true)
+    val preData = PrerequisiteHelper.build(plan, pres, ignoreTermGap, false)
 
     put("prerequisites", preData.pres)
     put("courses", preData.courses)
@@ -143,7 +162,58 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
    *
    * @return
    */
-  def dependencyGraph(): View = {
+  def graph(): View = {
+    val program = entityDao.get(classOf[Program], getLongId("program"))
+    put("program", program)
+    forward()
+  }
+
+  def image(): View = {
+    val program = entityDao.get(classOf[Program], getLongId("program"))
+    val file = new File(Ems.home + s"/edu/program/webapp/${program.id}/prerequisite.png")
+    if (file.exists()) {
+      getInt("rotateDegree") match
+        case Some(degree) =>
+          val bytes = new ByteArrayOutputStream()
+          ImageUtil.rotate(file, bytes, degree)
+          Stream(new ByteArrayInputStream(bytes.toByteArray), "image/png", "prerequisite.png")
+        case None => Stream(file)
+    } else {
+      getBoolean("autoCreate", false) match
+        case true =>
+          put("upload", true)
+          put("program", program)
+          forward("graph")
+        case false => Status.NotFound
+    }
+  }
+
+  def upload(): View = {
+    val program = entityDao.get(classOf[Program], getLongId("program"))
+    val pngData = get("pngData")
+    new File(Ems.home + s"/edu/program/webapp/${program.id}").mkdirs()
+    if (pngData.isDefined) {
+      val file = new File(Ems.home + s"/edu/program/webapp/${program.id}/prerequisite.png")
+      val bytes = Base64.decode(pngData.get.substring("data:image/png;base64,".length))
+      val out = new FileOutputStream(file)
+      out.write(bytes)
+      out.close()
+      redirect("image", s"program.id=${program.id}", "保存成功")
+    } else {
+      val parts = getAll("img", classOf[Part])
+      if (parts.nonEmpty && parts.head.getSize > 0) {
+        val file = new File(Ems.home + s"/edu/program/webapp/${program.id}/prerequisite.png")
+        IOs.copy(parts.head.getInputStream, new FileOutputStream(file))
+      }
+      redirect("image", s"program.id=${program.id}", "上传成功")
+    }
+  }
+
+  /** 引导用户上传图片
+   *
+   * @return
+   */
+  def uploadImg(): View = {
     val program = entityDao.get(classOf[Program], getLongId("program"))
     put("program", program)
     forward()
@@ -155,46 +225,13 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
    */
   def dependency(): View = {
     val program = entityDao.get(classOf[Program], getLongId("program"))
-    val file = new File(Ems.home + s"/edu/program/webapp/dependency/${program.id}/dependency.png")
+    val file = new File(Ems.home + s"/edu/program/webapp/${program.id}/dependency.png")
     if (!file.exists()) {
-      generateDependencyImg(program)
-      if (file.exists()) {
-        Stream(file)
-      } else {
-        Status.NotFound
-      }
+      PrerequisiteHelper.generateDependencyImg(entityDao, program, new File(Ems.home + s"/edu/program/webapp/${program.id}/"))
+      if file.exists() then Stream(file, s"${program.grade.name}级 ${program.major.name} 先修关系图.png") else Status.NotFound
     } else {
-      Stream(file)
+      Stream(file, s"${program.grade.name}级 ${program.major.name} 先修关系图.png")
     }
-  }
-
-  private def generateDependencyImg(program: Program): Unit = {
-    val tmpDir = Ems.home + s"/edu/program/webapp/dependency/${program.id}/"
-    new File(tmpDir).mkdirs()
-
-    val cfg = Configurer.newConfig
-
-    val pres = entityDao.findBy(classOf[ProgramPrerequisite], "program", program).toBuffer
-    val plan = entityDao.findBy(classOf[MajorPlan], "program", program).head
-
-    val preData = PrerequisiteHelper.build(plan, pres, false, false)
-
-    val data = new collection.mutable.HashMap[String, Any]()
-    data += ("program" -> program)
-    data += ("prerequisites" -> preData.pres)
-    data += ("courses" -> preData.courses)
-    data += ("termGroups" -> preData.groups)
-    data += ("courseTerms" -> preData.courseTerms)
-
-    val depsText = new File(tmpDir + "dependency.txt")
-    depsText.getParentFile.mkdirs()
-    val fw = stringWriter(depsText)
-    val freemarkerTemplate = cfg.getTemplate("/org/openurp/edu/program/web/components/dependency.ftl")
-    freemarkerTemplate.process(data, fw)
-    fw.close()
-
-    OptionFlags.getInstance().setSystemExit(false)
-    Run.main(Array(tmpDir, "-charset", "UTF-8"))
   }
 
   def courses(): View = {

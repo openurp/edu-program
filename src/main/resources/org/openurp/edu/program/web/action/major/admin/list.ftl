@@ -13,7 +13,7 @@
         menu.addItem("导出课程", "exportData()");
         menu.addItem("批量打印","printPlans()");
         menu.addItem("批量复制", action.multi("batchCopyPrompt"));
-        menu.addItem("统计学分", action.multi("statCredits"));
+        menu.addItem("统计学分", action.multi("restat"));
         menu.addItem("修改备注", action.multi("batchUpdateRemarkSetting"));
     [/@]
     [@b.row]

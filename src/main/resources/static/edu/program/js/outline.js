@@ -1,4 +1,3 @@
-const articleId = $('#article').data('id');
 const SafeRenderer = {
   forHtml: (templateData, ...values) => {
     let result = templateData[0];
@@ -21,15 +20,11 @@ const initCatalogs = () => {
     const anchorName = $anchor.attr('name');
     const headingName = $anchor.parent().text();
     const headingLevel = $anchor.parent()[0].tagName.toLowerCase();
-//    if (headingLevel == 'h1') {
-//      $catalogs.push(SafeRenderer.forHtml `<div class="catalog catalog-${headingLevel}">${headingName}</div>`);
-//    } else {
       $catalogs.push(SafeRenderer.forHtml `
         <div class="catalog catalog-${headingLevel}" name="${anchorName}">
           <a href="#${anchorName}">${headingName}</a>
         </div>
       `);
-//    }
   }
   $('#catalogs .page-body-module-content').append($catalogs);
 

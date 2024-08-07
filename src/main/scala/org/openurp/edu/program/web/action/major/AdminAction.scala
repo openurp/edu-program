@@ -19,7 +19,6 @@ package org.openurp.edu.program.web.action.major
 
 import com.google.gson.Gson
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.template.freemarker.ProfileTemplateLoader
 import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.view.View
@@ -27,16 +26,19 @@ import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.edu.model.{Direction, Major}
 import org.openurp.base.model.{AuditStatus, Project}
 import org.openurp.base.std.model.Grade
-import org.openurp.code.edu.model.{Certificate, Degree, EducationType, ProgramCourseTag, TeachingNature}
+import org.openurp.code.edu.model.{Certificate, Degree, EducationType}
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.model.{MajorPlan, Program, ProgramDoc}
-import org.openurp.edu.program.service.{ProgramNamingHelper, TermHelper}
+import org.openurp.edu.program.service.{PlanService, ProgramNamingHelper}
+import org.openurp.edu.program.web.helper.ProgramInfoHelper
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.time.{Instant, LocalDate}
 import java.util
 
 class AdminAction extends RestfulAction[Program], ProjectSupport {
+
+  var planService: PlanService = _
 
   override def indexSetting(): Unit = {
     given project: Project = getProject
@@ -160,16 +162,8 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
   @mapping(value = "{id}")
   override def info(@param("id") id: String): View = {
     val program = entityDao.get(classOf[Program], id.toLong)
-    put("program", program)
-
-    given project: Project = program.project
-
-    put("plan", entityDao.findBy(classOf[MajorPlan], "program", program).headOption)
-    put("doc", entityDao.findBy(classOf[ProgramDoc], "program", program).headOption)
-    ProfileTemplateLoader.setProfile(s"${project.school.id}/${project.id}")
-    put("natures", getCodes(classOf[TeachingNature]))
-    put("tags", getCodes(classOf[ProgramCourseTag]))
-    put("termHelper", new TermHelper)
+    val helper = new ProgramInfoHelper(entityDao, configService, codeService)
+    helper.prepareData(program)
     forward()
   }
 
@@ -184,5 +178,15 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     entityDao.remove(docs)
     entityDao.remove(plans)
     super.removeAndRedirect(removables)
+  }
+
+  def restat(): View = {
+    val programs = entityDao.find(classOf[Program], getLongIds("program"))
+    programs foreach { program =>
+      entityDao.findBy(classOf[MajorPlan], "program", program) foreach { plan =>
+        planService.statPlanCredits(plan)
+      }
+    }
+    redirect("search", "统计成功")
   }
 }

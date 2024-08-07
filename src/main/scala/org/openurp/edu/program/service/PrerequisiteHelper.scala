@@ -15,13 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.openurp.edu.program.web.helper
+package org.openurp.edu.program.service
 
+import net.sourceforge.plantuml.{OptionFlags, Run}
 import org.beangle.commons.collection.Collections
+import org.beangle.commons.io.Files.stringWriter
 import org.beangle.commons.lang.Strings
+import org.beangle.data.dao.EntityDao
+import org.beangle.template.freemarker.Configurer
 import org.openurp.base.edu.model.Course
-import org.openurp.edu.program.model.{MajorPlan, PlanCourse, ProgramPrerequisite}
+import org.openurp.edu.program.model.{MajorPlan, PlanCourse, Program, ProgramPrerequisite}
 
+import java.io.File
 import scala.collection.mutable
 
 object PrerequisiteHelper {
@@ -37,10 +42,18 @@ object PrerequisiteHelper {
       if first >= 0 && first < terms then courseTerms.put(pc.course, first)
     }
 
+    val nonPlanCourses = pres.filter { pre => !courseTerms.contains(pre.course) || !courseTerms.contains(pre.prerequisite) }
+    pres.subtractAll(nonPlanCourses)
     // remove gap dependency
-    if (ignoreTermGapDependency) {
-      val gaps = pres.filter { pre => courseTerms(pre.course) - courseTerms(pre.prerequisite) > 1 }
-      pres.subtractAll(gaps)
+    val groups = pres.groupBy(_.course)
+    groups foreach { case (c, cpres) =>
+      val gapPres = cpres.groupBy(pre => courseTerms(pre.course) - courseTerms(pre.prerequisite))
+      val minGap = gapPres.keySet.min
+      gapPres foreach { case (gap, gpres) =>
+        if (gap != minGap || ignoreTermGapDependency && gap > 1) {
+          pres.subtractAll(gpres)
+        }
+      }
     }
 
     val courses = Collections.newSet[Course]
@@ -124,5 +137,37 @@ object PrerequisiteHelper {
     }
     false
   }
+
+  def generateDependencyImg(entityDao: EntityDao, program: Program, dir: File): Unit = {
+    dir.mkdirs()
+    val cfg = Configurer.newConfig
+
+    val pres = entityDao.findBy(classOf[ProgramPrerequisite], "program", program).toBuffer
+    val plan = entityDao.findBy(classOf[MajorPlan], "program", program).head
+
+    val preData = PrerequisiteHelper.build(plan, pres, false, false)
+
+    val data = new collection.mutable.HashMap[String, Any]()
+    data += ("program" -> program)
+    data += ("prerequisites" -> preData.pres)
+    data += ("courses" -> preData.courses)
+    data += ("termGroups" -> preData.groups)
+    data += ("courseTerms" -> preData.courseTerms)
+
+    val depsText = new File(dir.getAbsolutePath + "/dependency.txt")
+    depsText.getParentFile.mkdirs()
+    val fw = stringWriter(depsText)
+    val freemarkerTemplate = cfg.getTemplate("/org/openurp/edu/program/web/components/dependency.ftl")
+    freemarkerTemplate.process(data, fw)
+    fw.close()
+
+    OptionFlags.getInstance().setSystemExit(false)
+    Run.main(Array(dir.getAbsolutePath, "-charset", "UTF-8"))
+    depsText.delete()
+  }
+}
+
+class PrerequisiteData(val courses: Set[Course], val pres: Iterable[ProgramPrerequisite],
+                       val courseTerms: Map[Course, Int], val groups: Array[Seq[PlanCourse]]) {
 
 }

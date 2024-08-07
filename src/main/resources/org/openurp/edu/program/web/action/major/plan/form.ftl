@@ -1,7 +1,7 @@
 [#ftl]
   [@b.head /]
-  <link rel="stylesheet" type="text/css" href="${b.base}/static/edu/program/css/plan.css?v=1" />
-  <script type="module" charset="utf-8" src="${b.base}/static/edu/program/js/plan.js"></script>
+  <link rel="stylesheet" type="text/css" href="${b.base}/static/edu/program/css/outline.css?v=1" />
+  <script type="module" charset="utf-8" src="${b.base}/static/edu/program/js/outline.js"></script>
 [#assign planStyle=Parameters['style']!"Default"]
 [#macro i18nName(entity)][#if locale.language?index_of("en")!=-1][#if entity.enName?if_exists?trim==""]${entity.name?if_exists}[#else]${entity.enName?if_exists}[/#if][#else][#if entity.name?if_exists?trim!=""]${entity.name?if_exists}[#else]${entity.enName?if_exists}[/#if][/#if][/#macro]
 [#assign maxTerm = plan.terms /]

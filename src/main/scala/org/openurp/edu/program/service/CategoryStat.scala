@@ -105,7 +105,7 @@ class CategoryStat(val name: String, val rank: Option[CourseRank]) {
     s"${name} ${credits}credits ${hours}hours($natureHours)"
   }
 
-  def getHour(t: TeachingNature): Integer = typeHours.getOrElse(t, 0)
+  def getHour(t: TeachingNature): Int = typeHours.getOrElse(t, 0)
 
-  def getHour(natureId: String): Integer = typeHours.find(_._1.id.toString == natureId).map(_._2).getOrElse(0)
+  def getHour(natureId: String): Int = typeHours.find(_._1.id.toString == natureId).map(_._2).getOrElse(0)
 }

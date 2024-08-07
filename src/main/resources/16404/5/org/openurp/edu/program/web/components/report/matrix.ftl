@@ -14,7 +14,7 @@
       var rows = table.rows;
       for(var i=0;i<2;i++){
         var row = rows[i];
-        table.tBodies[0].removeChild(row)
+        table.tBodies[0].removeChild(row);
         table.tHead.appendChild(row);
         for(var j=0;j< row.cells.length;j++){
           jQuery(row.cells[j]).css({'text-align':'center','font-weight':'bold'});
@@ -24,6 +24,8 @@
         table.removeChild(table.tBodies[0]);
       }
       //从第三行开始,课程所在的列靠左对其
+      var emptyRows=[];
+      var lastTitleCell=null;
       for(var i=2;i<rows.length;i++){
         var row = rows[i];
         var first = row.cells[0];
@@ -31,10 +33,20 @@
         if(first.rowSpan>1){
           second.style.textAlign="left";
           second.style.paddingLeft="10px";
+          lastTitleCell = first;
         }else{
           first.style.textAlign="left";
           first.style.paddingLeft="10px";
         }
+        if(first.innerHTML==''){
+          emptyRows.push(row);
+          if(null!=lastTitleCell){
+            lastTitleCell.rowSpan  -= 1;
+          }
+        }
+      }
+      for(var i=0;i<emptyRows.length;i++){
+        table.tBodies[0].removeChild(emptyRows[i]);
       }
       var outcome_matrix_caption='<caption style="caption-side: top;text-align: center;padding: 0px;">表 ${doc_table_index}：本专业课程设置与毕业要求达成的关系矩阵</caption>'
       [#assign doc_table_index = doc_table_index+1/]

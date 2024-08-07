@@ -34,8 +34,9 @@ import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.model.{AuditStatus, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.TeachingNature
-import org.openurp.edu.program.model.Program
-import org.openurp.edu.program.web.helper.{PlanCourseHelper, PlanCourseStat, PlanCourseStatPropertyExtractor, ProgramInfoHelper, ProgramReportHelper}
+import org.openurp.edu.program.model.{MajorPlan, Program}
+import org.openurp.edu.program.service.PlanService
+import org.openurp.edu.program.web.helper.*
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.io.File
@@ -46,6 +47,7 @@ import java.time.LocalDate
  */
 class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   var entityDao: EntityDao = _
+  var planService: PlanService = _
 
   def index(): View = {
     given project: Project = getProject
@@ -89,6 +91,9 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
 
   def info(): View = {
     val program = entityDao.get(classOf[Program], getLongId("program"))
+    entityDao.findBy(classOf[MajorPlan], "program", program) foreach { plan =>
+      planService.statPlanCredits(plan)
+    }
     val helper = new ProgramInfoHelper(entityDao, configService, codeService)
     helper.prepareData(program)
     forward()
@@ -96,9 +101,11 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
 
   def report(): View = {
     val program = entityDao.get(classOf[Program], getLongId("program"))
+    entityDao.findBy(classOf[MajorPlan], "program", program) foreach { plan =>
+      planService.statPlanCredits(plan)
+    }
     val helper = new ProgramReportHelper(entityDao, configService, codeService)
     helper.prepareData(program)
-
     forward()
   }
 

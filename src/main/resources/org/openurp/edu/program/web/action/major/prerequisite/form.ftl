@@ -23,11 +23,11 @@
             </tr>
           </thead>
           <tbody>
-          [#list planCourses?keys?sort_by("indexno") as g]
+          [#list groupCourses?keys?sort_by("indexno") as g]
             <tr style="background-color: #e9ecef;font-weight:bold;">
               <td colspan="8">${g.indexno} ${g.name}</td>
             </tr>
-            [#list planCourses.get(g)?sort as planCourse]
+            [#list groupCourses.get(g)?sort as planCourse]
             [#if planCourse.terms.first>1]
             <tr>
               <td><input name="course.id" type="hidden" value="${planCourse.course.id}">${planCourse_index+1}</td>
