@@ -38,7 +38,7 @@ class CreditStatPlanChecker extends PlanChecker {
   override def check(plan: MajorPlan): Seq[String] = {
     val natures = codeService.get(classOf[TeachingNature])
     val stat = PlanCategoryStat.stat(plan, natures)
-    val optionalCredits = stat.getOptionalStat.credits
+    val optionalCredits = stat.optionalStat.credits
     val optionalRatio = ((optionalCredits * 1.0 / plan.credits) * 100).toInt
 
     val rs = Collections.newBuffer[String]
@@ -47,7 +47,7 @@ class CreditStatPlanChecker extends PlanChecker {
     }
 
     plan.program.degree foreach { degree =>
-      val practicalHour = stat.getPracticalStat().getHour(TeachingNature.Practice.toString)
+      val practicalHour = stat.practicalStat.getHour(TeachingNature.Practice.toString)
       val practicalRatio = (practicalHour * 1.0 / plan.creditHours * 100).toInt
       var minPracticalHourRatio = minLiteralPracticalHourRatio
       if (degree.name.startsWith("理学") || degree.name.startsWith("工学")) {

@@ -17,4 +17,3 @@
   [#include "credit_stat.ftl"/]
   [@displaySection "七、专业教学计划表" 1/]
   [@p]1.专业教学计划表（见附表）[/@]
-

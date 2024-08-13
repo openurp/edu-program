@@ -1,0 +1,39 @@
+[@b.head/]
+[@b.toolbar title="计划课程学分学时统计"]
+  bar.addBack();
+[/@]
+[@b.messages slash="3"/]
+  <div class="card">
+    <div class="card-header">
+      <nav class="navbar navbar-expand-lg navbar-light bg-white" style="padding:0rem 0.5rem;">
+        <a class="navbar-brand" style="font-size: 1rem;">专业培养计划学分学时统计</a>
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+              ${grade.name}
+            </a>
+            <div class="dropdown-menu">
+              [#list grades as g]
+              [@b.a class="dropdown-item" href="!index?grade.id="+g.id]${g.name}[/@]
+              [/#list]
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="card-body" style="padding-top: 0px;">
+     [@b.tabs]
+       [@b.tab href="!natures?grade.id=${grade.id}" label="理论/实践"/]
+       [@b.tab href="!modules?grade.id=${grade.id}" label="课程模块"/]
+     [/@]
+    </div>
+  </div>
+
+  <script>
+    function exportCourses(){
+      bg.form.submit(document.exportCourseForm);
+      return false;
+    }
+  </script>
+[@b.foot/]

@@ -161,7 +161,7 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
    *
    * @return
    */
-  def getOptionalStat: CategoryStat = {
+  def optionalStat: CategoryStat = {
     val results = Collections.newBuffer[CategoryStat]
     for (cs <- categoryStats) {
       if (!cs.compulsory) results.addOne(cs)
@@ -169,14 +169,14 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
     merge(results)
   }
 
-  def getAllStat: CategoryStat = merge(this.categoryStats)
+  def allStat: CategoryStat = merge(this.categoryStats)
 
   /**
    * 查询理论环节
    *
    * @return
    */
-  def getTheoreticalStat(): CategoryStat = {
+  def theoreticalStat: CategoryStat = {
     val results = Collections.newBuffer[CategoryStat]
     for (cs <- categoryStats) {
       if (!cs.practical) results.addOne(cs)
@@ -189,7 +189,7 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
    *
    * @return
    */
-  def getPracticalStat(): CategoryStat = {
+  def practicalStat: CategoryStat = {
     val results = Collections.newBuffer[CategoryStat]
     for (cs <- categoryStats) {
       if (cs.practical) {
@@ -199,7 +199,7 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
     merge(results)
   }
 
-  def getPracticalCredits(): Double = {
+  def practicalCredits: Double = {
     var total = 0d
     var innerHours = 0
     for (cs <- categoryStats.sortBy(_.name)) {
@@ -208,7 +208,6 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
         else innerHours += cs.hours
       }
     }
-    println(s"total:${total},转算：${innerHours},转算学分:${innerHours / 16.0}")
     val c = total + innerHours / 16.0
     if (c % 1 >= 0.5) {
       if c % 1 >= 0.7 then c.intValue + 1 else c.intValue + 0.5
@@ -240,7 +239,7 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
     target
   }
 
-  def getDesignatedSelectiveStat(): CategoryStat = {
+  def designatedSelectiveStat: CategoryStat = {
     val results = Collections.newBuffer[CategoryStat]
     for (cs <- categoryStats) {
       cs.rank foreach { r =>
@@ -252,7 +251,7 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
     merge(results)
   }
 
-  def getFreeSelectiveStat(): CategoryStat = {
+  def freeSelectiveStat: CategoryStat = {
     val results = Collections.newBuffer[CategoryStat]
     for (cs <- categoryStats) {
       cs.rank foreach { r =>
