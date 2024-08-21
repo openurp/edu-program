@@ -27,16 +27,14 @@ import org.beangle.web.action.annotation.response
 import org.beangle.web.action.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ImportSupport, RestfulAction}
 import org.openurp.base.edu.model.Course
-import org.openurp.base.model.Project
 import org.openurp.base.std.model.Student
 import org.openurp.edu.program.domain.CoursePlanProvider
-import org.openurp.edu.program.model.{CoursePlan, StdAlternativeCourse}
+import org.openurp.edu.program.model.StdAlternativeCourse
 import org.openurp.edu.program.web.helper.StdAlternativeCourseImportListener
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.time.Instant
-import scala.collection.mutable
 
 /**
  * 可代替课程的维护响应类
@@ -109,10 +107,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
     val project = getProject
     val olds = entityDao.find(classOf[Course], getLongIds("old"))
     val news = entityDao.find(classOf[Course], getLongIds("new"))
-    alt.olds.clear()
-    alt.olds.addAll(olds)
-    alt.news.clear()
-    alt.news.addAll(news)
+    alt.update(olds, news)
 
     var stdCourseSubId = 0L
     if (alt.persisted) {

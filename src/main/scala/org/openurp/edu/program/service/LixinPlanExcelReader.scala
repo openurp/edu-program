@@ -233,7 +233,7 @@ object LixinPlanExcelReader {
                   cj.creditHours = c.creditHours
                   cj.updateHour(new TeachingNature(1), c.theoreticalHours)
                   cj.updateHour(new TeachingNature(9), c.practicalHours)
-                  cj.weeks = c.weeks
+                  cj.weeks = Some(c.weeks)
                   if (null != c.remark) {
                     if (c.remark.getOrElse("").contains("考试")) {
                       cj.examMode = new ExamMode(1)

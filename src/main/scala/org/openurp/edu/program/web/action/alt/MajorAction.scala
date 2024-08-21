@@ -78,10 +78,7 @@ class MajorAction extends RestfulAction[MajorAlternativeCourse], ProjectSupport 
     val project = getProject
     val olds = entityDao.find(classOf[Course], getLongIds("old"))
     val news = entityDao.find(classOf[Course], getLongIds("new"))
-    alt.olds.clear()
-    alt.olds.addAll(olds)
-    alt.news.clear()
-    alt.news.addAll(news)
+    alt.update(olds, news)
 
     alt.fromGrade = entityDao.get(classOf[Grade], alt.fromGrade.id)
     alt.toGrade = entityDao.get(classOf[Grade], alt.toGrade.id)

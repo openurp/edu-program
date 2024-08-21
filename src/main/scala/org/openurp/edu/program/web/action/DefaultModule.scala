@@ -42,6 +42,8 @@ class DefaultModule extends BindModule {
 
     bind(classOf[alt.MajorAction])
     bind(classOf[alt.StdAction])
+    bind(classOf[alt.ApplyAction])
+    bind(classOf[alt.CourseTypeAction])
 
     bind(classOf[PlanServiceImpl])
     bind(classOf[DefaultProgramChecker])

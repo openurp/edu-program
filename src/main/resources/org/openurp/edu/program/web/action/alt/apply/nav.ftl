@@ -1,0 +1,5 @@
+[#ftl]
+[@b.nav class="nav-tabs nav-tabs-compact"]
+  [@b.navitem href="apply" ]替代申请[/@]
+  [@b.navitem href="course-type"]课程类别变更申请[/@]
+[/@]
