@@ -1,170 +1,65 @@
 [#ftl]
 [@b.head /]
-
-<script type="text/javascript" src="${base}/dwr/interface/studentServiceDwr.js"></script>
-<script language="JavaScript" type="text/JavaScript" src="${base}/static/scripts/chosen/ajax-chosen.js"></script>
-
 [@b.toolbar title="学生替代课程维护"]
     bar.addBack();
 [/@]
-[@b.form name="baseCodeSearchForm2" title="学生替代课程基本信息" theme="list"  action=b.rest.save(stdAlternativeCourse) onsubmit="return checkCourse()"]
-    <input type="hidden" name="stdAlternativeCourse.std.id" id="stdAlternativeCourse.std.id"  value="${(stdAlternativeCourse.std.id)?if_exists}">
-
+[@b.form name="altForm" title="学生替代课程基本信息" theme="list"  action=b.rest.save(alt) onsubmit="checkCourse"]
+    [#if alt?? && alt.persisted]
     [@b.field label="学号" required='true']
-        [#if stdAlternativeCourse?? && stdAlternativeCourse.persisted]
-            <input type="hidden" name="stdCode" value="${(stdAlternativeCourse.std.user.code)!}" />
-            ${(stdAlternativeCourse.std.user.code)!}(${(stdAlternativeCourse.std.user.name)!})
-        [#else]
-            <input type="text" name="stdCode" style="width:200px;" value="${(stdAlternativeCourse.std.user.code)!}" onblur="javascript:getStudentByCode(this.value);"/>
-            <span><font style="color:#1774C5" id="studentName_"></font></span>
-        [/#if]
+      <input type="hidden" name="stdCode" value="${(alt.std.code)!}" />
+      ${(alt.std.code)!} ${(alt.std.name)!}
     [/@]
+    [#else]
+      [@base.student title="学生" name="alt.std.id" required="true" onchange="fillStdPlanCourses(this.value)"/]
+    [/#if]
     [@b.field label="原课程" required='true']
-        <select id="originCodes" name="originCodes" style="width:500px;" multiple="true">
-         [#list (stdAlternativeCourse.olds)! as course]
+        <select id="oldCourses" name="old.id" style="width:500px;" multiple="true">
+         [#list (alt.olds)! as course]
             <option value="${(course.code)!}" selected>${(course.name)!}${(course.code)!}</option>
          [/#list]
         </select>
     [/@]
-
-    [@b.field label="替代课程" required='true']
-        <select id="substituteCodes" name="substituteCodes" style="width:500px;" multiple="true">
-            [#list (stdAlternativeCourse.news)! as course]
-            <option value="${(course.code)!}" selected>${(course.name)!}${(course.code)!}</option>
-            [/#list]
-        </select>
-    [/@]
-    [@b.textarea name='stdAlternativeCourse.remark' label='备注' cols="46" rows="2" value="${(stdAlternativeCourse.remark?html)!}" comment="最多300字!"/]
+    [@base.course label="替代课程" name="new.id" multiple="true" values=alt.news required='true'/]
+    [@b.textarea name='alt.remark' label='备注' cols="46" rows="2" value="${(alt.remark?html)!}" comment="最多300字!"/]
     [@b.formfoot]
         [@b.submit value="action.submit" /]
     [/@]
 [/@]
 
 <script>
-    function checkCourse(){
-        var stdId= jQuery("#stdAlternativeCourse\\.std\\.id").val();
-        if(stdId) {
-
-        } else {
-            jQuery("#studentName_").parent().find(".error").remove();
-            jQuery("#studentName_").parent().append("<label class='error' for='studentName_'>学号不能为空!</label>");
-            return false;
-        }
-
-        if(jQuery("#originCodes_chosen").find(".search-choice").html()==null){
-            jQuery("#originCodes").parent().find(".error").remove();
-            jQuery("#originCodes").parent().append("<label class='error' for='originCodes'>原课程不能为空!</label>");
-            return false;
-        }
-
-        if(jQuery("#substituteCodes_chosen").find(".search-choice").html()==null){
-            jQuery("#substituteCodes").parent().find(".error").remove();
-            jQuery("#substituteCodes").parent().append("<label class='error' for='substituteCodes'>替代课程不能为空!</label>");
-            return false;
-        }
-        return true;
+    bg.load(["bui-ajaxchosen"]);
+    function checkCourse(form){
+      if(jQuery("#oldCourses_chosen").find(".search-choice").html()==null){
+        jQuery("#oldCourses").parent().find(".error").remove();
+        jQuery("#oldCourses").parent().append("<label class='error' for='oldCourses'>原课程不能为空!</label>");
+        return false;
+      }
+      return true;
     }
-
-    function getStudentByCode(code){
-        jQuery("#studentName_").html('');
-        jQuery("#stdAlternativeCourse\\.std\\.id").val("");
-        jQuery("#studentName_").parent().find(".error").remove();
-        if(code==""){
-            jQuery("#studentName_").parent().append("<label class='error' for='studentName_'>请输入学号!</label>");
-        }else{
-            __fillStdPlanCourses(
-                code,
-                function(data){
-                    var dataObj=eval("(" + data + ")");
-                    jQuery("#originCodes").html('');
-                    jQuery.each(dataObj.courses, function (i, course) {
-                        var option = jQuery('<option/>');
-                        option.html(course.name + '(' + course.code + ')');
-                        option.val(course.code);
-                        option.appendTo(jQuery('#originCodes'));
-                    });
-                    jQuery('#originCodes').trigger("chosen:updated.chosen");
-                }
-            );
+    function fillStdPlanCourses(stdId,cleanup){
+      if(stdId){
+        if (typeof cleanup == "undefined"){
+          cleanup=true;
         }
-    }
-
-    function __fillStdPlanCourses(code, callback) {
-        studentServiceDwr.getStudentByProjectAndCode(
-            code,
-            '${project.id}',
-            function(student){
-                if(student){
-                    jQuery("#studentName_").html(student.user.name);
-                    jQuery("#stdAlternativeCourse\\.std\\.id").val(student.id);
-                    jQuery.ajax({
-                        type:"post",
-                        url:"std!courses.action",
-                        data:"studentCode="+jQuery("input[name=stdCode]").val(),
-                        success: callback
-                    });
-                }else{
-                    jQuery("input[name=stdCode]",document.baseCodeSearchForm2).val('');
-                    jQuery("#studentName_").parent().append("<label class='error' for='studentName_'>该学号不存在!</label>");
-                }
-        });
-    }
-
-    jQuery(function() {
-        jQuery("#originCodes").ajaxChosen(
-        {
-            method: 'POST',
-            url: 'courseSearch!searchByCodeOrNameAjax.action',
-            postData:function(){
-            return {
-                pageIndex:1,
-                pageSize:10,
-                excludeCodes:jQuery("#substituteCodes").val()
-                }
-            }
-        }
-        , function(data) {
+        jQuery.ajax({
+          type:"post",
+          url:"${b.url('!courses')}?std.id="+stdId,
+          success: function(data) {
             var dataObj=eval("(" + data + ")");
-            var items = {};
-            jQuery.each(dataObj.courses, function(i, course) {
-                items[course.code] = course.name + '(' + course.code + ')';
+            if(cleanup)jQuery("#oldCourses").html('');
+            jQuery.each(dataObj.courses, function (i, course) {
+              var option = jQuery('<option/>');
+              option.html(course.name + '(' + course.code + ')');
+              option.val(course.id);
+              option.appendTo(jQuery('#oldCourses'));
             });
-            jQuery("#substituteCodes").find('option').each(function() {
-                if (!$(this).is(":selected")) {
-                    return $(this).remove();
-                }
-            });
-            jQuery("#substituteCodes").trigger("chosen:updated.chosen");
-            return items;
+            jQuery("#oldCourses").chosen()
+          }
         });
-
-        jQuery("#substituteCodes").ajaxChosen(
-            {
-                method: 'POST',
-                url: 'courseSearch!searchByCodeOrNameAjax.action',
-                postData:function(){
-                    return {
-                        pageIndex:1,
-                        pageSize:10,
-                        excludeCodes:jQuery("#originCodes").val()
-                        }
-                }
-            }
-            , function(data) {
-                var dataObj=eval("(" + data + ")");
-                var items = {};
-                jQuery.each(dataObj.courses, function(i, course) {
-                    items[course.code] = course.name + '(' + course.code + ')';
-                });
-                 jQuery("#originCodes").find('option').each(function() {
-                    if (!$(this).is(":selected")) {
-                        return $(this).remove();
-                    }
-                });
-                jQuery("#originCodes").trigger("chosen:updated.chosen");
-                return items;
-                }
-        );
-    })
+      }
+    }
+    [#if alt?? && alt.persisted]
+      fillStdPlanCourses('${alt.std.id}',false);
+    [/#if]
 </script>
 [@b.foot /]

@@ -3,6 +3,7 @@
   <container>
     <module class="org.openurp.starter.web.ProjectModule" />
     <module class="org.openurp.edu.program.web.action.DefaultModule"/>
+    <module class="org.openurp.edu.program.service.DefaultModule"/>
     <module class="org.beangle.serializer.text.DefaultModule"/>
     <module class="org.beangle.serializer.json.DefaultModule"/>
     <module class="org.beangle.serializer.xml.DefaultModule"/>

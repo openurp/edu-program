@@ -18,7 +18,7 @@
 package org.openurp.edu.program.web.action.alt
 
 import org.beangle.commons.activation.MediaTypes
-import org.beangle.commons.collection.Order
+import org.beangle.commons.collection.{Collections, Order}
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.doc.excel.schema.ExcelSchema
@@ -30,7 +30,7 @@ import org.openurp.base.edu.model.Course
 import org.openurp.base.model.Project
 import org.openurp.base.std.model.Student
 import org.openurp.edu.program.domain.CoursePlanProvider
-import org.openurp.edu.program.model.StdAlternativeCourse
+import org.openurp.edu.program.model.{CoursePlan, StdAlternativeCourse}
 import org.openurp.edu.program.web.helper.StdAlternativeCourseImportListener
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -45,38 +45,30 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
 
   var coursePlanProvider: CoursePlanProvider = _
 
-  /**
-   * 获取学生的个人计划中的所有课程
+  override protected def simpleEntityName: String = "alt"
+
+  /** 获取学生的个人计划中的所有课程
    * Ajax用
    */
   def courses(): View = {
-    val studentCode = get("studentCode")
-    val sb = OqlBuilder.from(classOf[Student], "s")
-    sb.where("s.user.code=:code and s.project=:project", studentCode, getProject)
-    val students = entityDao.search(sb)
-    val courses = new mutable.ArrayBuffer[Course]
-    if (students.isEmpty) {
-      coursePlanProvider.getCoursePlan(students.head) foreach { plan =>
-        for (courseGroup <- plan.groups) {
-          for (planCourse <- courseGroup.planCourses) {
-            courses.addOne(planCourse.course)
-          }
-        }
-      }
-      put("courses", courses)
+    val std = entityDao.get(classOf[Student], getLongId("std"))
+    val courses = Collections.newBuffer[Course]
+    coursePlanProvider.getCoursePlan(std) foreach { plan =>
+      courses.addAll(plan.planCourses.map(_.course).toSet)
     }
+    put("courses", courses)
     forward()
   }
 
   def exchange(): View = {
-    val ids = getLongIds("stdAlternativeCourse")
+    val ids = getLongIds("alt")
     val subs = entityDao.find(classOf[StdAlternativeCourse], ids)
     for (sub <- subs) {
       sub.exchange()
       sub.updatedAt = Instant.now
     }
     entityDao.saveOrUpdate(subs)
-    redirect("search", "info.save.success")
+    redirect("search", "交换成功")
   }
 
   override def editSetting(entity: StdAlternativeCourse): Unit = {
@@ -87,82 +79,70 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
    * 查询
    */
   override def search(): View = {
-    val builder = OqlBuilder.from(classOf[StdAlternativeCourse], "stdAlternativeCourse")
+    val builder = OqlBuilder.from(classOf[StdAlternativeCourse], "alt")
     populateConditions(builder)
-    builder.where("stdAlternativeCourse.std.project=:project", getProject)
-    get("originCourse") foreach { oc =>
+    builder.where("alt.std.project=:project", getProject)
+    get("oldCourse") foreach { oc =>
       if (Strings.isNotBlank(oc)) {
         val origin = "%" + oc.trim().replaceAll("'", "") + "%"
-        builder.where("exists(from stdAlternativeCourse.olds origin where origin.code like :oc or origin.name like :oc)", origin)
+        builder.where("exists(from alt.olds o where o.code like :oc or o.name like :oc)", origin)
       }
     }
-    get("substituteCourse") foreach { sc =>
+    get("newCourse") foreach { sc =>
       if (Strings.isNotBlank(sc)) {
         val substitue = "%" + sc.trim().replaceAll("'", "") + "%"
-        builder.where("exists(from stdAlternativeCourse.news substitute where substitute.code like :sc or substitute.name like :sc)", substitue)
+        builder.where("exists(from alt.news n where n.code like :sc or n.name like :sc)", substitue)
       }
     }
     get(Order.OrderStr) match {
-      case None => builder.orderBy("stdAlternativeCourse.updatedAt desc,stdAlternativeCourse.id desc")
+      case None => builder.orderBy("alt.updatedAt desc,alt.id desc")
       case Some(o) => builder.orderBy(o)
     }
 
-    queryByDepart(builder, "stdAlternativeCourse.std.state.department")
+    queryByDepart(builder, "alt.std.state.department")
     builder.limit(getPageLimit)
-    put("stdAlternativeCourses", entityDao.search(builder))
+    put("alts", entityDao.search(builder))
     forward()
   }
 
-  override def saveAndRedirect(stdAlternativeCourse: StdAlternativeCourse): View = {
-    var originCodesStr = get("originCodes").orNull; // 原课程代码串
-    if (originCodesStr.nonEmpty && originCodesStr.substring(0, 1).equals(",")) {
-      originCodesStr = originCodesStr.substring(1, originCodesStr.length())
-    }
+  override def saveAndRedirect(alt: StdAlternativeCourse): View = {
     val project = getProject
-    val substituteCodesStr = get("substituteCodes").orNull // 替换课程代码串
-    fillCourse(project, stdAlternativeCourse.olds, originCodesStr)
-    fillCourse(project, stdAlternativeCourse.news, substituteCodesStr)
+    val olds = entityDao.find(classOf[Course], getLongIds("old"))
+    val news = entityDao.find(classOf[Course], getLongIds("new"))
+    alt.olds.clear()
+    alt.olds.addAll(olds)
+    alt.news.clear()
+    alt.news.addAll(news)
+
     var stdCourseSubId = 0L
-    if (stdAlternativeCourse.persisted) {
-      stdCourseSubId = stdAlternativeCourse.id
+    if (alt.persisted) {
+      stdCourseSubId = alt.id
     }
 
-    if (stdAlternativeCourse.olds.isEmpty || stdAlternativeCourse.news.isEmpty) {
-      editSetting(stdAlternativeCourse)
+    if (alt.olds.isEmpty || alt.news.isEmpty) {
+      editSetting(alt)
       addMessage(getText("info.save.failure"))
-      put("stdAlternativeCourse", stdAlternativeCourse)
-      forward("edit")
+      put("alt", alt)
+      forward("form")
     } else {
-      val builder = OqlBuilder.from(classOf[StdAlternativeCourse],
-        "stdAlternativeCourse")
-      builder.where("stdAlternativeCourse.std.id=:stdId", stdAlternativeCourse.std.id)
-        .where("stdAlternativeCourse.std.project = :project", project)
+      val builder = OqlBuilder.from(classOf[StdAlternativeCourse], "alt")
+      builder.where("alt.std.id=:stdId", alt.std.id)
+        .where("alt.std.project = :project", project)
       if (stdCourseSubId != 0) {
-        builder.where("stdAlternativeCourse.id !=:stdCourseSubId", stdCourseSubId)
+        builder.where("alt.id !=:stdCourseSubId", stdCourseSubId)
       }
       val stdAlternativeCourses = entityDao.search(builder)
-      val existed = stdAlternativeCourses.exists(st => st.olds == stdAlternativeCourse.olds && st.news == stdAlternativeCourse.news)
+      val existed = stdAlternativeCourses.exists(st => st.olds == alt.olds && st.news == alt.news)
       if (existed) {
         redirect("search", "该替代课程组合已存在!")
       } else {
-        stdAlternativeCourse.updatedAt = Instant.now()
-        if (isDoubleAlternativeCourse(stdAlternativeCourse)) {
-          entityDao.saveOrUpdate(stdAlternativeCourse)
+        alt.updatedAt = Instant.now()
+        if (isDoubleAlternativeCourse(alt)) {
+          entityDao.saveOrUpdate(alt)
           redirect("search", "info.save.success")
         } else {
           redirect("search", "原课程与替代课程一样!")
         }
-      }
-    }
-  }
-
-  private def fillCourse(project: Project, courses: mutable.Set[Course], courseCodeSeq: String): Unit = {
-    val courseCodes = Strings.split(courseCodeSeq, ",")
-    courses.clear()
-    if (courseCodes != null) {
-      for (code <- courseCodes) {
-        val finded = entityDao.search(OqlBuilder.from(classOf[Course], "c").where("c.project=:project and c.code=:code", project, code))
-        courses.addAll(finded)
       }
     }
   }

@@ -24,12 +24,22 @@ import org.openurp.code.edu.model
 import org.openurp.code.edu.model.{CourseRank, CourseType, TeachingNature}
 import org.openurp.edu.program.model.{CourseGroup, CoursePlan}
 
+import javax.script.ScriptEngineManager
 import scala.collection.mutable
 
 /**
  * 培养方案学分、学时统计
  */
 object PlanCategoryStat {
+
+  def main(args: Array[String]): Unit = {
+    val scriptEngineManager = new ScriptEngineManager()
+    val scriptEngine = scriptEngineManager.getEngineByName("scala")
+
+    val scalaScript = "val message = \"Hello, Scala!\"\n" + "println(message)"
+
+    scriptEngine.eval(scalaScript)
+  }
 
   def stat(plan: CoursePlan, natures: collection.Seq[TeachingNature]): PlanCategoryStat = {
     val defaultNature = natures.find(_.id == 1).get
@@ -205,9 +215,13 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
     for (cs <- categoryStats.sortBy(_.name)) {
       if (cs.practical) {
         if (cs.credits > 0) total += cs.credits
-        else innerHours += cs.hours
+        else{
+          if(cs.hours>0) println(s"${cs.name} ${cs.hours}")
+          innerHours += cs.hours
+        }
       }
     }
+    println(s"total:${total},转算：${innerHours},转算学分:${innerHours / 16.0}")
     val c = total + innerHours / 16.0
     if (c % 1 >= 0.5) {
       if c % 1 >= 0.7 then c.intValue + 1 else c.intValue + 0.5

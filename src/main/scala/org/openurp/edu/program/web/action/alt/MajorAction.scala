@@ -50,21 +50,18 @@ class MajorAction extends RestfulAction[MajorAlternativeCourse], ProjectSupport 
   override protected def getQueryBuilder: OqlBuilder[MajorAlternativeCourse] = {
     val builder = OqlBuilder.from(classOf[MajorAlternativeCourse], "alt")
     populateConditions(builder)
-    val originCode = get("originCode", "").trim().replaceAll("'", "")
-    val originName = get("originName", "").trim().replaceAll("'", "")
-    val substituteCode = get("substituteCode", "").trim().replaceAll("'", "")
-    val substituteName = get("substituteName", "").trim().replaceAll("'", "")
-    if (Strings.isNotEmpty(originCode))
-      builder.where("exists(from alt.olds origin where origin.code like '%" + originCode + "%')")
-    if (Strings.isNotEmpty(originName))
-      builder.where("exists(from alt.olds origin where origin.name like '%" + originName + "%')")
-    if (Strings.isNotEmpty(substituteCode))
-      builder.where("exists(from alt.news substitute where substitute.code like '%" + substituteCode + "%')")
-    if (Strings.isNotEmpty(substituteName))
-      builder.where("exists(from alt.news substitute where substitute.name like '%" + substituteName + "%')")
+    val oldCode = get("oldCode", "").trim().replaceAll("'", "")
+    val oldName = get("oldName", "").trim().replaceAll("'", "")
+    val newCode = get("newCode", "").trim().replaceAll("'", "")
+    val newName = get("newName", "").trim().replaceAll("'", "")
+    if (Strings.isNotEmpty(oldCode)) builder.where("exists(from alt.olds o where o.code like '%" + oldCode + "%')")
+    if (Strings.isNotEmpty(oldName)) builder.where("exists(from alt.olds o where o.name like '%" + oldName + "%')")
+    if (Strings.isNotEmpty(newCode)) builder.where("exists(from alt.news n where n.code like '%" + newCode + "%')")
+    if (Strings.isNotEmpty(newName)) builder.where("exists(from alt.news n where n.name like '%" + newName + "%')")
     if (Strings.isBlank(get(Order.OrderStr, ""))) builder.orderBy("alt.fromGrade.code desc")
     else builder.orderBy(get(Order.OrderStr, ""))
     builder.limit(getPageLimit)
+    builder.tailOrder("alt.id")
   }
 
   override protected def editSetting(alt: MajorAlternativeCourse): Unit = {
@@ -84,7 +81,7 @@ class MajorAction extends RestfulAction[MajorAlternativeCourse], ProjectSupport 
     alt.olds.clear()
     alt.olds.addAll(olds)
     alt.news.clear()
-    alt.news.addAll(olds)
+    alt.news.addAll(news)
 
     alt.fromGrade = entityDao.get(classOf[Grade], alt.fromGrade.id)
     alt.toGrade = entityDao.get(classOf[Grade], alt.toGrade.id)
@@ -92,7 +89,7 @@ class MajorAction extends RestfulAction[MajorAlternativeCourse], ProjectSupport 
       editSetting(alt)
       addMessage(getText("info.save.failure"))
       put("alt", alt)
-      forward("edit")
+      forward("form")
     } else {
       val q = OqlBuilder.from(classOf[MajorAlternativeCourse], "alt")
       q

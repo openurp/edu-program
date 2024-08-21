@@ -1,6 +1,6 @@
 [#ftl]
 [@b.head /]
-[@b.grid sortable="true" items=stdAlternativeCourses var="stdAlternativeCourse"]
+[@b.grid items=alts var="alt"]
     [@b.gridbar]
         bar.addItem("${b.text('action.add')}",action.add());
         bar.addItem("${b.text('action.modify')}",action.edit());
@@ -10,36 +10,36 @@
     [/@]
     [@b.row]
         [@b.boxcol/]
-        [@b.col width='10%' property="std.user.code" title="学号"]
-            ${(stdAlternativeCourse.std.user.code)!}
+        [@b.col width='10%' property="std.code" title="学号"]
+            ${(alt.std.code)!}
         [/@]
-        [@b.col width='8%' property="std.user.name" title="姓名"]
-            ${(stdAlternativeCourse.std.user.name)!}
+        [@b.col width='8%' property="std.name" title="姓名"]
+            ${(alt.std.name)!}
         [/@]
         [@b.col width='6%' property="std.state.grade" title="年级"]
-            ${(stdAlternativeCourse.std.state.grade)!}
+            ${(alt.std.state.grade)!}
         [/@]
-        [@b.col width='14%' property="std.state.major.id" title="专业"]
-            ${(stdAlternativeCourse.std.state.major.name)!}
+        [@b.col  property="std.state.major.id" title="专业"]
+            ${(alt.std.state.major.name)!}
         [/@]
-        [@b.col width='25%' title="原课代码、名称、学分"]
+        [@b.col width='26%' title="原课代码、名称、学分"]
           <span style="font-size:0.8em">
-            [#list stdAlternativeCourse.olds as course]
-                ${course.code} ${course.name} (${course.credits})
+            [#list alt.olds as course]
+                ${course.code} ${course.name} (${course.defaultCredits})
                 [#if course_has_next]<br>[/#if]
             [/#list]
           </span>
         [/@]
-        [@b.col width='25%' title="新课代码、名称、学分"]
+        [@b.col width='26%' title="新课代码、名称、学分"]
           <span style="font-size:0.8em">
-            [#list stdAlternativeCourse.news as course]
-                ${course.code} ${course.name} (${course.credits})
+            [#list alt.news as course]
+                ${course.code} ${course.name} (${course.defaultCredits})
                 [#if course_has_next]<br>[/#if]
             [/#list]
            </span>
         [/@]
         [@b.col width='7%' title="更新日期" property="updatedAt"]
-           <span style="font-size:0.9em">${(stdAlternativeCourse.updatedAt?string('yy-MM-dd'))!}</span>
+           <span style="font-size:0.9em">${(alt.updatedAt?string('yy-MM-dd'))!}</span>
         [/@]
     [/@]
 [/@]
