@@ -36,6 +36,8 @@ trait PlanService {
   def updatePlanCourse(planCourse: PlanCourse, group: CourseGroup): Unit
 
   def diff(left: CoursePlan, right: CoursePlan): Seq[PlanDiff.GroupDiff]
+
+  def getMajorPlans(programs:Iterable[Program]):Map[Program,MajorPlan]
 }
 
 object PlanDiff {

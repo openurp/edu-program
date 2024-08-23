@@ -1,4 +1,4 @@
-[@b.head /]
+[@b.head loadui=false smallText=false/]
   <div class="container">
   [#include "/org/openurp/edu/program/web/components/report/style.ftl"/]
   [#if doc??]

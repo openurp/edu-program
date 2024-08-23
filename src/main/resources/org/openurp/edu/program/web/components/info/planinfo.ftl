@@ -1,3 +1,4 @@
+[#assign programCourseTags = program.courseTags/]
 <table class="table table-sm mb-0 plan_table">
   <thead>
     <tr>
@@ -28,14 +29,6 @@
         ${g.indexno}&nbsp;
         ${g.shortName}
         </div>
-        <div class="text-muted">
-          [#if !g.termCreditsEmpty]
-          学分分布:
-          [#list g.termCredits[1..g.termCredits?length-2]?split(",") as credit]
-            <div title="第${credit_index+1}学期" style="display:inline-block;padding-right:3px;margin-right:3px;width:30px;">${credit}</div>
-          [/#list]
-          [/#if]
-        </div>
       </div>
     </td>
     <td>[#if g.credits>0]${g.credits}[/#if]</td>
@@ -54,13 +47,13 @@
       <td>${pc.course.code}</td>
       <td>
         <div style="display: inline-block;">
-          <span class="course_name" id="pc_course_${pc.course.id}" [#if labelCourses?seq_contains(pc.course)]style="font-weight:bold;"[/#if]>
+          <span class="course_name" id="pc_course_${pc.course.id}" [#if programCourseTags.get(pc.course)??]style="font-weight:bold;"[/#if]>
                 ${pc.course.name}[#if displayCourseEnName]<br>${pc.course.enName!'无'}[/#if]</span>
         </div>
       </td>
       <td>${pc.course.defaultCredits}</td>
       [#assign cj = pc.course.getJournal(program.grade)/]
-      <td>[#if cj.weeks>0][#if cj.weeks>15]每周[#else]${cj.weeks}周[/#if][#else]${cj.creditHours}<span class="text-muted">([#list natures as n]${cj.getHour(n)!0}[#sep]+[/#list])</span>[/#if]</td>
+      <td>[#if cj.weeks>0][#if cj.weeks>15]每周[#else]${cj.weeks}周[/#if][#else]${cj.creditHours}<span [#if cj.creditHourIdentical]class="text-muted"[#else]style="color:red"[/#if]>([#list natures as n]${cj.getHour(n)!0}[#sep]+[/#list])</span>[/#if]</td>
       <td>[#if pc.compulsory]必修[#else]${(g.rank.name)!}[/#if]</td>
       <td>${(cj.examMode.name)!}</td>
       <td>${termHelper.getTermText(pc)}<div style="display:none">${pc.terms!}</div></td>

@@ -28,6 +28,7 @@ import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.PlanDiff.*
 import org.openurp.edu.program.service.{PlanDiff, PlanGroupStat, PlanService}
 
+import java.time.Instant
 import scala.collection.mutable
 
 class PlanServiceImpl extends PlanService {
@@ -228,5 +229,22 @@ class PlanServiceImpl extends PlanService {
       }
     }
     diffs.sortBy(_.indexno).toSeq
+  }
+
+  override def getMajorPlans(programs: Iterable[Program]): Map[Program, MajorPlan]={
+    val existsPlans = entityDao.findBy(classOf[MajorPlan], "program", programs).map(x => (x.program, x)).toMap
+    val plans = Collections.newBuffer[MajorPlan]
+    programs foreach { program =>
+      existsPlans get program match {
+        case Some(plan) => plans += plan
+        case None =>
+          val plan = new MajorPlan
+          plan.program = program
+          plan.updatedAt = Instant.now
+          entityDao.saveOrUpdate(plan)
+          plans += plan
+      }
+    }
+    plans.map(x=>(x.program,x)).toMap
   }
 }

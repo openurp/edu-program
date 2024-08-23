@@ -62,7 +62,9 @@ class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "department" -> depart)
     put("reviseOpening", grade.beginOn.isAfter(LocalDate.now))
     val auditMessages = programs.map(x => (x, programChecker.check(x))).toMap
-    put("programs", programs)
+    val sortedPrograms = programs.sortBy(x => x.level.code + "_" + x.major.name + "_" + x.direction.map(_.name).getOrElse(""))
+    put("programs", sortedPrograms)
+    put("plans",planService.getMajorPlans(programs))
     put("auditMessages", auditMessages)
     put("depart", depart)
     put("grade", grade)

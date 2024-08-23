@@ -77,7 +77,7 @@
         [/#if]
         <div style="margin-top:20px;">
           <h1>
-            <a class="q-anchor q-heading-anchor" name="九、专业教学计划表（附表）"></a>九、专业教学计划表（附表）
+            <a class="q-anchor q-heading-anchor" name="专业教学计划表（附表）"></a>专业教学计划表（附表）
           </h1>
         </div>
         [#include "/org/openurp/edu/program/web/components/info/planinfo.ftl"/]

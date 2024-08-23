@@ -94,7 +94,7 @@
 [#macro planMainTitle plan]${plan.program.department.name}&nbsp;${plan.program.major.name}专业[/#macro]
 [#macro planSubTitle plan]${("("+ plan.program.direction.name + ")&nbsp;")!}&nbsp; ${plan.program.level.name}&nbsp;培养方案&nbsp;(${plan.program.grade.code})[/#macro]
 
-[#assign displayTeachDepart=true/]
+[#assign displayTeachDepart=false/]
 [#assign displayCreditHour=true/]
 [#macro i18nName(entity)]${entity.name}[/#macro]
 
@@ -187,16 +187,10 @@
     [#if  courseGroup.termCredits=="*"]
         [#list i..maxTerm as t]<td>&nbsp;</td>[/#list]
     [#else]
-        [#local termCredits= courseGroup.termCredits/]
-        [#if termCredits?starts_with(",")]
-            [#local termCredits= termCredits[1..termCredits?length-1] /]
-        [/#if]
-        [#if termCredits?ends_with(",")]
-            [#local termCredits= termCredits[0..termCredits?length-2] /]
-        [/#if]
-        [#list termCredits[0..termCredits?length-1]?split(",") as credit]
+        [#local termCredits = courseGroup.termCreditSeq/]
+        [#list termCredits as credit]
           [#if (i<=maxTerm)]
-            <td>[#if credit!="0"]${credit}[#else]&nbsp;[/#if]</td>
+            <td>[#if credit>0]${credit}[#else]&nbsp;[/#if]</td>
             [#if !courseGroup.parent??]
                 [#local current_totle=total_term_credit[i?string]!(0) /]
                 [#assign total_term_credit=total_term_credit + {i:current_totle+credit?number} /]
@@ -335,15 +329,15 @@ function mergeCourseTypeCell(tableId) {
 }
 [/#macro]
 
-[#macro planSupTitle plan]
-    生效日期：${plan.program.beginOn?string('yyyy-MM-dd')}~${(plan.program.endOn?string('yyyy-MM-dd'))!}&nbsp;
+[#macro planFoot plan]
+    <p style="text-align:center;color:#6c757d;">生效日期：${plan.program.beginOn?string('yyyy-MM-dd')}~${(plan.program.endOn?string('yyyy-MM-dd'))!}&nbsp;
     [#if plan.program.degree??]学位：${plan.program.degree.name }&nbsp;[/#if]
     [#if plan.program.degreeGpa??]学位绩点：${plan.program.degreeGpa }&nbsp;[/#if]
-    最后修改时间：${(plan.program.updatedAt?string('yyyy-MM-dd HH:mm:ss'))!}
+    最后修改时间：${(plan.program.updatedAt?string('yyyy-MM-dd HH:mm:ss'))!}</p>
 [/#macro]
 
-[#macro planTitle plan]
-${plan.program.grade.code} ${plan.program.department.name} ${plan.program.major.name}专业 ${(plan.program.direction.name)!} ${plan.program.level.name} ${b.text('entity.program')}
+[#macro planHead plan]
+  <p style="font-weight:bold;font-size:16pt;margin:0px 5px;text-align:center;">${plan.program.grade.code} ${plan.program.department.name} ${plan.program.major.name} ${(plan.program.direction.name)!} ${plan.program.level.name}教学计划表</p>
 [/#macro]
 
 [#macro exePlanTitle plan]
@@ -354,29 +348,32 @@ ${plan.program.grade.code} ${plan.program.department.name} ${plan.program.major.
 [#assign term = Parameters['term']]
 [/#if]
 
-<table id="planInfoTable${plan.id}" class="grid-table" style="font-size:12px;font-family:宋体;vnd.ms-excel.numberformat:@" width="100%">
+[@include_optional path="/org/openurp/edu/program/web/components/report/planMacros.ftl"/]
+[#--以下输出内容--]
+[@planHead plan/]
+<table id="planInfoTable${plan.id}" class="plan-table" style="vnd.ms-excel.numberformat:@" width="100%">
     [#assign maxTerm=plan.terms /]
     [#if !courseTypeWidth??][#assign courseTypeWidth=5*maxFenleiSpan/][/#if]
     [#if !courseTypeMaxWidth??][#assign courseTypeMaxWidth=15/][/#if]
     [#if courseTypeWidth>courseTypeMaxWidth][#assign courseTypeWidth=courseTypeMaxWidth/][/#if]
     <thead>
         <tr align="center">
-            <td rowspan="2" colspan="${maxFenleiSpan}" width="${courseTypeWidth}%">类别</td>
-            <td rowspan="2" width="10%">序号</td>
-            <td rowspan="2">课程名称</td>
-            <td rowspan="2" width="5%">学分</td>
-            [#if displayCreditHour]<td rowspan="2" width="5%">学时</td>[/#if]
-            <td colspan="${maxTerm}" width="${maxTerm*3.5}%">开课学期</td>
+            <th rowspan="2" colspan="${maxFenleiSpan}" width="${courseTypeWidth}%">类别</th>
+            <th rowspan="2" width="10%">序号</th>
+            <th rowspan="2">课程名称</th>
+            <th rowspan="2" width="5%">学分</th>
+            [#if displayCreditHour]<th rowspan="2" width="5%">学时</th>[/#if]
+            <th colspan="${maxTerm}" width="${maxTerm*3.5}%">开课学期</th>
             [#if displayTeachDepart]
-            <td rowspan="2" width="10%">开课院系</td>
+            <th rowspan="2" width="10%">开课院系</th>
             [/#if]
-            <td rowspan="2" width="${remarkWidth!7}%">备注</td>
+            <th rowspan="2" width="${remarkWidth!7}%">备注</th>
         </tr>
         <tr>
         [#assign total_term_credit={} /]
         [#list plan.program.startTerm..plan.program.endTerm as i ]
             [#assign total_term_credit=total_term_credit + {i:0} /]
-            <td width="[#if maxTerm?exists&&maxTerm!=0]${25/maxTerm}[#else]2[/#if]%" style="text-align:center">${i}</td>
+            <th width="[#if maxTerm?exists&&maxTerm!=0]${25/maxTerm}[#else]2[/#if]%" style="text-align:center">${i}</th>
         [/#list]
         </tr>
     </thead>
@@ -384,11 +381,10 @@ ${plan.program.grade.code} ${plan.program.department.name} ${plan.program.major.
     [#list plan.topGroups! as courseGroup]
         [@drawGroup courseGroup planCourseCreditInfo courseGroupCreditInfo/]
     [/#list]
-        [#-- 绘制总计 --]
         <tr>
             <td class="summary" colspan="${maxFenleiSpan + mustSpan}">全程总计</td>
             <td class="credit_hour summary">${plan.credits!(0)}</td>
-            [#if displayCreditHour]<td class="credit_hour summary">&nbsp;</td>[/#if]
+            [#if displayCreditHour]<td class="credit_hour summary">${plan.creditHours}</td>[/#if]
         [#list plan.program.startTerm..plan.program.endTerm as i]
             <td>[#if total_term_credit[i?string]>0]${total_term_credit[i?string]}[/#if]</td>
         [/#list]
@@ -401,12 +397,12 @@ ${plan.program.grade.code} ${plan.program.department.name} ${plan.program.major.
             [#assign remarkSpan = 3 + 1 +maxTerm/]
             [#if displayCreditHour][#assign remarkSpan =1+remarkSpan/][/#if][#if displayTeachDepart][#assign remarkSpan =1+remarkSpan/][/#if]
             [#assign remark = plan.program.remark?replace("\r","")/]
-            <td colspan="${remarkSpan}" style="padding-left: 10px;line-height: 1.5rem;">${remark?replace('\n','<br>')}</td>
+            <td colspan="${remarkSpan}" style="padding-left: 10px;line-height: 1.5rem;text-align:left;">${remark?replace('\n','<br>')}</td>
         </tr>
         [/#if]
-
     </tbody>
 </table>
+[@planFoot plan/]
 
 <script>
 [#assign bottomRows=1/]

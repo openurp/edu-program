@@ -1,0 +1,31 @@
+[#ftl/]
+[#assign displayTeachDepart=false/]
+[#assign displayCreditHour=false/]
+[#assign courseTypeWidth=6*maxFenleiSpan/]
+[#assign courseTypeMaxWidth=20/]
+[#assign remarkWidth=10/]
+[#--课程不显示学期学分，直接显示打勾--]
+[#macro planCourseCreditInfo planCourse]
+    [#local plan= planCourse.group.plan/]
+    [#list plan.startTerm..plan.endTerm as i]
+        <td class="credit_hour">[#if planCourse.terms.contains(i?int)]√[/#if]</td>
+    [/#list]
+[/#macro]
+[#-- 课程组不显示学分累计 --]
+[#macro courseGroupCreditInfo courseGroup]
+    [#list 1..maxTerm as t]<td class="credit_hour">&nbsp;</td>[/#list]
+[/#macro]
+[#--应修学分 改为 该板块应修学分--]
+[#macro requireLabel courseGroup]
+  [#if courseGroup.autoAddup]学分小计[#else]
+    [#if courseGroup.credits=0]应修门数[#else]该板块应修学分[/#if]
+  [/#if]
+[/#macro]
+
+[#macro planHead plan]
+<p style="font-weight:bold;font-size:16pt;margin:0px 5px;text-align:center;">${plan.program.grade.code} ${plan.program.department.name} ${plan.program.major.name} ${(plan.program.direction.name)!} ${plan.program.level.name}[#if plan.program.level.name?contains("硕士")](${plan.program.eduType.name})[/#if] 教学计划</p>
+[/#macro]
+
+[#macro exePlanTitle plan]
+${plan.program.grade.code} ${plan.program.department.name} ${plan.program.major.name} ${(plan.program.direction.name)!} ${plan.program.level.name} 执行计划
+[/#macro]

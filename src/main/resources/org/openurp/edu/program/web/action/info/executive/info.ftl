@@ -33,7 +33,7 @@
 </div>
 
 <div style="width:100%;text-align:center;">
-    <p style="color:#666666">[@planSupTitle plan/]</p>
+    [@planFoot plan/]
 </div>
 
 [@b.foot /]

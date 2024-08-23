@@ -1,9 +1,15 @@
 [@b.head /]
-[@b.toolbar title='修改培养方案']
-    bar.addBack();
+[#assign titleName]${program.grade.code} ${program.level.name} ${program.major.name} ${(program.direction.name)!} 培养方案[/#assign]
+[@b.toolbar title=titleName]
+   bar.addItem("返回列表", "backToList()","action-backward");
+   function backToList() {
+     bg.form.submit(document.searchForm);
+   }
 [/@]
-[@b.tabs]
-  [@b.tab label="基本信息"]
+[@b.nav class="nav-tabs nav-tabs-compact"]
+  [@b.navitem href="!edit?id="+program.id]基本信息[/@]
+  [@b.navitem href="plan!groups?program.id="+program.id]课程设置[/@]
+[/@]
   [@b.form name="planForm" id="planForm" action=b.rest.save(program) theme="list"]
     [@b.textfield id="program_name" name='program.name' label="名称" value=program.name!
         disabled="disabled" required='true' maxlength='200' size="30" ]
@@ -27,7 +33,7 @@
     [@b.textfield name='program.degreeGpa' label='学位绩点' maxlength="3" size="3" required="false" value=program.degreeGpa! /]
     [@b.select name='degreeCertificate.id' label='学位要求的校外证书' required="false" values=program.degreeCertificates! items=certificates multiple="true"/]
     [@b.startend label="起止日期" name="program.beginOn,program.endOn" required="true" start=program.beginOn end=program.endOn/]
-    [@b.textarea name='program.remark' cols='40' rows='2' maxlength='800' label='备注' comment="(限800字)" value=program.remark!/]
+    [@b.textarea name='program.remark' cols='80' rows='3' maxlength='800' label='备注' comment="(限800字)" value=program.remark!/]
     [@b.formfoot]
         [#if project.eduTypes?size==1]
         <select name='program.eduType.id' style="display:none"><option value="${project.eduTypes?first.id}" selected>${project.eduTypes?first.name}</option></select>
@@ -62,17 +68,13 @@
         setEnd(jQuery("#major").val(),jQuery("#level").val(),start);
       });
 
-      /*
-       * 当专业发生变化的时候，自动更新结束时间
-       */
+      /* 当专业发生变化的时候，自动更新结束时间 */
       jQuery("#major").change(function() {
         jQuery("#planForm [name='program.endOn']").val("");
         setEnd(jQuery(this).val(), jQuery("#level").val(),jQuery("#planForm [name='program.beginOn']").val());
       });
 
-      /*
-       * 当开始时间发生变化的时候，自动更新结束时间
-       */
+      /** 当开始时间发生变化的时候，自动更新结束时间  */
       jQuery("#planForm [name='program.beginOn']").blur(function() {
         if(jQuery("#major").val()) {
           setEnd(jQuery("#major").val(), jQuery("#level").val(),jQuery(this).val());
@@ -96,8 +98,4 @@
       }
     }
   </script>
-[/@]
-
-[@b.tab href="plan!groups?program.id="+program.id label="课程设置"/]
-[/@]
 [@b.foot /]

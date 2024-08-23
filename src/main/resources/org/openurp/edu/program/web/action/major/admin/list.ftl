@@ -5,8 +5,8 @@
         bar.addItem("${b.text("action.modify")}",action.edit());
         bar.addItem("复制",action.single("copyPrompt"));
         bar.addItem("${b.text("action.delete")}",action.remove());
-        bar.addItem("修改方案文本",action.single('editDoc',null,null,"_blank"));
-        bar.addItem("修改教学计划",action.single('editPlan',null,null,"_blank"));
+        bar.addItem("修改文本",action.single('editDoc',null,null,"_blank"));
+        bar.addItem("修订计划",action.single('editPlan',null,null,"_blank"));
         var m=bar.addMenu("提交审核",action.multi("applyAudit",'确定提交审核?'));
         m.addItem("撤回提交",action.multi("revokeSubmitted",'确定撤回提交?'));
         var menu = bar.addMenu("批量操作");
@@ -25,7 +25,7 @@
         [/#if]
         [@b.col width="16%" property="department.name" title="院系"/]
         [@b.col property="name" title="专业/方向"]
-           [@b.a href="!info?id=${program.id}" title="点击查看详情" target="_blank"]${(program.name)}[/@]
+           [@b.a href="!report?program.id=${program.id}" title="点击查看详情" target="_blank"]${(program.name)}[/@]
         [/@]
         [@b.col width="12%" title="学生类别" ]
           <div class="text-ellipsis">[#list program.stdTypes as ty]${ty.name}[#sep],[/#list]</div>

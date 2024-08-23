@@ -12,21 +12,7 @@
     [#assign parents = parents + [{'id' : p_group.id , 'name' : p_name, 'enName' : p_name }] /]
 [/#list]
 
-[#if courseGroup.persisted]
-    [#assign bartitle]<font color='red'>${courseGroup.courseType.name}</font>[/#assign]
-[#else]
-    [#assign bartitle]新建课程组&nbsp;[/#assign]
-[/#if]
-[#--
-[@b.toolbar title=bartitle]
-     bar.addItem("${b.text("action.back")}", "_close()","action-backward");
-     function _close() {
-         bg.form.submit(document._backform);
-    }
-[/@]
-[@b.form name="_backform" action="!groups?planId="+plan.id/]
---]
-[@b.form name='courseGroupForm' action='!saveGroup' theme='list']
+[@b.form name='courseGroupForm' action='!saveGroup' theme='list' onsubmit="closeDialog('planDialog')"]
     [@b.select label='上级课程组' name='newParentId' value=(courseGroup.parent.id)! items=parents empty="..."  style="width:300px"/]
     [@b.select label='课程类别' name='courseGroup.courseType.id' items=unusedCourseTypeList?sort_by('name') required="true" value=(courseGroup.courseType.id)! empty="..."  style="width:300px" onchange="changeDefaultAutoAddup(this)"/]
     [@b.textfield label="自定义名称" name="courseGroup.givenName"  value=courseGroup.givenName /]
@@ -80,53 +66,56 @@
 [/@]
 
 <script type="text/javascript">
-    jQuery(function() {
-        for(var i = ${plan.program.startTerm};i <= ${plan.program.endTerm}; i++){
-            updateTerm(document.courseGroupForm["credit_"+i].value,i,false);
-            jQuery(':text[name=credit_'+i+']').keyup(function(event) {
-                updateGroupCredits();
-            });
-        }
-        displayCredit(document.getElementById("courseGroup_rank_id"));
-    })
-    var courseTypeOptionals={[#list unusedCourseTypeList as t]"${t.id}":${t.optional?c}[#if t_has_next],[/#if][/#list]};
-    function changeDefaultAutoAddup(ele){
-       if(courseTypeOptionals[ele.value]){
-          jQuery("#courseGroup_rank_id").val("1")
-       }else{
-          jQuery("#courseGroup_rank_id").val("4")
-       }
-       displayCredit(document.getElementById('courseGroup_rank_id'));
+  setupPlanDialog("[#if courseGroup.persisted]设置课程组信息[#else]新建课程组[/#if]");
+  jQuery(function() {
+    for(var i = ${plan.program.startTerm};i <= ${plan.program.endTerm}; i++){
+      if(!document.courseGroupForm["credit_"+i])alert(i);
+      updateTerm(document.courseGroupForm["credit_"+i].value,i,false);
+      jQuery(':text[name=credit_'+i+']').keyup(function(event) {
+        updateGroupCredits();
+      });
     }
-    function displayCredit(ele){
-      var hidden=jQuery(ele).val()=='1';
-      [#--从完成子组到开课学期--]
-      for(var i=5;i<=9;i++){
-        if(hidden){
-          jQuery(ele).parents("ol").children("li:nth("+i+")").hide();
-        }else{
-          jQuery(ele).parents("ol").children("li:nth("+i+")").show();
-        }
+    displayCredit(document.getElementById("courseGroup_rank_id"));
+  })
+  var courseTypeOptionals={[#list unusedCourseTypeList as t]"${t.id}":${t.optional?c}[#if t_has_next],[/#if][/#list]};
+  function changeDefaultAutoAddup(ele){
+    if(courseTypeOptionals[ele.value]){
+      jQuery("#courseGroup_rank_id").val("1")
+    }else{
+      jQuery("#courseGroup_rank_id").val("4")
+    }
+    displayCredit(document.getElementById('courseGroup_rank_id'));
+  }
+
+  function displayCredit(ele){
+    var hidden=jQuery(ele).val()=='1';
+    [#--从完成子组到开课学期--]
+    for(var i=5;i<=9;i++){
+      if(hidden){
+        jQuery(ele).parents("ol").children("li:nth("+i+")").hide();
+      }else{
+        jQuery(ele).parents("ol").children("li:nth("+i+")").show();
       }
     }
-    function updateTerm(value,termIdx,force){
-      var termbox=document.courseGroupForm["term_"+termIdx];
-      if(value>0){
-        jQuery(termbox).prop('checked',true);jQuery(termbox).parent().addClass("active");
-      }else if(force){
-        jQuery(termbox).prop('checked',false);jQuery(termbox).parent().removeClass("active");
-      }
+  }
+  function updateTerm(value,termIdx,force){
+    var termbox=document.courseGroupForm["term_"+termIdx];
+    if(value>0){
+      jQuery(termbox).prop('checked',true);jQuery(termbox).parent().addClass("active");
+    }else if(force){
+      jQuery(termbox).prop('checked',false);jQuery(termbox).parent().removeClass("active");
     }
-    function updateGroupCredits() {
-        var form=document.courseGroupForm;
-        var groupCredits = 0;
-        [#list plan.program.startTerm..plan.program.endTerm as term]
-            groupCredits += parseFloat(form['credit_' + ${term}].value);
-        [/#list]
-        if(groupCredits == new Number(form['courseGroup.credits'].value)){
-          jQuery("#credit_sum_span").html(groupCredits+"分")
-        }else{
-          jQuery("#credit_sum_span").html("<label style='color:red'>"+groupCredits+"分</label>")
-        }
+  }
+  function updateGroupCredits() {
+    var form=document.courseGroupForm;
+    var groupCredits = 0;
+    [#list plan.program.startTerm..plan.program.endTerm as term]
+        groupCredits += parseFloat(form['credit_' + ${term}].value);
+    [/#list]
+    if(groupCredits == new Number(form['courseGroup.credits'].value)){
+      jQuery("#credit_sum_span").html(groupCredits+"分")
+    }else{
+      jQuery("#credit_sum_span").html("<label style='color:red'>"+groupCredits+"分</label>")
     }
+  }
 </script>

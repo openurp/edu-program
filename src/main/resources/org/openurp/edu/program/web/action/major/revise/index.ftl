@@ -83,7 +83,7 @@
          <td>
             [#if reviseOpening && editables?seq_contains(program.status)]
              [@b.a href="doc!edit?program.id=${program.id}" target="_blank"]方案文本[/@]
-             [@b.a href="plan!edit?program.id=${program.id}" target="_blank"]教学计划[/@]
+             [@b.a href="plan!edit?plan.id=${plans.get(program).id}" target="_blank"]教学计划[/@]
             [/#if]
             [@b.a href="prerequisite!info?program.id=${program.id}"]先修课程[/@]
             [#if program.status.id!=100 && program.status.id!=50 && program.status.id!=1]

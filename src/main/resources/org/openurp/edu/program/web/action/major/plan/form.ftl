@@ -522,6 +522,7 @@ tagCourses['tag${tag.id}']=new Set();
     openPlanCourseDialog();
     return false;
   }
+
   function editCourseGroup(id) {
      jQuery("#courseGroupFormDiv").modal('show');
      bg.Go('${b.url("!editGroup?plan.id=${plan.id}")}&courseGroup.id='+id,'course_group_edit_div')
@@ -602,11 +603,12 @@ tagCourses['tag${tag.id}']=new Set();
     return true;
   }
   function closePlanCourseDialog() {
-    closeDialect("planCourseFormDiv");
+    closeDialog("planCourseFormDiv");
   }
-  function closeDialect(id){
+  function closeDialog(id){
     jQuery("#"+id).modal('hide');
     jQuery("body>div.modal-backdrop").remove();
+    return true;
   }
   function displayCourseOps(trElem){
     jQuery(trElem).find("td:nth-child(3) div.course_op").show();

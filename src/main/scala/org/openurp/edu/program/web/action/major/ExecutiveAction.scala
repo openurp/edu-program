@@ -39,18 +39,20 @@ import org.openurp.edu.program.service.impl.EnNameChecker
 import org.openurp.edu.service.Features
 import org.openurp.starter.web.support.ProjectSupport
 
-/** 专业培养计划
+import java.time.Instant
+
+/** 执行计划维护
  */
-class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport {
+class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], ProjectSupport {
 
   var planService: PlanService = _
 
   var entityDao: EntityDao = _
 
   def groups(): View = {
-    val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
+    val plan = entityDao.get(classOf[ExecutivePlan], getLongId("plan"))
     getLong("courseGroup.id") foreach { groupId =>
-      put("activeGroup", entityDao.get(classOf[MajorCourseGroup], groupId))
+      put("activeGroup", entityDao.get(classOf[ExecutiveCourseGroup], groupId))
     }
     put("plan", plan)
     put("program", plan.program)
@@ -59,18 +61,18 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
 
   def editGroup(): View = {
     val planId = getLongId("plan")
-    val plan = entityDao.get(classOf[MajorPlan], planId)
+    val plan = entityDao.get(classOf[ExecutivePlan], planId)
 
     given project: Project = plan.program.project
 
     val unusedCourseTypeList = getCodes(classOf[CourseType])
     val group = getLong("courseGroup.id") match
       case None =>
-        val ng = new MajorCourseGroup
+        val ng = new ExecutiveCourseGroup
         ng.indexno = "99"
         ng
       case Some(gid) =>
-        entityDao.get(classOf[MajorCourseGroup], gid)
+        entityDao.get(classOf[ExecutiveCourseGroup], gid)
     put("courseGroup", group)
     val termCredits = Collections.newMap[Integer, String]
     val termCreditArray: Array[String] = Strings.split(group.termCredits)
@@ -88,17 +90,17 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
   }
 
   def saveGroup(): View = {
-    val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
+    val plan = entityDao.get(classOf[ExecutivePlan], getLongId("plan"))
 
     given project: Project = plan.program.project
 
-    val group = populateEntity(classOf[MajorCourseGroup], "courseGroup")
+    val group = populateEntity(classOf[ExecutiveCourseGroup], "courseGroup")
     val oldParent = group.parent.orNull
     val parentId = getLong("newParentId")
     var parent: CourseGroup = null
     var index = getInt("index", 0)
     if (parentId.nonEmpty) {
-      parent = entityDao.get(classOf[MajorCourseGroup], parentId.get)
+      parent = entityDao.get(classOf[ExecutiveCourseGroup], parentId.get)
       if (index == 99) index = parent.children.size + 1
     } else if (index == 99) index = plan.topGroups.size + 1
     if (group.rank.nonEmpty && group.rank.get.id != CourseRank.Compulsory) {
@@ -149,23 +151,23 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
 
     planService.statPlanCredits(plan)
     val target = if getBoolean("toGroups", false) then "groups" else "edit"
-    redirect(target, s"plan.id=${plan.id}&courseGroup.id=${group.id}", "info.save.success")
+    redirect(target, s"program.id=${plan.program.id}&courseGroup.id=${group.id}", "info.save.success")
   }
 
   def removeGroup(): View = {
-    val group = entityDao.get(classOf[MajorCourseGroup], getLongId("courseGroup"))
-    val plan = group.plan.asInstanceOf[MajorPlan]
+    val group = entityDao.get(classOf[ExecutiveCourseGroup], getLongId("courseGroup"))
+    val plan = group.plan.asInstanceOf[ExecutivePlan]
     plan.groups.subtractOne(group)
     group.parent foreach { p =>
-      p.asInstanceOf[MajorCourseGroup].children.subtractOne(group)
+      p.asInstanceOf[ExecutiveCourseGroup].children.subtractOne(group)
     }
     group.parent = None
     entityDao.saveOrUpdate(plan)
     planService.statPlanCredits(plan)
     if (getBoolean("toGroups", false)) {
-      redirect("groups", "plan.id=" + plan.id, "info.remove.success")
+      redirect("groups", "program.id=" + plan.program.id, "info.remove.success")
     } else {
-      redirect("edit", "plan.id=" + plan.id, "info.remove.success")
+      redirect("edit", "program.id=" + plan.program.id, "info.remove.success")
     }
   }
 
@@ -175,7 +177,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
   def groupCourses(): View = {
     given project: Project = getProject
 
-    val group = entityDao.get(classOf[MajorCourseGroup], getLongId("courseGroup"))
+    val group = entityDao.get(classOf[ExecutiveCourseGroup], getLongId("courseGroup"))
 
     put("plan", group.plan)
     put("courseGroup", group)
@@ -190,7 +192,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
    * @return
    */
   def courses(): View = {
-    val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
+    val plan = entityDao.get(classOf[ExecutivePlan], getLongId("plan"))
     val program = plan.program
     val query = OqlBuilder.from(classOf[Course], "course")
     val q = get("q", "")
@@ -205,30 +207,6 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     forward()
   }
 
-  /** 导入教学计划
-   *
-   * @return
-   */
-  def importData(): View = {
-    val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
-    val parts = getAll("plan_file", classOf[Part])
-    if (parts.nonEmpty && parts.head.getSize > 0) {
-      val is = parts.head.getInputStream
-      val reader = new LixinPlanExcelReader(is)
-      reader.process()
-      val excelPlan = reader.plan
-      val messages = reader.messages
-      val newPlan = excelPlan.convert(plan.program, entityDao, messages)
-      PlanMerger.merge(newPlan, plan)
-      plan.credits = plan.topGroups.map(_.credits).sum
-      plan.program.credits = plan.credits
-      entityDao.saveOrUpdate(plan, plan.program)
-      planService.statPlanCredits(plan)
-      messages foreach { m => println(m) }
-    }
-    redirect("edit", "&program.id=" + plan.program.id, "导入成功")
-  }
-
   /** FIXME 没有连接对应
    *
    * @param id
@@ -236,7 +214,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
    */
   @mapping(value = "{id}")
   def info(@param("id") id: String): View = {
-    val plan = entityDao.get(classOf[MajorPlan], id.toLong)
+    val plan = entityDao.get(classOf[ExecutivePlan], id.toLong)
     put("plan", plan)
 
     given project: Project = plan.program.project
@@ -250,14 +228,8 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     forward("info")
   }
 
-  def restat(): View = {
-    val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
-    planService.statPlanCredits(plan)
-    redirect("edit", s"plan.id=${plan.id}", "统计成功")
-  }
-
   def edit(): View = {
-    val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
+    val plan = entityDao.get(classOf[ExecutivePlan], getLongId("plan"))
     put("plan", plan)
 
     given project: Project = plan.program.project
@@ -272,51 +244,13 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     forward()
   }
 
-  @response
-  def updateLabel(): String = {
-    val tag = entityDao.get(classOf[ProgramCourseTag], getIntId("tag"))
-    val program = entityDao.get(classOf[Program], getLongId("program"))
-    val labels = program.labels.filter(_.tag == tag)
-    val courses = entityDao.find(classOf[Course], getLongIds("course"))
-    val removed = labels.filter(x => !courses.contains(x.course))
-    program.labels.subtractAll(removed)
-    courses foreach { c =>
-      if (!labels.exists(_.course == c)) {
-        program.labels.addOne(new ProgramCourseLabel(program, c, tag))
-      }
-    }
-    entityDao.saveOrUpdate(program)
-    entityDao.findBy(classOf[MajorPlan], "program", program) foreach { plan =>
-      val allCourses = plan.planCourses.map(_.course).toSet
-      val obsolete = program.labels.filter(x => !allCourses.contains(x.course))
-      program.labels.subtractAll(obsolete)
-      entityDao.saveOrUpdate(program)
-    }
-    "ok"
-  }
-
-  @response
-  def validate(): Properties = {
-    val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
-    val program = plan.program
-
-    val msg = new ActionMessages
-    if (program.labels.isEmpty) {
-      msg.errors.addOne("专业核心课程尚未标记")
-    }
-    val properties = new Properties()
-    properties.put("errors", msg.errors)
-    properties.put("messages", msg.messages)
-    properties
-  }
-
   /**
    * 添加培养计划中的课程
    */
   def saveCourse(): View = {
-    val group = entityDao.get(classOf[MajorCourseGroup], getLongId("planCourse.group"))
+    val group = entityDao.get(classOf[ExecutiveCourseGroup], getLongId("planCourse.group"))
     val plan = group.plan
-    val planCourse = populateEntity(classOf[MajorPlanCourse], "planCourse")
+    val planCourse = populateEntity(classOf[ExecutivePlanCourse], "planCourse")
     val isCompulsory = getBoolean("planCourse.compulsory")
     if (isCompulsory.isEmpty) {
       planCourse.compulsory = false
@@ -329,7 +263,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     val weekstate = get("planCourse.weekstate", "")
     if (Strings.isEmpty(weekstate)) planCourse.weekstate = WeekState.Zero
     else planCourse.weekstate = WeekState.of(NumSeqParser.parse(weekstate))
-    val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id + "&program.id=" + plan.program.id
+    val extra = "&courseGroup.id=" + group.id + "&planId=" + plan.id + "&program.id=" + plan.program.id
     val target = if getBoolean("toGroups", false) then "groups" else "edit"
     if (planCourse.persisted) {
       if (group.planCourses.exists(x => x.course == planCourse.course && planCourse.id != x.id)) {
@@ -346,18 +280,18 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
   }
 
   def removeCourse(): View = {
-    val planCourses = entityDao.find(classOf[MajorPlanCourse], getLongIds("planCourse"))
+    val planCourses = entityDao.find(classOf[ExecutivePlanCourse], getLongIds("planCourse"))
     planCourses foreach { pc =>
       planService.removePlanCourse(pc, pc.group)
     }
     val group = planCourses.head.group
     planService.statPlanCredits(group.plan)
     val target = if getBoolean("toGroup", false) then "groups" else "edit"
-    redirect(target, s"plan.id=${group.plan.id}&courseGroup.id=${group.id}", "info.save.success")
+    redirect(target, s"program.id=${group.plan.program.id}&courseGroup.id=${group.id}", "info.save.success")
   }
 
   def batchAddForm(): View = {
-    val group = entityDao.get(classOf[MajorCourseGroup], getLongId("courseGroup"))
+    val group = entityDao.get(classOf[ExecutiveCourseGroup], getLongId("courseGroup"))
     put("courseGroup", group)
     put("plan", group.plan)
     var codes = get("courseCodes", "")
@@ -371,16 +305,15 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
 
   def batchAddCourses(): View = {
     val courseIds = getLongIds("course")
-    val group = entityDao.get(classOf[MajorCourseGroup], getLongId("courseGroup"))
+    val group = entityDao.get(classOf[ExecutiveCourseGroup], getLongId("courseGroup"))
 
     val plan = group.plan
     var errorNum: Int = 0
     val allCourses = plan.planCourses.map(_.course).toSet
     for (courseId <- courseIds) {
-      val planCourse = new MajorPlanCourse
+      val planCourse = new ExecutivePlanCourse
       val terms = get("course." + courseId + ".terms", "")
       planCourse.terms = Terms(terms)
-      planCourse.suggestTerms = Terms.empty
       planCourse.group = group
       val course = entityDao.get(classOf[Course], courseId)
       planCourse.course = course
@@ -398,17 +331,17 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
   }
 
   def batchEditForm(): View = {
-    val group = entityDao.get(classOf[MajorCourseGroup], getLongId("courseGroup"))
+    val group = entityDao.get(classOf[ExecutiveCourseGroup], getLongId("courseGroup"))
     put("courseGroup", group)
     put("plan", group.plan)
-    val planCourses = entityDao.find(classOf[MajorPlanCourse], getLongIds("planCourse"))
+    val planCourses = entityDao.find(classOf[ExecutivePlanCourse], getLongIds("planCourse"))
     put("planCourses", planCourses)
     forward()
   }
 
   def batchEditCourses(): View = {
-    val planCourses = entityDao.find(classOf[MajorPlanCourse], getLongIds("planCourse"))
-    val group = entityDao.get(classOf[MajorCourseGroup], getLongId("courseGroup"))
+    val planCourses = entityDao.find(classOf[ExecutivePlanCourse], getLongIds("planCourse"))
+    val group = entityDao.get(classOf[ExecutiveCourseGroup], getLongId("courseGroup"))
 
     val plan = group.plan
     var errorNum: Int = 0
@@ -470,37 +403,12 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
   }
 
   def diff(): View = {
-    val left = entityDao.findBy(classOf[MajorPlan], "program.id", getLongId("left")).head
-    val right = entityDao.findBy(classOf[MajorPlan], "program.id", getLongId("right")).head
+    val left = entityDao.findBy(classOf[ExecutivePlan], "program.id", getLongId("left")).head
+    val right = entityDao.findBy(classOf[ExecutivePlan], "program.id", getLongId("right")).head
     put("left", left)
     put("right", right)
     put("diffResults", planService.diff(left, right))
     put("termHelper", new TermHelper)
-    forward()
-  }
-
-  def spellCheck(): View = {
-    given project: Project = getProject
-
-    val depart = entityDao.get(classOf[Department], getIntId("department"))
-    val grade = entityDao.get(classOf[Grade], getLongId("grade"))
-    val q = OqlBuilder.from(classOf[MajorPlan], "plan")
-    q.where("plan.program.project=:project", project)
-    q.where("plan.program.grade=:grade", grade)
-    q.where("plan.program.department=:department", depart)
-    val plans = entityDao.search(q)
-    val journals = Collections.newSet[CourseJournal]
-    plans foreach { plan =>
-      for (g <- plan.groups; pc <- g.planCourses) {
-        journals.addOne(pc.journal)
-      }
-    }
-    val checker = new EnNameChecker()
-    val rs = checker.check(journals)
-    put("depart", depart)
-    put("grade", grade)
-    put("journals", rs.keys)
-    put("results", rs)
     forward()
   }
 }
