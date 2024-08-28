@@ -13,7 +13,7 @@
         [/#if]
         [@b.col width="16%" property="department.name" title="院系"/]
         [@b.col property="program.major.name" title="专业/方向"]
-          ${plan.program.major.name} ${(plan.program.direction.name)!}
+          [@b.a href="/info/executive/"+plan.id target="_blank"]${plan.program.major.name} ${(plan.program.direction.name)!}[/@]
         [/@]
         [@b.col width="12%" title="学生类别" ]
           <div class="text-ellipsis">[#list plan.program.stdTypes as ty]${ty.name}[#sep],[/#list]</div>

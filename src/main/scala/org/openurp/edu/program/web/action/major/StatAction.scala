@@ -28,7 +28,7 @@ import org.openurp.base.model.Project
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.{CourseType, EducationLevel, TeachingNature}
 import org.openurp.edu.program.model.{CourseGroup, MajorPlan, Program}
-import org.openurp.edu.program.service.{PlanCategoryStat, CoursePlanService}
+import org.openurp.edu.program.service.{CoursePlanService, PlanCategoryStat}
 import org.openurp.starter.web.support.ProjectSupport
 
 import scala.collection.mutable
@@ -158,6 +158,8 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
       plan.topGroups foreach { tg =>
         if (tg.rank.isEmpty) {
           topGroups.addAll(tg.children.sortBy(_.indexno))
+        } else {
+          topGroups.addOne(tg)
         }
       }
       for (tg <- topGroups) {
@@ -179,7 +181,6 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     l2Types.subtractAll(l2Types.filter(x => x._2.size < 2).keys)
     (l1Types, l2Types)
   }
-
 
   def moduleExcel(): View = {
     given project: Project = getProject

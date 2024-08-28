@@ -48,7 +48,7 @@ class DefaultModule extends BindModule {
 
     bind(classOf[share.PlanAction])
     bind(classOf[share.CourseAction])
-    
+
     bind(classOf[CoursePlanServiceImpl])
     bind(classOf[SharePlanServiceImpl])
     bind(classOf[DefaultProgramChecker])

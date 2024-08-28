@@ -70,7 +70,6 @@ object PlanCategoryStat {
       }
     }
   }
-
 }
 
 class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection.Seq[TeachingNature]) extends Logging {
@@ -78,7 +77,6 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
   var practicalNature: TeachingNature = natures.find(_.id == 9).orNull
   var maxterm = plan.program.endTerm
   var hasOptional = false
-  var hasPractice = false
   val categoryStats = Collections.newBuffer[CategoryStat]
 
   def statOptionalGroup(group: CourseGroup, theory: CategoryStat, practical: CategoryStat): Unit = {
@@ -215,7 +213,7 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
     for (cs <- categoryStats.sortBy(_.name)) {
       if (cs.practical) {
         if (cs.credits > 0) total += cs.credits
-        else{
+        else {
           innerHours += cs.hours
         }
       }
@@ -231,8 +229,8 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
     val results = Collections.newBuffer[CategoryStat]
     for (cs <- categoryStats) {
       if (cs.compulsory) {
-        if (cs.practical && containsPractical) {
-          results.addOne(cs)
+        if (cs.practical) {
+          if containsPractical then results.addOne(cs)
         } else {
           results.addOne(cs)
         }
@@ -278,5 +276,5 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
 
   def isHasOptional: Boolean = hasOptional
 
-  def isHasPractice: Boolean = hasPractice
+  def isHasPractice: Boolean = practicalStat.credits > 0
 }

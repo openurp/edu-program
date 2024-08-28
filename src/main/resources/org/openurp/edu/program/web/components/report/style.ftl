@@ -52,12 +52,12 @@
     word-wrap: break-word;
   }
   .doc-table td, .doc-table th {
-    border: 0.5px solid black;
+    border: 0.5px solid #006cb2;
     overflow: hidden;
   }
   .plan-table{
     font-size:10pt;
-    line-height:1.1rem;
+    line-height:1.2rem;
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
@@ -66,8 +66,11 @@
   .plan-table tr {
     word-wrap: break-word;
   }
+  .plan-table thead{
+    background-color:#c7dbff;
+  }
   .plan-table td, .plan-table th {
-    border: 0.5px solid black;
+    border: 0.5px solid #006cb2;
     overflow: hidden;
   }
   .course{

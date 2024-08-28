@@ -18,7 +18,7 @@
     [@b.textfield label="自定义名称" name="courseGroup.givenName"  value=courseGroup.givenName /]
     [@b.textfield label="顺序号" name="index"  check="match('integer')" value=courseGroup.index required="true"/]
     [#if stages?size>0][@b.select label="学期阶段" name="courseGroup.stage.id"  items=stages value=courseGroup.stage! required="false" /][/#if]
-    [@b.select label="课程属性" name="courseGroup.rank.id" id="courseGroup_rank_id" items=ranks value=courseGroup.rank! required="true" onchange="displayCredit(this)"/]
+    [@b.select label="课程属性" name="courseGroup.rank.id" id="courseGroup_rank_id" items=ranks value=courseGroup.rank! required="false" onchange="displayCredit(this)"/]
     [@b.textfield label="完成子组" name="courseGroup.subCount"  value=courseGroup.subCount required="true"/]
     [@b.textfield label='要求学分' name='courseGroup.credits' maxlength='6' required='true' check="match('number').greaterThanOrEqualTo(0)" value=courseGroup.credits! /]
     [@b.textfield label='要求学时' name='courseGroup.creditHours' maxlength='6' required='true' check="match('number').greaterThanOrEqualTo(0)" value=courseGroup.creditHours! /]

@@ -32,4 +32,3 @@ trait SharePlanService {
   def updatePlanCourse(SharePlanCourse: SharePlanCourse, group: ShareCourseGroup): Unit
 
 }
-
