@@ -26,10 +26,12 @@ import org.beangle.web.servlet.util.RequestUtils
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.model.Project
 import org.openurp.base.std.model.Grade
-import org.openurp.code.edu.model.TeachingNature
-import org.openurp.edu.program.model.{MajorPlan, Program}
+import org.openurp.code.edu.model.{CourseType, EducationLevel, TeachingNature}
+import org.openurp.edu.program.model.{CourseGroup, MajorPlan, Program}
 import org.openurp.edu.program.service.{PlanCategoryStat, PlanService}
 import org.openurp.starter.web.support.ProjectSupport
+
+import scala.collection.mutable
 
 class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   var entityDao: EntityDao = _
@@ -42,6 +44,8 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     val grade = getLong("grade.id").map(id => entityDao.get(classOf[Grade], id)).getOrElse(grades.head)
     put("grades", grades)
     put("grade", grade)
+    put("levels", project.levels)
+    put("level", getInt("level.id").map(id => entityDao.get(classOf[EducationLevel], id)).getOrElse(project.levels.head))
     forward()
   }
 
@@ -49,7 +53,8 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     given project: Project = getProject
 
     val grade = entityDao.get(classOf[Grade], getLongId("grade"))
-    val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade)
+    val level = entityDao.get(classOf[EducationLevel], getIntId("level"))
+    val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "level" -> level)
     val natures = getCodes(classOf[TeachingNature])
     put("natures", natures)
     val plans = entityDao.findBy(classOf[MajorPlan], "program", programs).sortBy(x => x.program.level.code + x.program.department.code + x.program.major.code)
@@ -62,6 +67,7 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     put("plans", plans)
     put("stats", stats)
     put("grade", grade)
+    put("level", level)
     put("programs", programs)
     forward()
   }
@@ -70,9 +76,10 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     given project: Project = getProject
 
     val grade = entityDao.get(classOf[Grade], getLongId("grade"))
+    val level = entityDao.get(classOf[EducationLevel], getIntId("level"))
     response.setContentType("application/vnd.ms-excel;charset=GBK")
     RequestUtils.setContentDisposition(response, grade.name + "培养方案学分学时统计.xlsx")
-    val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade)
+    val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "level" -> level)
     val natures = getCodes(classOf[TeachingNature])
     put("natures", natures)
     val plans = entityDao.findBy(classOf[MajorPlan], "program", programs).sortBy(x => x.program.level.code + x.program.department.code + x.program.major.code)
@@ -83,7 +90,7 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
       stats.put(plan, stat)
     }
     val writer = new ExcelWriter(response.getOutputStream)
-    writer.writeHeader(Some(s"${grade.name}级培养方案学分学时统计表"), Array("序号", "培养层次", "学科门类", "院系", "专业", "总学分", "必修学分", "选修学分", "理论学分", "实践学分", "总学时", "必修学时", "选修学时", "理论学时", "实践学时"))
+    writer.writeHeader(Some(s"${grade.name}级${level.name} 培养方案学分学时统计表"), Array("序号", "培养层次", "学科门类", "院系", "专业", "总学分", "必修学分", "选修学分", "理论学分", "实践学分", "总学时", "必修学时", "选修学时", "理论学时", "实践学时"))
     var i = 1
     plans foreach { plan =>
       val stat = stats(plan)
@@ -119,7 +126,102 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   }
 
   def modules(): View = {
+    given project: Project = getProject
+
+    val grade = entityDao.get(classOf[Grade], getLongId("grade"))
+    val level = entityDao.get(classOf[EducationLevel], getIntId("level"))
+    val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "level" -> level)
+    val natures = getCodes(classOf[TeachingNature])
+    put("natures", natures)
+    val plans = entityDao.findBy(classOf[MajorPlan], "program", programs).sortBy(x => x.program.level.code + x.program.department.code + x.program.major.code)
+
+    val rs = analysisGroup(plans)
+    put("plans", plans)
+    put("hasLevel2", rs._2.nonEmpty)
+    put("l1Types", rs._1)
+    put("l2Types", rs._2)
+    put("grade", grade)
+    put("level", level)
+    put("programs", programs)
     forward()
+  }
+
+  private def analysisGroup(plans: Iterable[MajorPlan]): (mutable.Buffer[CourseType], mutable.Map[CourseType, mutable.Buffer[CourseType]]) = {
+    val l1Types = Collections.newBuffer[CourseType]
+    val l1TypeSet = Collections.newSet[CourseType]
+    val l2Types = Collections.newMap[CourseType, mutable.Buffer[CourseType]]
+    val l2TypeSet = Collections.newMap[CourseType, mutable.Set[CourseType]]
+
+    var hasLevel2 = false
+    plans foreach { plan =>
+      val topGroups = Collections.newBuffer[CourseGroup]
+      plan.topGroups foreach { tg =>
+        if (tg.rank.isEmpty) {
+          topGroups.addAll(tg.children.sortBy(_.indexno))
+        }
+      }
+      for (tg <- topGroups) {
+        if (!l1TypeSet.contains(tg.courseType)) {
+          l1Types.addOne(tg.courseType)
+          l1TypeSet.addOne(tg.courseType)
+        }
+        val l2 = l2Types.getOrElseUpdate(tg.courseType, Collections.newBuffer[CourseType])
+        val l2s = l2TypeSet.getOrElseUpdate(tg.courseType, Collections.newSet[CourseType])
+        for (cg <- tg.children.sortBy(_.indexno)) {
+          if (!l2s.contains(cg.courseType) && cg.credits > 0) {
+            l2.addOne(cg.courseType)
+            l2s.addOne(cg.courseType)
+            hasLevel2 = true
+          }
+        }
+      }
+    }
+    l2Types.subtractAll(l2Types.filter(x => x._2.size < 2).keys)
+    (l1Types, l2Types)
+  }
+
+
+  def moduleExcel(): View = {
+    given project: Project = getProject
+
+    val grade = entityDao.get(classOf[Grade], getLongId("grade"))
+    val level = entityDao.get(classOf[EducationLevel], getIntId("level"))
+    response.setContentType("application/vnd.ms-excel;charset=GBK")
+    RequestUtils.setContentDisposition(response, grade.name + "培养方案模块学分学时统计.xlsx")
+    val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "level" -> level)
+    val natures = getCodes(classOf[TeachingNature])
+    put("natures", natures)
+    val plans = entityDao.findBy(classOf[MajorPlan], "program", programs).sortBy(x => x.program.level.code + x.program.department.code + x.program.major.code)
+    val rs = analysisGroup(plans)
+    val l1 = rs._1
+    val l2 = rs._2
+    val types = Collections.newBuffer[CourseType]
+    l1 foreach { t =>
+      types.addOne(t)
+      l2.get(t) foreach { c =>
+        types.addAll(c)
+      }
+    }
+    val writer = new ExcelWriter(response.getOutputStream)
+    val titles = Seq("序号", "培养层次", "学科门类", "院系", "专业", "总学分").toBuffer
+    titles.addAll(types.map(_.name))
+    writer.writeHeader(Some(s"${grade.name}级${level.name} 培养方案按模块学分学时统计表"), titles.toArray)
+    var i = 1
+    plans foreach { plan =>
+      val p = plan.program
+
+      val data = Seq(i,
+        p.level.name,
+        p.major.disciplines.map(_.category.name).distinct.headOption.getOrElse(""),
+        p.department.name,
+        p.major.name + s"${p.direction.map(x => " " + x.name).getOrElse("")}",
+        p.credits).toBuffer
+      data.addAll(types.map(t => plan.getGroup(t.name).map(_.credits.toString).getOrElse("")))
+      writer.write(data)
+      i += 1
+    }
+    writer.close()
+    null
   }
 
   private def getGrades(project: Project) = {

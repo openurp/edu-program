@@ -28,7 +28,7 @@ import org.openurp.base.model.{AuditStatus, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.{Certificate, Degree, EducationType}
 import org.openurp.code.std.model.StdType
-import org.openurp.edu.program.model.{MajorPlan, Program, ProgramDoc}
+import org.openurp.edu.program.model.{ExecutivePlan, MajorPlan, Program, ProgramDoc}
 import org.openurp.edu.program.service.{PlanService, ProgramNamingHelper}
 import org.openurp.edu.program.web.helper.ProgramInfoHelper
 import org.openurp.starter.web.support.ProjectSupport
@@ -98,9 +98,15 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
 
     if (program.persisted) {
       put("docs", entityDao.findBy(classOf[ProgramDoc], "program", program))
+      entityDao.findBy(classOf[MajorPlan], "program", program).headOption match
+        case Some(plan) => put("plan", plan)
+        case None => val plan = new MajorPlan(program)
+          entityDao.saveOrUpdate(plan)
+          put("plan", plan)
     }
     put("degrees", getCodes(classOf[Degree]))
     put("certificates", getCodes(classOf[Certificate]))
+
     super.editSetting(program)
   }
 
@@ -109,22 +115,6 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     query.where("g.project=:project", project)
     query.orderBy("g.code desc")
     entityDao.search(query)
-  }
-
-  /** 修订方案文本
-   *
-   * @return
-   */
-  def editDoc(): View = {
-    redirect(to(classOf[DocAction], "edit", "program.id=" + getLongId("program")), "")
-  }
-
-  /** 修订教学计划
-   *
-   * @return
-   */
-  def editPlan(): View = {
-    redirect(to(classOf[PlanAction], "edit", "program.id=" + getLongId("program")), "")
   }
 
   override protected def saveAndRedirect(program: Program): View = {
@@ -136,6 +126,25 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     program.project = getProject
     program.degreeCertificates.clear()
     program.degreeCertificates.addAll(entityDao.find(classOf[Certificate], getIntIds("degreeCertificate")))
+    entityDao.saveOrUpdate(program)
+
+    getLong("copyFrom.id") match
+      case Some(id) =>
+        val copyForm = entityDao.get(classOf[Program], id)
+        entityDao.findBy(classOf[MajorPlan], "program", copyForm).foreach { p =>
+          if entityDao.findBy(classOf[MajorPlan], "program", program).isEmpty then
+            val plan = new MajorPlan(program, p)
+            entityDao.saveOrUpdate(plan)
+        }
+        entityDao.findBy(classOf[ProgramDoc], "program", copyForm) foreach { d =>
+          val doc = new ProgramDoc(program, d)
+          entityDao.saveOrUpdate(doc)
+        }
+      case None =>
+        if entityDao.findBy(classOf[MajorPlan], "program", program).isEmpty then
+          val plan = new MajorPlan(program)
+          entityDao.saveOrUpdate(plan)
+
     super.saveAndRedirect(program)
   }
 
@@ -172,6 +181,42 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     redirect(to(classOf[ReviseAction], "report", "program.id=" + getLongId("program")), "")
   }
 
+  /** 审核方案
+   *
+   * @return
+   */
+  def audit(): View = {
+    val programs = entityDao.find(classOf[Program], getLongIds("program"))
+    val passed = getBoolean("passed", false)
+    programs foreach { program =>
+      val status = if passed then AuditStatus.Passed else AuditStatus.Rejected
+      program.status = status
+    }
+    entityDao.saveOrUpdate(programs)
+    redirect("search", "审核成功")
+  }
+
+  /** 生成执行计划
+   *
+   * @return
+   */
+  def gen(): View = {
+    val programs = entityDao.find(classOf[Program], getLongIds("program"))
+    val force = getBoolean("force", false)
+    programs foreach { program =>
+      entityDao.findBy(classOf[MajorPlan], "program", program) foreach { majorPlan =>
+        val eps = entityDao.findBy(classOf[ExecutivePlan], "program", program)
+        if (eps.isEmpty) {
+          val ep = new ExecutivePlan(majorPlan)
+          entityDao.saveOrUpdate(ep)
+        } else {
+
+        }
+      }
+    }
+    redirect("search", "生成成功")
+  }
+
   override protected def removeAndRedirect(programs: Seq[Program]): View = {
     val removables = programs.filter(_.status != AuditStatus.Passed)
     val docs = entityDao.findBy(classOf[ProgramDoc], "program", removables)
@@ -179,6 +224,37 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     entityDao.remove(docs)
     entityDao.remove(plans)
     super.removeAndRedirect(removables)
+  }
+
+  def copyPrompt(): View = {
+    given project: Project = getProject
+
+    val departs = getDeparts
+    val query = OqlBuilder.from(classOf[Major], "m")
+    query.where("m.project=:project", project)
+    query.where("exists(from m.journals as mj where mj.depart in(:departs))", departs)
+    query.orderBy("m.code")
+    val majors = entityDao.search(query)
+
+    val query2 = OqlBuilder.from(classOf[Direction], "m")
+    query2.where("m.project=:project", project)
+    query2.where("exists(from m.journals as mj where mj.depart in(:departs))", departs)
+    query2.orderBy("m.code")
+    val directions = entityDao.search(query)
+
+    put("grades", getGrades(project))
+    put("departs", departs)
+    put("majors", majors)
+    put("directions", directions)
+    put("project", project)
+
+    put("degrees", getCodes(classOf[Degree]))
+    put("certificates", getCodes(classOf[Certificate]))
+
+    val copyFrom = entityDao.get(classOf[Program], getLongId("program"))
+    put("program", new Program(copyFrom))
+    put("copyFrom", copyFrom)
+    forward()
   }
 
   def restat(): View = {

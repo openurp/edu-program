@@ -352,7 +352,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     }
     val group = planCourses.head.group
     planService.statPlanCredits(group.plan)
-    val target = if getBoolean("toGroup", false) then "groups" else "edit"
+    val target = if getBoolean("toGroups", false) then "groups" else "edit"
     redirect(target, s"plan.id=${group.plan.id}&courseGroup.id=${group.id}", "info.save.success")
   }
 
@@ -393,7 +393,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     }
     entityDao.saveOrUpdate(plan)
     planService.statPlanCredits(plan)
-    val extra = "&courseGroup.id=" + group.id + "&program.id=" + plan.program.id
+    val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id
     redirect("groups", extra, "添加 " + courseIds.length + " 成功 " + (courseIds.length - errorNum) + " 失败 " + errorNum)
   }
 
@@ -419,7 +419,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     }
     entityDao.saveOrUpdate(plan)
     planService.statPlanCredits(plan)
-    val extra = "&courseGroup.id=" + group.id + "&program.id=" + plan.program.id
+    val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id
     redirect("groups", extra, "修改成功")
   }
 

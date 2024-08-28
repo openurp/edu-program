@@ -1,0 +1,27 @@
+[#assign program=plan.program/]
+[#assign titleName]${program.grade.code} ${program.level.name} ${program.major.name} ${(program.direction.name)!} 执行计划[/#assign]
+[@b.toolbar title=titleName]
+   bar.addItem("返回列表", "backToList()","action-backward");
+   function backToList() {
+     bg.form.submit(document.searchForm);
+   }
+[/@]
+[@b.nav class="nav-tabs nav-tabs-compact"]
+  [@b.navitem href="!edit?id="+plan.id]基本信息[/@]
+  [@b.navitem href="!groups?plan.id="+plan.id]课程设置[/@]
+[/@]
+[@b.form name="planForm" id="planForm" action=b.rest.save(plan) theme="list" ]
+    [@b.field label='年级']${plan.program.grade.code}[/@]
+    [@b.field label='方案名称']${plan.program.name}[/@]
+    [@b.field label='专业']${plan.program.major.name}  ${(plan.program.direction.name)!}[/@]
+    [@b.field label='培养层次']${plan.program.level.name}[/@]
+    [@b.field label='学习形式']${plan.program.studyType.name}[/@]
+    [@b.field label='学制']${plan.program.duration} 年 (${plan.startTerm!}~${plan.endTerm!} 学期)[/@]
+    [@b.select  name='plan.department.id' label="院系" items=departments value=plan.department! required='true' /]
+    [@b.field label='有效时间范围']${plan.program.beginOn?string("yyyy-MM-dd")}~${plan.program.endOn?string('yyyy-MM-dd')}[/@]
+    [@b.field label='总学分']${plan.credits!}[/@b.field]
+    [@b.formfoot]
+      [@b.submit value="提交"/]
+    [/@]
+[/@]
+[#list 1..10 as i]<br>[/#list]

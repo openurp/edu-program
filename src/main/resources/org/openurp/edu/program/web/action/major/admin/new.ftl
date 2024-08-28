@@ -1,5 +1,5 @@
 [@b.head /]
-[@b.toolbar title='添加培养方案']
+[@b.toolbar title="添加培养方案"]
     bar.addBack();
 [/@]
 [@b.form name="planForm" id="planForm" action=b.rest.save(program) theme="list"]

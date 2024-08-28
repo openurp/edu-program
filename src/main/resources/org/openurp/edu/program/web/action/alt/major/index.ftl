@@ -1,6 +1,6 @@
 [#ftl]
 [@b.head /]
-[@b.toolbar title='专业替代课程管理'][/@]
+[#include "nav.ftl"/]
 <div class="search-container">
    <div class="search-panel">
       [#include "searchForm.ftl"/]

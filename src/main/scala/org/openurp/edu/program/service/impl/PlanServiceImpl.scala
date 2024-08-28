@@ -21,6 +21,7 @@ import org.beangle.commons.bean.Properties
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.{Numbers, Objects, Strings}
 import org.beangle.data.dao.EntityDao
+import org.beangle.data.orm.MappingMacro.target
 import org.openurp.base.edu.model.Course
 import org.openurp.code.edu.model.TeachingNature
 import org.openurp.code.service.CodeService
@@ -231,7 +232,7 @@ class PlanServiceImpl extends PlanService {
     diffs.sortBy(_.indexno).toSeq
   }
 
-  override def getMajorPlans(programs: Iterable[Program]): Map[Program, MajorPlan]={
+  override def getMajorPlans(programs: Iterable[Program]): Map[Program, MajorPlan] = {
     val existsPlans = entityDao.findBy(classOf[MajorPlan], "program", programs).map(x => (x.program, x)).toMap
     val plans = Collections.newBuffer[MajorPlan]
     programs foreach { program =>
@@ -245,6 +246,21 @@ class PlanServiceImpl extends PlanService {
           plans += plan
       }
     }
-    plans.map(x=>(x.program,x)).toMap
+    plans.map(x => (x.program, x)).toMap
+  }
+
+  override def generate(plan: MajorPlan): ExecutivePlan = {
+    entityDao.findBy(classOf[ExecutivePlan], "program", plan.program).headOption match
+      case None =>
+        val ep = new ExecutivePlan(plan)
+        entityDao.saveOrUpdate(ep)
+        ep
+      case Some(ep) => ep
+  }
+
+  override def copy(src: MajorPlan, target: MajorPlan): Unit = {
+    src.topGroups.foreach { group =>
+      new MajorCourseGroup(target, group.asInstanceOf[AbstractCourseGroup])
+    }
   }
 }

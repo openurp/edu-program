@@ -11,8 +11,8 @@
     <table class="grid-table" style="planCourse" width="100%" align="center">
       <thead class="grid-head">
         <tr align="center" class="darkColumn">
-          <th colspan="7" width="50%"><b>${left.program.grade.name?html} ${left.program.level.name} ${left.program.department.name} ${left.program.major.name} ${(left.program.direction.name)!}</b></th>
-          <th colspan="7" width="50%"><b>${right.program.grade.name?html} ${right.program.level.name} ${right.program.department.name} ${right.program.major.name} ${(right.program.direction.name)!}</b></th>
+          <th colspan="7" width="50%"><b>${left.program.grade.name?html} ${left.program.level.name} ${left.program.department.name} ${left.program.major.name} ${(left.program.direction.name)!} ${(left.department??)?string("执行计划","专业教学计划")}</b></th>
+          <th colspan="7" width="50%"><b>${right.program.grade.name?html} ${right.program.level.name} ${right.program.department.name} ${right.program.major.name} ${(right.program.direction.name)!} ${(right.department??)?string("执行计划","专业教学计划")}</b></th>
         </tr>
       </thead>
     </table>

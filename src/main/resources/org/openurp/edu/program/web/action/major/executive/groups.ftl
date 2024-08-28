@@ -8,10 +8,10 @@
    }
 [/@]
 [@b.nav class="nav-tabs nav-tabs-compact"]
-  [@b.navitem href="admin!edit?id="+program.id]基本信息[/@]
-  [@b.navitem href="plan!groups?plan.id="+plan.id]课程设置[/@]
+  [@b.navitem href="!edit?id="+plan.id]基本信息[/@]
+  [@b.navitem href="!groups?plan.id="+plan.id]课程设置[/@]
 [/@]
-[#include "planGroupFunctions.ftl" /]
+[#include "../plan/planGroupFunctions.ftl" /]
 <link rel="stylesheet" type="text/css" href="${b.base}/static/css/plan.css?v=20230522" />
 <script type="text/javascript" charset="utf-8" src="${b.base}/static/edu/program/js/plan.js"></script>
 [@b.messages slash="2"/]
@@ -60,7 +60,7 @@
 [@b.form name="actionForm" action="!info?id=1"]
     <input type="hidden" name="planId" value="${plan.id}"/>
     <input type="hidden" name="courseGroup.id" value="" />
-    <input type="hidden" name="toGroups" value="1" />
+    <input type="hidden" name="toGroup" value="1" />
 [/@]
 
 <div class="modal fade" id="planDialog" tabindex="-1" role="dialog" aria-labelledby="planDialogTitle" aria-hidden="true">
@@ -98,7 +98,6 @@
           <input type="hidden" name="stage" value=""/>
           <input type="hidden" name="planCourse.id" value=""/>
           <input type="hidden" name="planCourse.course.id" id="planCourse_course_id" value=""/>
-          <input type="hidden" name="toGroups" value="1"/>
           <table width="100%" valign="top" class="grid-table">
             <tr>
              <td class="grayStyle" width="25%">&nbsp;课程代码<font color="red">*</font></td>
@@ -230,18 +229,18 @@
       return;
     }
     form['courseGroup.id'].value = id;
-    bg.form.submit(form, '${b.url("!removeGroup?toGroups=1")}');
+    bg.form.submit(form, '${b.url("!removeGroup")}');
   }
 
   function addGroup() {
     bg.form.addInput(form,"courseGroup.id","");
-    bg.form.submit(form, '${b.url("!editGroup?toGroups=1")}',"planDialogBody");
+    bg.form.submit(form, '${b.url("!editGroup")}',"planDialogBody");
     jQuery("#planDialog").modal("show");
   }
 
   function edit(id) {
     bg.form.addInput(form,"courseGroup.id",id);
-    bg.form.submit(form, '${b.url("!editGroup?toGroups=1")}',"planDialogBody");
+    bg.form.submit(form, '${b.url("!editGroup")}',"planDialogBody");
     jQuery("#planDialog").modal("show");
   }
 

@@ -1,0 +1,5 @@
+[#ftl]
+[@b.nav class="nav-tabs nav-tabs-compact"]
+  [@b.navitem href="std"]学生个人替代[/@]
+  [@b.navitem href="major"]专业替代[/@]
+[/@]

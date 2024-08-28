@@ -36,6 +36,7 @@ class DefaultModule extends BindModule {
     bind(classOf[major.ReviewAction])
     bind(classOf[major.PrerequisiteAction])
     bind(classOf[major.StatAction])
+    bind(classOf[major.ExecutiveAction])
 
     bind(classOf[exempt.CourseAction])
     bind(classOf[exempt.StdAction])

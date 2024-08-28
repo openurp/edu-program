@@ -216,7 +216,6 @@ class PlanCategoryStat(plan: CoursePlan, val credits: Float, natures: collection
       if (cs.practical) {
         if (cs.credits > 0) total += cs.credits
         else{
-          if(cs.hours>0) println(s"${cs.name} ${cs.hours}")
           innerHours += cs.hours
         }
       }

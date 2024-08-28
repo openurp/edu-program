@@ -5,16 +5,15 @@
         bar.addItem("${b.text("action.modify")}",action.edit());
         bar.addItem("复制",action.single("copyPrompt"));
         bar.addItem("${b.text("action.delete")}",action.remove());
-        bar.addItem("修改文本",action.single('editDoc',null,null,"_blank"));
-        bar.addItem("修订计划",action.single('editPlan',null,null,"_blank"));
-        var m=bar.addMenu("提交审核",action.multi("applyAudit",'确定提交审核?'));
-        m.addItem("撤回提交",action.multi("revokeSubmitted",'确定撤回提交?'));
+        var m=bar.addMenu("审核通过",action.multi("audit",'确定审核通过，通过后不能修改?',"passed=1"));
+        m.addItem("驳回修改",action.multi("audit",'确定驳回修改?',"passed=0"));
         var menu = bar.addMenu("批量操作");
-        menu.addItem("导出课程", "exportData()");
+        menu.addItem("生成执行计划", action.multi("gen","如果已经生成计划，则会跳过，确定继续生成?"));
+        /**menu.addItem("导出课程", "exportData()");
         menu.addItem("批量打印","printPlans()");
         menu.addItem("批量复制", action.multi("batchCopyPrompt"));
         menu.addItem("统计学分", action.multi("restat"));
-        menu.addItem("修改备注", action.multi("batchUpdateRemarkSetting"));
+        menu.addItem("修改备注", action.multi("batchUpdateRemarkSetting"));**/
     [/@]
     [@b.row]
         [@b.boxcol/]

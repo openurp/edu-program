@@ -22,7 +22,7 @@
           <td>${s.course.name}</td>
           <td>${s.course.defaultCredits}</td>
           [#assign cj = s.course.getJournal(grade)/]
-          <td>[#if cj.weeks>0]${cj.weeks}周[#else]${cj.creditHours}<span [#if cj.creditHourIdentical]class="text-muted"[#else]style="color:red"[/#if]>([#list teachingNatures as n]${cj.getHour(n)!0}[#sep]+[/#list])</span>[/#if]</td>
+          <td>[#if cj.weeks?? && cj.weeks>0]${cj.weeks}周[#else]${cj.creditHours}<span [#if cj.creditHourIdentical]class="text-muted"[#else]style="color:red"[/#if]>([#list teachingNatures as n]${cj.getHour(n)!0}[#sep]+[/#list])</span>[/#if]</td>
           <td>${cj.examMode.name}</td>
           <td>[#list s.levels as m]${m.name}[#sep] [/#list]</td>
           <td>${s.terms}</td>
@@ -40,7 +40,7 @@
           <td>${s.course.name}</td>
           <td>${s.course.defaultCredits}</td>
           [#assign cj = s.course.getJournal(grade)/]
-          <td>[#if cj.weeks>0]${cj.weeks}周[#else]${cj.creditHours}<span [#if cj.creditHourIdentical]class="text-muted"[#else]style="color:red"[/#if]>([#list teachingNatures as n]${cj.getHour(n)!0}[#sep]+[/#list])</span>[/#if]</td>
+          <td>[#if cj.weeks?? && cj.weeks>0]${cj.weeks}周[#else]${cj.creditHours}<span [#if cj.creditHourIdentical]class="text-muted"[#else]style="color:red"[/#if]>([#list teachingNatures as n]${cj.getHour(n)!0}[#sep]+[/#list])</span>[/#if]</td>
           <td>${cj.examMode.name}</td>
           <td>[#list s.levels as m]${m.name}[#sep] [/#list]</td>
           <td>${s.terms}</td>

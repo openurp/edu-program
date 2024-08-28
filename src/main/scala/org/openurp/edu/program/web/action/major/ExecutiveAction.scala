@@ -17,37 +17,67 @@
 
 package org.openurp.edu.program.web.action.major
 
-import jakarta.servlet.http.Part
-import org.beangle.commons.collection.{Collections, Order, Properties}
+import org.beangle.commons.collection.{Collections, Order}
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.WeekState
-import org.beangle.data.dao.{EntityDao, OqlBuilder}
+import org.beangle.data.dao.OqlBuilder
 import org.beangle.ems.app.Ems
-import org.beangle.web.action.annotation.{mapping, param, response}
-import org.beangle.web.action.context.ActionMessages
-import org.beangle.web.action.support.ActionSupport
+import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
-import org.beangle.webmvc.support.action.EntityAction
-import org.openurp.base.edu.model.{Course, CourseJournal, Terms}
-import org.openurp.base.model.{CalendarStage, Department, Project}
-import org.openurp.base.std.model.Grade
+import org.beangle.webmvc.support.action.RestfulAction
+import org.openurp.base.edu.model.{Course, Major, Terms}
+import org.openurp.base.model.{AuditStatus, CalendarStage, Project}
 import org.openurp.code.edu.model.*
+import org.openurp.code.std.model.StdType
 import org.openurp.edu.clazz.domain.NumSeqParser
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.*
-import org.openurp.edu.program.service.impl.EnNameChecker
 import org.openurp.edu.service.Features
 import org.openurp.starter.web.support.ProjectSupport
 
-import java.time.Instant
+import java.time.LocalDate
 
 /** 执行计划维护
  */
-class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], ProjectSupport {
+class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
 
   var planService: PlanService = _
 
-  var entityDao: EntityDao = _
+  override protected def simpleEntityName: String = "plan"
+
+  override def indexSetting(): Unit = {
+    given project: Project = getProject
+
+    val departmentList = getDeparts
+    put("departments", departmentList)
+    put("levels", project.levels)
+    put("educationTypes", getCodes(classOf[EducationType]))
+
+    put("stdTypes", getCodes(classOf[StdType]))
+    val query = OqlBuilder.from(classOf[Major], "m")
+    query.where("m.project=:project", project)
+    query.where("exists(from m.journals as mj where mj.depart in(:departs))", departmentList)
+    query.orderBy("m.code")
+    val majors = entityDao.search(query)
+    put("majors", majors)
+    put("statuses", List(AuditStatus.Submited, AuditStatus.PassedByDepart, AuditStatus.RejectedByDepart, AuditStatus.Passed, AuditStatus.Rejected))
+    super.indexSetting()
+  }
+
+  override protected def getQueryBuilder: OqlBuilder[ExecutivePlan] = {
+    val q = super.getQueryBuilder
+    val project = getProject
+    put("displayEducationType", project.eduTypes.size > 1)
+    queryByDepart(q, "plan.department")
+    getBoolean("fake.valid").foreach { active =>
+      if (active) {
+        q.where("(" + q.alias + ".program.endOn >= :now)", LocalDate.now())
+      } else {
+        q.where(" (" + q.alias + ".program.endOn <= :now)", LocalDate.now())
+      }
+    }
+    q.where("plan.program.project=:project", project)
+  }
 
   def groups(): View = {
     val plan = entityDao.get(classOf[ExecutivePlan], getLongId("plan"))
@@ -150,8 +180,7 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
     }
 
     planService.statPlanCredits(plan)
-    val target = if getBoolean("toGroups", false) then "groups" else "edit"
-    redirect(target, s"program.id=${plan.program.id}&courseGroup.id=${group.id}", "info.save.success")
+    redirect("groups", s"plan.id=${plan.id}&courseGroup.id=${group.id}", "info.save.success")
   }
 
   def removeGroup(): View = {
@@ -164,11 +193,7 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
     group.parent = None
     entityDao.saveOrUpdate(plan)
     planService.statPlanCredits(plan)
-    if (getBoolean("toGroups", false)) {
-      redirect("groups", "program.id=" + plan.program.id, "info.remove.success")
-    } else {
-      redirect("edit", "program.id=" + plan.program.id, "info.remove.success")
-    }
+    redirect("groups", "plan.id=" + plan.id, "info.remove.success")
   }
 
   /**
@@ -213,7 +238,7 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
    * @return
    */
   @mapping(value = "{id}")
-  def info(@param("id") id: String): View = {
+  override def info(@param("id") id: String): View = {
     val plan = entityDao.get(classOf[ExecutivePlan], id.toLong)
     put("plan", plan)
 
@@ -228,19 +253,18 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
     forward("info")
   }
 
-  def edit(): View = {
-    val plan = entityDao.get(classOf[ExecutivePlan], getLongId("plan"))
-    put("plan", plan)
-
+  override def editSetting(plan: ExecutivePlan): Unit = {
     given project: Project = plan.program.project
 
     put("displayCreditHour", getConfig(Features.Program.DisplayCreditHour))
     put("enableLinkCourseInfo", getConfig(Features.Program.LinkCourseEnabled))
     put("natures", getCodes(classOf[TeachingNature]))
     put("tags", getCodes(classOf[ProgramCourseTag]))
+    val departs = getDeparts
+    put("departments", departs)
     put("termHelper", new TermHelper)
     put("ems_base", Ems.base)
-    put("isAdmin", getDeparts.size > 2)
+    put("isAdmin", departs.size > 2)
     forward()
   }
 
@@ -263,20 +287,19 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
     val weekstate = get("planCourse.weekstate", "")
     if (Strings.isEmpty(weekstate)) planCourse.weekstate = WeekState.Zero
     else planCourse.weekstate = WeekState.of(NumSeqParser.parse(weekstate))
-    val extra = "&courseGroup.id=" + group.id + "&planId=" + plan.id + "&program.id=" + plan.program.id
-    val target = if getBoolean("toGroups", false) then "groups" else "edit"
+    val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id
     if (planCourse.persisted) {
       if (group.planCourses.exists(x => x.course == planCourse.course && planCourse.id != x.id)) {
-        return redirect(target, extra, "课程重复")
+        return redirect("groups", extra, "课程重复")
       }
       planService.updatePlanCourse(planCourse, group)
     } else {
       if (group.planCourses.exists(_.course == planCourse.course)) {
-        return redirect(target, extra, "课程重复")
+        return redirect("groups", extra, "课程重复")
       }
       planService.addPlanCourse(planCourse, group)
     }
-    redirect(target, extra, "info.save.success")
+    redirect("groups", extra, "info.save.success")
   }
 
   def removeCourse(): View = {
@@ -286,8 +309,7 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
     }
     val group = planCourses.head.group
     planService.statPlanCredits(group.plan)
-    val target = if getBoolean("toGroup", false) then "groups" else "edit"
-    redirect(target, s"program.id=${group.plan.program.id}&courseGroup.id=${group.id}", "info.save.success")
+    redirect("groups", s"plan.id=${group.plan.id}&courseGroup.id=${group.id}", "info.save.success")
   }
 
   def batchAddForm(): View = {
@@ -326,7 +348,7 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
     }
     entityDao.saveOrUpdate(plan)
     planService.statPlanCredits(plan)
-    val extra = "&courseGroup.id=" + group.id + "&program.id=" + plan.program.id
+    val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id
     redirect("groups", extra, "添加 " + courseIds.length + " 成功 " + (courseIds.length - errorNum) + " 失败 " + errorNum)
   }
 
@@ -352,62 +374,16 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
     }
     entityDao.saveOrUpdate(plan)
     planService.statPlanCredits(plan)
-    val extra = "&courseGroup.id=" + group.id + "&program.id=" + plan.program.id
+    val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id
     redirect("groups", extra, "修改成功")
   }
 
-  /** 比较两个计划
-   *
-   * @return
-   */
-  def diffIndex(): View = {
-    given project: Project = getProject
-
-    val q = OqlBuilder.from(classOf[Program], "program")
-    q.where("program.project=:project", project)
-    queryByDepart(q, "program.department")
-    q.orderBy("program.grade.beginOn desc,program.department.code,program.major.name")
-    val plans = entityDao.search(q)
-    val lefts = plans.toSeq
-    var rights = plans.toSeq
-    getLong("right.grade.id") foreach { gradeId =>
-      rights = rights.filter(_.grade.id == gradeId)
-    }
-    var right = rights.headOption
-    getLong("right.id") foreach { id =>
-      right = rights.find(_.id == id)
-    }
-
-    var left: Option[Program] = None
-    get("left.id") foreach {
-      case "last" =>
-        if (right.nonEmpty) {
-          val sameMajors = lefts.filter { x =>
-            x.department == right.get.department &&
-              x.level == right.get.level &&
-              x.major == right.get.major &&
-              x.direction == right.get.direction &&
-              !right.contains(x) &&
-              x.grade.beginOn.isBefore(right.get.grade.beginOn)
-          }
-          left = sameMajors.sortBy(_.grade.beginOn).reverse.headOption
-        }
-      case id@i => left = lefts.find(_.id.toString == id)
-    }
-
-    put("lefts", lefts)
-    put("rights", rights)
-    put("left", left)
-    put("right", right)
-    forward()
-  }
-
   def diff(): View = {
-    val left = entityDao.findBy(classOf[ExecutivePlan], "program.id", getLongId("left")).head
-    val right = entityDao.findBy(classOf[ExecutivePlan], "program.id", getLongId("right")).head
-    put("left", left)
-    put("right", right)
-    put("diffResults", planService.diff(left, right))
+    val ep = entityDao.get(classOf[ExecutivePlan], getLongId("plan"))
+    val mp = entityDao.findBy(classOf[MajorPlan], "program", ep.program).head
+    put("left", ep)
+    put("right", mp)
+    put("diffResults", planService.diff(ep, mp))
     put("termHelper", new TermHelper)
     forward()
   }

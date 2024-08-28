@@ -237,9 +237,9 @@
       [#assign credits =(planCourse.course.getCredits(courseGroup.plan.program.level))?default(0)/]
       [#assign cj = planCourse.course.getJournal(program.grade)/]
       <td>[#if credits>0]${credits}[#else]※[/#if]</td>
-      <td>[#if credits>0][#if cj.weeks>0][#if cj.weeks>15]每周[#else]${cj.weeks}周[/#if][#else]${cj.creditHours}[/#if][#else]※[/#if]</td>
+      <td>[#if credits>0][#if cj.weeks?? && cj.weeks>0][#if cj.weeks>15]每周[#else]${cj.weeks}周[/#if][#else]${cj.creditHours}[/#if][#else]※[/#if]</td>
       [#list natures as nature]
-        [#if cj.weeks>0]
+        [#if cj.weeks?? && cj.weeks>0]
           <td>[#if nature.id==9][#if cj.weeks<16]${cj.weeks}周[/#if][#else]&nbsp;[/#if]</td>
         [#else]
         <td>[#if (cj.getHour(nature)!0)>0][#if credits>0]${cj.getHour(nature)}[#else]※[/#if][/#if]</td>

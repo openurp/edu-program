@@ -1,7 +1,6 @@
 [#ftl]
 [@b.head/]
-[@b.toolbar title='免修课程设置']
-[/@]
+[#include "nav.ftl"/]
 <div class="search-container">
    <div class="search-panel">
       [#include "searchForm.ftl"/]

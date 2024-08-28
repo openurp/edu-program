@@ -1,0 +1,5 @@
+[#ftl]
+[@b.nav class="nav-tabs nav-tabs-compact"]
+  [@b.navitem href="std"]学生个人免修[/@]
+  [@b.navitem href="course"]免修设置[/@]
+[/@]

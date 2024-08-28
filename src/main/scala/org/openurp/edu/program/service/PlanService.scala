@@ -37,7 +37,11 @@ trait PlanService {
 
   def diff(left: CoursePlan, right: CoursePlan): Seq[PlanDiff.GroupDiff]
 
-  def getMajorPlans(programs:Iterable[Program]):Map[Program,MajorPlan]
+  def getMajorPlans(programs: Iterable[Program]): Map[Program, MajorPlan]
+
+  def generate(plan: MajorPlan): ExecutivePlan
+
+  def copy(source: MajorPlan, target: MajorPlan): Unit
 }
 
 object PlanDiff {
@@ -51,6 +55,6 @@ object PlanDiff {
   case class Group(credits: Float, courses: Seq[PlanCourse])
 }
 
-class PlanDiff{
+class PlanDiff {
   var groupDiffs = Collections.newBuffer[GroupDiff]
 }

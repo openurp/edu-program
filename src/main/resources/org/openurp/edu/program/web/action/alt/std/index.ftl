@@ -1,7 +1,6 @@
 [#ftl /]
 [@b.head /]
-[#assign doAction="stdAlternativeCourse.action"/]
-[@b.toolbar title="个人替代课程管理" /]
+[#include "../major/nav.ftl"/]
 <div class="search-container">
    <div class="search-panel">
     [#include "searchForm.ftl"/]

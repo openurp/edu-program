@@ -14,7 +14,17 @@
             </a>
             <div class="dropdown-menu">
               [#list grades as g]
-              [@b.a class="dropdown-item" href="!index?grade.id="+g.id]${g.name}[/@]
+              [@b.a class="dropdown-item" href="!index?grade.id="+g.id+"&level.id="+level.id]${g.name}[/@]
+              [/#list]
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+              ${level.name}
+            </a>
+            <div class="dropdown-menu">
+              [#list levels as l]
+              [@b.a class="dropdown-item" href="!index?grade.id="+grade.id+"&level.id="+l.id]${l.name}[/@]
               [/#list]
             </div>
           </li>
@@ -24,8 +34,8 @@
 
     <div class="card-body" style="padding-top: 0px;">
      [@b.tabs]
-       [@b.tab href="!natures?grade.id=${grade.id}" label="理论/实践"/]
-       [@b.tab href="!modules?grade.id=${grade.id}" label="课程模块"/]
+       [@b.tab href="!modules?grade.id=${grade.id}&level.id=${level.id}" label="课程模块"/]
+       [@b.tab href="!natures?grade.id=${grade.id}&level.id=${level.id}" label="理论/实践"/]
      [/@]
     </div>
   </div>

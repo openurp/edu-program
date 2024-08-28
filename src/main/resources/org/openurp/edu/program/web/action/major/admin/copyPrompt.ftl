@@ -1,14 +1,10 @@
 [@b.head /]
-[#assign titleName]${program.grade.code} ${program.level.name} ${program.major.name} ${(program.direction.name)!} 培养方案[/#assign]
+[#assign titleName]复制培养方案(${copyFrom.grade.code} ${copyFrom.level.name} ${copyFrom.major.name} ${(copyFrom.direction.name)!})[/#assign]
 [@b.toolbar title=titleName]
    bar.addItem("返回列表", "backToList()","action-backward");
    function backToList() {
      bg.form.submit(document.searchForm);
    }
-[/@]
-[@b.nav class="nav-tabs nav-tabs-compact"]
-  [@b.navitem href="!edit?id="+program.id]基本信息[/@]
-  [@b.navitem href="plan!groups?plan.id="+plan.id]课程设置[/@]
 [/@]
   [@b.form name="planForm" id="planForm" action=b.rest.save(program) theme="list"]
     [@b.textfield id="program_name" name='program.name' label="名称" value=program.name!
@@ -38,6 +34,7 @@
         [#if project.eduTypes?size==1]
         <select name='program.eduType.id' style="display:none"><option value="${project.eduTypes?first.id}" selected>${project.eduTypes?first.name}</option></select>
         [/#if]
+        <input type="hidden" name="copyFrom.id" value="${copyFrom.id}"/>
         [@b.submit value="保存"/]
         [@b.reset/]
     [/@]

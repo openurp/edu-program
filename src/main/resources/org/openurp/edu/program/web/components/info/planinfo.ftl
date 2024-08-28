@@ -53,7 +53,7 @@
       </td>
       <td>${pc.course.defaultCredits}</td>
       [#assign cj = pc.course.getJournal(program.grade)/]
-      <td>[#if cj.weeks>0][#if cj.weeks>15]每周[#else]${cj.weeks}周[/#if][#else]${cj.creditHours}<span [#if cj.creditHourIdentical]class="text-muted"[#else]style="color:red"[/#if]>([#list natures as n]${cj.getHour(n)!0}[#sep]+[/#list])</span>[/#if]</td>
+      <td>[#if cj.weeks?? && cj.weeks>0][#if cj.weeks>15]每周[#else]${cj.weeks}周[/#if][#else]${cj.creditHours}<span [#if cj.creditHourIdentical]class="text-muted"[#else]style="color:red"[/#if]>([#list natures as n]${cj.getHour(n)!0}[#sep]+[/#list])</span>[/#if]</td>
       <td>[#if pc.compulsory]必修[#else]${(g.rank.name)!}[/#if]</td>
       <td>${(cj.examMode.name)!}</td>
       <td>${termHelper.getTermText(pc)}<div style="display:none">${pc.terms!}</div></td>

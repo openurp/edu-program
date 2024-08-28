@@ -1,0 +1,28 @@
+[@b.head/]
+[@b.grid id="planList" items=plans var="plan"]
+    [@b.gridbar]
+        bar.addItem("${b.text("action.modify")}",action.edit());
+        bar.addItem("${b.text("action.delete")}",action.remove());
+    [/@]
+    [@b.row]
+        [@b.boxcol/]
+        [@b.col width="7%" property="program.grade.code" title="年级"/]
+        [@b.col width="6%" property="program.level.name" title="培养层次"/]
+        [#if displayEducationType]
+          [@b.col width="6%" property="program.eduType.name" title="培养类型"/]
+        [/#if]
+        [@b.col width="16%" property="department.name" title="院系"/]
+        [@b.col property="program.major.name" title="专业/方向"]
+          ${plan.program.major.name} ${(plan.program.direction.name)!}
+        [/@]
+        [@b.col width="12%" title="学生类别" ]
+          <div class="text-ellipsis">[#list plan.program.stdTypes as ty]${ty.name}[#sep],[/#list]</div>
+        [/@]
+        [@b.col width="5%" property="program.duration" title="学制"/]
+        [@b.col width="5%" property="credits" title="总学分"/]
+        [@b.col width="5%" title="操作"]
+           [@b.a href="!diff?plan.id=${plan.id}" title="点击查看详情" target="_blank"]对比[/@]
+        [/@]
+    [/@]
+[/@]
+[@b.foot /]

@@ -1,11 +1,11 @@
 [@b.head/]
-<p style="text-align:center;margin:0px;">${grade.name}级 培养方案学分学时统计
+<p style="text-align:center;margin:0px;">${grade.name}级 ${level.name} 培养方案学分学时统计
 [#if (request.getHeader('x-requested-with')??) || Parameters['x-requested-with']??]
-  [@b.a href="!natures?grade.id="+grade.id target="_blank" class="notprint"]<i class="fas fa-print"></i>打印[/@]&nbsp;&nbsp;
-  [@b.a href="!natureExcel?grade.id="+grade.id target="_blank" class="notprint"]<i class="fas fa-file-excel"></i>导出[/@]
+  [@b.a href="!natures?grade.id="+grade.id+"&level.id="+ level.id target="_blank" class="notprint"]<i class="fas fa-print"></i>打印[/@]&nbsp;&nbsp;
+  [@b.a href="!natureExcel?grade.id="+grade.id+"&level.id="+ level.id target="_blank" class="notprint"]<i class="fas fa-file-excel"></i>导出[/@]
 [/#if]
 </p>
-<div class="container">
+<div class="container-fluid">
     <table class="grid-table">
       <colgroup>
         <col width="4%"/>
