@@ -43,7 +43,7 @@ import org.openurp.starter.web.support.ProjectSupport
  */
 class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport {
 
-  var planService: PlanService = _
+  var planService: CoursePlanService = _
 
   var entityDao: EntityDao = _
 
@@ -139,8 +139,12 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     }
     // 更新老的课程组// 更新老的课程组
     if (group.persisted) {
-      if ((parent != null && oldParent != null && !(parentId.get == oldParent.id)) || (parent == null && oldParent != null) || (parent != null && oldParent == null) || index != group.index())
+      if ((parent != null && oldParent != null && !(parentId.get == oldParent.id))
+        || (parent == null && oldParent != null) || (parent != null && oldParent == null) || index != group.index) {
         planService.move(group, parent, index)
+      } else {
+        entityDao.saveOrUpdate(group)
+      }
     } else { // 保存新的课程组
       group.indexno = "--"
       planService.addCourseGroupToPlan(group, parent, plan)

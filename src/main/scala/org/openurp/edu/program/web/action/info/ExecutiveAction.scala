@@ -26,7 +26,7 @@ import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.{Direction, Major}
 import org.openurp.base.model.Project
 import org.openurp.edu.program.model.{ExecutivePlan, MajorPlan}
-import org.openurp.edu.program.service.PlanService
+import org.openurp.edu.program.service.CoursePlanService
 import org.openurp.edu.service.Features
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -34,7 +34,7 @@ import java.time.LocalDate
 
 class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], ProjectSupport {
   var entityDao: EntityDao = _
-  var planService: PlanService = _
+  var planService: CoursePlanService = _
 
   def index(): View = {
     given project: Project = getProject

@@ -27,12 +27,12 @@ import org.openurp.code.edu.model.TeachingNature
 import org.openurp.code.service.CodeService
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.PlanDiff.*
-import org.openurp.edu.program.service.{PlanDiff, PlanGroupStat, PlanService}
+import org.openurp.edu.program.service.{PlanDiff, PlanGroupStat, CoursePlanService}
 
 import java.time.Instant
 import scala.collection.mutable
 
-class PlanServiceImpl extends PlanService {
+class CoursePlanServiceImpl extends CoursePlanService {
 
   var entityDao: EntityDao = _
   var codeService: CodeService = _

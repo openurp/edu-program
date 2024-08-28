@@ -21,7 +21,7 @@ import org.beangle.commons.collection.Collections
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.PlanDiff.GroupDiff
 
-trait PlanService {
+trait CoursePlanService {
 
   def move(node: CourseGroup, location: CourseGroup, index: Int): Unit
 

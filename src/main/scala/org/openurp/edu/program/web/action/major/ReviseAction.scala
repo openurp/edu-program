@@ -35,7 +35,7 @@ import org.openurp.base.model.{AuditStatus, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.TeachingNature
 import org.openurp.edu.program.model.{MajorPlan, Program}
-import org.openurp.edu.program.service.PlanService
+import org.openurp.edu.program.service.CoursePlanService
 import org.openurp.edu.program.web.helper.*
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -47,7 +47,7 @@ import java.time.{Instant, LocalDate}
  */
 class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   var entityDao: EntityDao = _
-  var planService: PlanService = _
+  var planService: CoursePlanService = _
 
   def index(): View = {
     given project: Project = getProject

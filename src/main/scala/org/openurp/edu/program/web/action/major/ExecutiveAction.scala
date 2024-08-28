@@ -41,7 +41,7 @@ import java.time.LocalDate
  */
 class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
 
-  var planService: PlanService = _
+  var planService: CoursePlanService = _
 
   override protected def simpleEntityName: String = "plan"
 
@@ -171,8 +171,12 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     }
     // 更新老的课程组// 更新老的课程组
     if (group.persisted) {
-      if ((parent != null && oldParent != null && !(parentId.get == oldParent.id)) || (parent == null && oldParent != null) || (parent != null && oldParent == null) || index != group.index())
+      if ((parent != null && oldParent != null && !(parentId.get == oldParent.id)) ||
+        (parent == null && oldParent != null) || (parent != null && oldParent == null) || index != group.index) {
         planService.move(group, parent, index)
+      } else {
+        entityDao.saveOrUpdate(group)
+      }
     } else { // 保存新的课程组
       group.indexno = "--"
       planService.addCourseGroupToPlan(group, parent, plan)
@@ -256,15 +260,7 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
   override def editSetting(plan: ExecutivePlan): Unit = {
     given project: Project = plan.program.project
 
-    put("displayCreditHour", getConfig(Features.Program.DisplayCreditHour))
-    put("enableLinkCourseInfo", getConfig(Features.Program.LinkCourseEnabled))
-    put("natures", getCodes(classOf[TeachingNature]))
-    put("tags", getCodes(classOf[ProgramCourseTag]))
-    val departs = getDeparts
-    put("departments", departs)
-    put("termHelper", new TermHelper)
-    put("ems_base", Ems.base)
-    put("isAdmin", departs.size > 2)
+    put("departments", getDeparts)
     forward()
   }
 

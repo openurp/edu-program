@@ -29,7 +29,7 @@ import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.{Certificate, Degree, EducationType}
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.model.{ExecutivePlan, MajorPlan, Program, ProgramDoc}
-import org.openurp.edu.program.service.{PlanService, ProgramNamingHelper}
+import org.openurp.edu.program.service.{CoursePlanService, ProgramNamingHelper}
 import org.openurp.edu.program.web.helper.ProgramInfoHelper
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -38,7 +38,7 @@ import java.util
 
 class AdminAction extends RestfulAction[Program], ProjectSupport {
 
-  var planService: PlanService = _
+  var planService: CoursePlanService = _
 
   override def indexSetting(): Unit = {
     given project: Project = getProject

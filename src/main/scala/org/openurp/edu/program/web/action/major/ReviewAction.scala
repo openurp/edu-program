@@ -28,7 +28,7 @@ import org.openurp.base.model.{Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.TeachingNature
 import org.openurp.edu.program.model.{MajorPlan, PlanCourse, Program}
-import org.openurp.edu.program.service.{PlanService, TermHelper}
+import org.openurp.edu.program.service.{CoursePlanService, TermHelper}
 import org.openurp.edu.program.web.helper.{PlanCourseHelper, PlanCourseStat, ProgramReportHelper}
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -36,7 +36,7 @@ import org.openurp.starter.web.support.ProjectSupport
  */
 class ReviewAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport {
 
-  var planService: PlanService = _
+  var planService: CoursePlanService = _
 
   var entityDao: EntityDao = _
 

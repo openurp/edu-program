@@ -46,7 +46,11 @@ class DefaultModule extends BindModule {
     bind(classOf[alt.ApplyAction])
     bind(classOf[alt.CourseTypeAction])
 
-    bind(classOf[PlanServiceImpl])
+    bind(classOf[share.PlanAction])
+    bind(classOf[share.CourseAction])
+    
+    bind(classOf[CoursePlanServiceImpl])
+    bind(classOf[SharePlanServiceImpl])
     bind(classOf[DefaultProgramChecker])
       .property("planCheckers",
         list(ref("PlanChecker.optionalCreditHour"),

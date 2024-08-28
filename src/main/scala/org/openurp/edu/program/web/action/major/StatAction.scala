@@ -28,14 +28,14 @@ import org.openurp.base.model.Project
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.{CourseType, EducationLevel, TeachingNature}
 import org.openurp.edu.program.model.{CourseGroup, MajorPlan, Program}
-import org.openurp.edu.program.service.{PlanCategoryStat, PlanService}
+import org.openurp.edu.program.service.{PlanCategoryStat, CoursePlanService}
 import org.openurp.starter.web.support.ProjectSupport
 
 import scala.collection.mutable
 
 class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   var entityDao: EntityDao = _
-  var planService: PlanService = _
+  var planService: CoursePlanService = _
 
   def index(): View = {
     given project: Project = getProject

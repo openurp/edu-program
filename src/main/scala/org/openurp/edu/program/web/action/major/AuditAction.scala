@@ -25,7 +25,7 @@ import org.openurp.base.model.AuditStatus.{PassedByDepart, RejectedByDepart}
 import org.openurp.base.model.{AuditStatus, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.edu.program.model.{MajorPlan, Program}
-import org.openurp.edu.program.service.{PlanService, ProgramChecker, TermHelper}
+import org.openurp.edu.program.service.{CoursePlanService, ProgramChecker, TermHelper}
 import org.openurp.edu.program.web.helper.{ProgramInfoHelper, ProgramReportHelper}
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -35,7 +35,7 @@ class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   var entityDao: EntityDao = _
   var programChecker: ProgramChecker = _
 
-  var planService: PlanService = _
+  var planService: CoursePlanService = _
 
   def index(): View = {
     given project: Project = getProject
