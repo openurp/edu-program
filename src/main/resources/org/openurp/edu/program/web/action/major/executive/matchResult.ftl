@@ -1,0 +1,18 @@
+[#ftl]
+[@b.head /]
+[@b.grid  items=programMatchings! var="matching"]
+    [@b.row]
+        [@b.col width="5%" title="序号"]${matching_index+1}[/@]
+        [@b.col width="7%" property="grade" title="年级"/]
+        [@b.col width="7%" property="educationLevel.name" title="培养层次"/]
+        [@b.col width="8%" property="stdType.name" title="学生类别" /]
+        [@b.col width="15%" property="department.name" title="院系所"/]
+        [@b.col width="20%" property="major.name" title="专业/方向"]
+          ${matching.major.name} ${(matching.direction.name)!}
+        [/@]
+        [@b.col width="6%" property="count" title="学生人数"/]
+        [@b.col title="适配培养方案"][#if executivePlanMap.get(matching.id) ??]${(executivePlanMap.get(matching.id).program.name)}[#else ]<span style="color: red">未找到相应培养方案</span>[/#if][/@]
+    [/@]
+[/@]
+
+[@b.foot /]

@@ -69,5 +69,3 @@
       </tbody>
   </table>
 [/#if]
-
-

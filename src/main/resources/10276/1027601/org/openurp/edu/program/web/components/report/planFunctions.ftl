@@ -489,7 +489,6 @@
     [#assign teachPlanLeafLevels = 1 /]
 [/#if]
 
-
 [#-- 分类一栏的colspan --]
 [#assign maxFenleiSpan = teachPlanLeafLevels - 1]
 [#if maxFenleiSpan <= 0]
@@ -545,4 +544,3 @@ ${plan.program.level.name}&nbsp;${(plan.program.stdType.name)!}&nbsp;${plan.prog
         </td>
     </tr>
 [/#macro]
-

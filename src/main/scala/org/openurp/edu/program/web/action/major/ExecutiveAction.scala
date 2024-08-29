@@ -25,13 +25,16 @@ import org.beangle.ems.app.Ems
 import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
-import org.openurp.base.edu.model.{Course, Major, Terms}
-import org.openurp.base.model.{AuditStatus, CalendarStage, Project}
+import org.openurp.base.edu.model.{Course, Direction, Major, Terms}
+import org.openurp.base.model.{AuditStatus, CalendarStage, Department, Project}
+import org.openurp.base.std.model.{Grade, Student, StudentState}
 import org.openurp.code.edu.model.*
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.clazz.domain.NumSeqParser
+import org.openurp.edu.program.domain.CoursePlanProvider
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.*
+import org.openurp.edu.program.web.helper.ProgramMatching
 import org.openurp.edu.service.Features
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -42,6 +45,8 @@ import java.time.LocalDate
 class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
 
   var planService: CoursePlanService = _
+
+  var coursePlanProvider:CoursePlanProvider=_
 
   override protected def simpleEntityName: String = "plan"
 
@@ -381,6 +386,109 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     put("right", mp)
     put("diffResults", planService.diff(ep, mp))
     put("termHelper", new TermHelper)
+    forward()
+  }
+
+  def matchIndex():View={
+    given project: Project = getProject
+    val builder = OqlBuilder.from[Grade](classOf[Program].getName, "program")
+    builder.select("distinct program.grade")
+    builder.orderBy("program.grade.code desc")
+    val grades  = entityDao.search(builder)
+    put("grades", grades)
+    put("firstGrade", grades.headOption)
+    put("departments", getDeparts)
+    put("stdTypes", project.stdTypes)
+    put("levels", getCodes(classOf[EducationLevel]))
+    forward()
+  }
+
+  def matchResult(): View = {
+    val builder: OqlBuilder[Array[AnyRef]] = OqlBuilder.from(classOf[Student].getName, "s")
+    builder.join("s.state", "ss")
+    builder.select("s.eduType.id,s.level.id,s.stdType.id,ss.department.id,ss.major.id,ss.direction.id,ss.grade.id,count(*)")
+    getLong("grade.id") foreach{gradeId=>      builder.where("ss.grade.id = :gradeId", gradeId)    }
+    getInt("level.id") foreach{levelId=>      builder.where("s.level.id = :levelId", levelId)}
+    getInt("stdType.id") foreach{stdTypeId=>      builder.where("s.stdType.id = :stdTypeId", stdTypeId)}
+    getInt("department.id") foreach{departmentId=>      builder.where("ss.department.id = :departmentId", departmentId)}
+    builder.groupBy("s.eduType.id,s.level.id,s.stdType.id,ss.department.id,ss.major.id,ss.direction.id,ss.grade.id")
+    builder.orderBy("ss.department.id")
+
+    val datas = entityDao.search(builder)
+    val executivePlanMap = Collections.newMap[String,ExecutivePlan]
+    val programMatchings = Collections.newBuffer[ProgramMatching]
+    for (data <- datas) {
+      val programMatching  = new ProgramMatching
+      val student = new Student
+      val studentState  = new StudentState
+      studentState.std = student
+      var id = ""
+      if (data(0) != null) {
+        val eduType = entityDao.get(classOf[EducationType], data(0).asInstanceOf[Number].intValue)
+        student.eduType =eduType
+        programMatching.educationType=eduType
+        id += data(0).toString + "_"
+      } else {
+        id += "null_"
+      }
+      if (data(1) != null) {
+        val level = entityDao.get(classOf[EducationLevel], data(1).asInstanceOf[Number].intValue)
+        student.level= level
+        programMatching.educationLevel=level
+        id += data(1).toString + "_"
+      } else {
+        id += "null_"
+      }
+      if (data(2) != null) {
+        val stdType = entityDao.get(classOf[StdType], data(2).asInstanceOf[Number].intValue)
+        student.stdType=stdType
+        programMatching.stdType =stdType
+        id += data(2).toString + "_"
+      }      else {
+        id += "null_"
+      }
+      if (data(3) != null) {
+        val depart = entityDao.get(classOf[Department], data(3).asInstanceOf[Number].intValue)
+        studentState.department = depart
+        programMatching.department = depart
+        id += data(3).toString + "_"
+      } else {
+        id += "null_"
+      }
+      if (data(4) != null) {
+        val major = entityDao.get(classOf[Major], data(4).asInstanceOf[Number].longValue)
+        studentState.major = major
+        programMatching.major = major
+        id += data(4).toString + "_"
+      } else {
+        id += "null_"
+      }
+      if (data(5) != null) {
+        val d  = entityDao.get(classOf[Direction], data(5).asInstanceOf[Number].longValue)
+        studentState.direction = Some(d)
+        programMatching.direction = Some(d)
+        id += data(5).toString + "_"
+      } else {
+        id += "null_"
+      }
+      if (data(6) != null) {
+        val g = entityDao.get(classOf[Grade], data(6).asInstanceOf[Long])
+        studentState.grade = g
+        programMatching.grade=g
+        id += data(6).toString
+      } else {
+        id += "null"
+      }
+      programMatching.id=id
+      programMatching.count = data(7).asInstanceOf[Number]
+      programMatchings.addOne(programMatching)
+      student.state = Some(studentState)
+       coursePlanProvider.getExecutivePlan(student) foreach{ep=>
+        executivePlanMap.put(programMatching.id, ep)
+      }
+    }
+    put("executivePlanMap", executivePlanMap)
+    put("programMatchings", programMatchings)
     forward()
   }
 }
