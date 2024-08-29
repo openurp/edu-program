@@ -73,9 +73,10 @@ class ReviewAction extends ActionSupport, EntityAction[MajorPlan], ProjectSuppor
     val grade = entityDao.get(classOf[Grade], getLongId("grade"))
     val depart = entityDao.get(classOf[Department], getIntId("department"))
     val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "department" -> depart)
+    val sortedPrograms = programs.sortBy(x => x.level.code + "_" + x.major.name + "_" + x.direction.map(_.name).getOrElse(""))
     put("depart", depart)
     put("grade", grade)
-    put("programs", programs)
+    put("programs", sortedPrograms)
     forward()
   }
 

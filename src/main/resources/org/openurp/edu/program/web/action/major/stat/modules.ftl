@@ -6,7 +6,7 @@
 [/#if]
 </p>
 <div class="container-fluid">
-    <table class="grid-table">
+    <table class="grid-table" style="table-layout:auto;">
       <colgroup>
         <col width="4%"/>
         <col width="5%"/>
