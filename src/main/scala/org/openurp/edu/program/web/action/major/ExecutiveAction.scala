@@ -91,6 +91,7 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     }
     put("plan", plan)
     put("program", plan.program)
+    put("stages", entityDao.findBy(classOf[CalendarStage],"school",plan.program.project.school))
     forward()
   }
 
