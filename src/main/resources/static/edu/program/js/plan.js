@@ -59,6 +59,7 @@
     planCourseForm["planCourse.termText"].value = '';
     planCourseForm["planCourse.weekstate"].value = '';
     planCourseForm["planCourse.idx"].value = '';
+    planCourseForm["planCourse.stage.id"].value = '';
     jQuery('#planCourse_course_defaultCredits').html('');
     jQuery('#planCourse_course_creditHours').html('');
     jQuery('#planCourse_course_name').html('');
@@ -80,6 +81,9 @@
     if(!form['planCourse.terms'].value) form['planCourse.terms'].value="*";
     form['planCourse.termText'].value = planCourse.termText;
     form['planCourse.idx'].value = planCourse.idx;
+    if(planCourse.stageId){
+      planCourseForm["planCourse.stage.id"].value = planCourse.stageId;
+    }
     if(planCourse.weekstate) form['planCourse.weekstate'].value = planCourse.weekstate;
     jQuery(':radio[name=planCourse\\.compulsory]', form).prop('checked',false);
     if(planCourse.compulsory) {

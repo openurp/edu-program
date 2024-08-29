@@ -54,6 +54,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     }
     put("plan", plan)
     put("program", plan.program)
+    put("stages", entityDao.findBy(classOf[CalendarStage],"school",plan.program.project.school))
     forward()
   }
 

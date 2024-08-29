@@ -30,6 +30,7 @@
     [@b.col title="课程名称" property="course.name"]
       ${planCourse.course.name}
       [#if planCourse.compulsory]<sup>必</sup>[/#if]
+      [#if planCourse.stage??]<sup>${planCourse.stage.name}</sup>[/#if]
     [/@]
     [@b.col width="7%" title="学分" property="course.defaultCredits"]
       ${planCourse.course.getCredits(planCourse.group.plan.program.level)}
@@ -57,7 +58,7 @@
     var planCourses ={};
     [#list courseGroup.planCourses as pc]
       [#assign c=pc.course/]
-      planCourses['pc${pc.id}']={'id':'${pc.id}','groupId':'${pc.group.id}','terms':'${pc.terms}','compulsory':${pc.compulsory?c},'course':{'id':'${c.id}','code':'${c.code}','name':'${c.name}','defaultCredits':'${c.defaultCredits}','creditHours':'${c.creditHours}','weekHours':'${c.weekHours}','department':{'id':'${c.department.id}','name':'${c.department.name}'}},'termText':'${(pc.termText!"")?js_string}','remark':'${(pc.remark!"")?js_string}','idx':'${pc.idx}'}
+      planCourses['pc${pc.id}']={'id':'${pc.id}','groupId':'${pc.group.id}','terms':'${pc.terms}','compulsory':${pc.compulsory?c},'course':{'id':'${c.id}','code':'${c.code}','name':'${c.name}','defaultCredits':'${c.defaultCredits}','creditHours':'${c.creditHours}','weekHours':'${c.weekHours}','department':{'id':'${c.department.id}','name':'${c.department.name}'}},'termText':'${(pc.termText!"")?js_string}','remark':'${(pc.remark!"")?js_string}','idx':'${pc.idx}'[#if pc.stage??],'stageId':'${pc.stage.id}'[/#if]}
     [/#list]
     function editCourse(){
       jQuery("#planDialogBody").html("");//否则影响这个选择

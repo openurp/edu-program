@@ -13,7 +13,7 @@
 [/@]
 [#include "planGroupFunctions.ftl" /]
 <link rel="stylesheet" type="text/css" href="${b.base}/static/css/plan.css?v=20230522" />
-<script type="text/javascript" charset="utf-8" src="${b.base}/static/edu/program/js/plan.js"></script>
+<script type="text/javascript" charset="utf-8" src="${b.base}/static/edu/program/js/plan.js?v=1"></script>
 [@b.messages slash="2"/]
 <div class="row">
   <div class="col-3">
@@ -123,6 +123,12 @@
              <td class="grayStyle" width="25%">&nbsp;开课学期<font color="red">*</font></td>
              <td class="brightStyle" colspan="3">
                 <input type="text" name="planCourse.terms" id="planCourse_terms" size="10" title="开课学期" maxlength="50" value="" onchange="generateTermText(this)"/>
+                <select name="planCourse.stage.id" style="width:80px;[#if stages?size==0]display:none;[/#if]">
+                  <option value="">...</option>
+                  [#list stages as stage]
+                  <option value="${stage.id}">${stage.name}</option>
+                  [/#list]
+                </select>
                 <span style="font-size:0.8rem;color: #999;">格式为:1或者1,2  *表示不限</span>
              </td>
             </tr>
@@ -168,6 +174,8 @@
 </div>
 
 <script language="javascript">
+  startTerm=${plan.program.startTerm};
+  endTerm=${plan.program.endTerm};
   var courseGroups = [];
   [#list plan.groups as g]
     courseGroups.push({'id':'${g.id}','name':'${g.name}','stage':'${(g.stage.name)!}'});

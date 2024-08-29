@@ -21,7 +21,6 @@
     <caption style="caption-side: top;">
     [@b.toolbar title='课程组列表(${plan.credits}分)']
        bar.addItem("新建","addGroup()");
-       //bar.addItem("复制","copyCourseGroupSetting()");
     [/@]
     </caption>
     <tbody>
@@ -60,7 +59,6 @@
 [@b.form name="actionForm" action="!info?id=1"]
     <input type="hidden" name="planId" value="${plan.id}"/>
     <input type="hidden" name="courseGroup.id" value="" />
-    <input type="hidden" name="toGroup" value="1" />
 [/@]
 
 <div class="modal fade" id="planDialog" tabindex="-1" role="dialog" aria-labelledby="planDialogTitle" aria-hidden="true">
@@ -122,6 +120,12 @@
              <td class="grayStyle" width="25%">&nbsp;开课学期<font color="red">*</font></td>
              <td class="brightStyle" colspan="3">
                 <input type="text" name="planCourse.terms" id="planCourse_terms" size="10" title="开课学期" maxlength="50" value="" onchange="generateTermText(this)"/>
+                <select name="planCourse.stage.id" style="width:80px;[#if stages?size==0]display:none;[/#if]">
+                  <option value="">...</option>
+                  [#list stages as stage]
+                  <option value="${stage.id}">${stage.name}</option>
+                  [/#list]
+                </select>
                 <span style="font-size:0.8rem;color: #999;">格式为:1或者1,2  *表示不限</span>
              </td>
             </tr>
@@ -167,6 +171,8 @@
 </div>
 
 <script language="javascript">
+  startTerm=${plan.program.startTerm};
+  endTerm=${plan.program.endTerm};
   var courseGroups = [];
   [#list plan.groups as g]
     courseGroups.push({'id':'${g.id}','name':'${g.name}','stage':'${(g.stage.name)!}'});
