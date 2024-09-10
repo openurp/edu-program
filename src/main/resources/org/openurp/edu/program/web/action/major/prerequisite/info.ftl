@@ -33,7 +33,7 @@
       [#if groupCourses?size>0]
         <div style="margin:auto;text-align:center;">
           <iframe HEIGHT="450px" WIDTH="100%" SCROLLING="auto"
-             FRAMEBORDER="0" src="${b.url('!image?autoCreate=1&program.id='+program.id)}" name="graph" id="graph">
+             FRAMEBORDER="0" src="${b.url('!image?autoCreate=1&program.id='+program.id+"&t="+b.now?string("yyyyMMddHHmmss"))}" name="graph" id="graph">
             </iframe>
         </div>
       [/#if]

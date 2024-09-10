@@ -111,7 +111,7 @@
 [/#macro]
 <header>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    [@b.a href="!edit?program.id="+program.id class="navbar-brand"]${program.grade.code}级 ${program.level.name} ${program.department.name} ${program.major.name}  ${(program.direction.name)!}教学计划[/@]
+    [@b.a href="!edit?plan.id="+plan.id class="navbar-brand"]${program.grade.code}级 ${program.level.name} ${program.department.name} ${program.major.name}  ${(program.direction.name)!}教学计划[/@]
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
         [@b.a href="doc!edit?program.id="+program.id class="nav-link" target="_blank"]修改文本内容[/@]
@@ -232,7 +232,7 @@
         </button>
       </div>
       <div class="modal-body">
-       [@b.div id='courseListDiv' href="!courses?plan.id=${plan.id}" style="width:100%"/]
+       [@b.div id='planDialogBody' href="!courses?plan.id=${plan.id}" style="width:100%"/]
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
@@ -528,7 +528,7 @@ tagCourses['tag${tag.id}']=new Set();
      bg.Go('${b.url("!editGroup?plan.id=${plan.id}")}&courseGroup.id='+id,'course_group_edit_div')
   }
   function chooseCourseToPlanCourse() {
-    var id = jQuery(':checked[name=course\\.id]', jQuery('#courseListDiv')).val();
+    var id = jQuery(':checked[name=course\\.id]', jQuery('#planDialogBody')).val();
     if (id == undefined || id == "") {
         alert('请选择课程');
         return;

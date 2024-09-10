@@ -41,7 +41,7 @@ import org.openurp.starter.web.support.ProjectSupport
 
 import java.io.File
 import java.net.URI
-import java.time.{Instant, LocalDate}
+import java.time.LocalDate
 
 /** 学院修订培养计划
  */
@@ -73,12 +73,12 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
     val depart = getInt("department.id").map(id => entityDao.get(classOf[Department], id)).getOrElse(departs.head)
     val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "department" -> depart)
     val sortedPrograms = programs.sortBy(x => x.level.code + "_" + x.major.name + "_" + x.direction.map(_.name).getOrElse(""))
-    put("reviseOpening", grade.beginOn.isAfter(LocalDate.now))
+    put("reviseOpening", grade.endOn.isAfter(LocalDate.now))
     put("programs", sortedPrograms)
-    put("plans",planService.getMajorPlans(programs))
+    put("plans", planService.getMajorPlans(programs))
     put("depart", depart)
     put("grade", grade)
-    put("editables", Set(AuditStatus.Draft, AuditStatus.Submited, AuditStatus.RejectedByDirector, AuditStatus.RejectedByDepart))
+    put("editables", Set(AuditStatus.Draft, AuditStatus.Submited, AuditStatus.RejectedByDirector, AuditStatus.RejectedByDepart, AuditStatus.Rejected))
 
     put("teachingNatures", getCodes(classOf[TeachingNature]))
     forward()

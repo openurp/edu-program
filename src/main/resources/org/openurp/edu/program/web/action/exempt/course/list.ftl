@@ -13,6 +13,7 @@
         [#else]${exempt.fromGrade.code}~${(exempt.toGrade.code)!}
         [/#if]
       [/@]
+      [@b.col property="eduType.name" title="培养类型" width="10%"/]
       [@b.col property="level.name" title="培养层次" width="10%"/]
       [@b.col property="courseType" title="课程类别"]${(exempt.courseType.name)!}[/@]
       [@b.col property="course.code" title="课程代码" width="10%"/]

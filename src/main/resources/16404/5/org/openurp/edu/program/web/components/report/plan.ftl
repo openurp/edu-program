@@ -172,6 +172,16 @@
 [#macro drawGroup courseGroup]
   [#if isLeaf(courseGroup) && courseGroup.planCourses?size==0] [#--如果不判断planCourse的数量，会把只有一门课程限选组也绘制出来--]
     [#assign courseCount = courseCount + 1]
+
+    [#--判断上下合并单元格的显示，能否在一页上,如果不在一页上，则放到下一页--]
+    [#if courseGroup.parent?? && isAllChildrenLeaf(courseGroup.parent) && courseGroup.parent.planCourses?size=0]
+      [#if courseGroup.id=courseGroup.parent.children?sort_by('indexno')?first.id]
+        [#if rowNum + courseGroup.parent.children?size > rowsPerPage]
+          [#assign rowNum=rowNum+ (rowsPerPage - rowNum % rowsPerPage)/]
+        [/#if]
+      [/#if]
+    [/#if]
+
     [#assign rowNum=rowNum+1/]
     [#if rowNum % rowsPerPage==1]</tbody></table>[@tableHeader courseGroup.plan/][/#if]
     <tr>

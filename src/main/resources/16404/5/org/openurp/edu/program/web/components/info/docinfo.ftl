@@ -61,7 +61,7 @@
   [/#list]
   <div style="margin:auto;text-align:center;page-break-before:always;" class="notprint">
     <div class="section">课程关系图</div>
-    <img src="${b.url('/major/prerequisite/image?program.id='+program.id)}" style="width:100%"/>
+    <img src="${b.url('/major/prerequisite/image?program.id='+program.id+'&t='+b.now?string('yyyyMMddHHmmss'))}" style="width:100%"/>
   </div>
   [#macro displaySection name level]
     [#if level>1]<h${level} style="margin-top:.5rem;">${name}</h${level}>

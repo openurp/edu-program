@@ -63,7 +63,7 @@
   [#assign prerequisite_length=prerequisite_title?length-2/][#--2024 算作2个汉字--]
   <div style="margin:auto;text-align:center;page-break-before:always;width:100%" class="prerequisite-screen">
     <div class="section">${prerequisite_title}</div>
-    <img src="${b.url('/major/prerequisite/image?program.id='+program.id)}" style="width:100%"/>
+    <img src="${b.url('/major/prerequisite/image?program.id='+program.id+'&t='+b.now?string('yyyyMMddHHmmss'))}" style="width:100%"/>
   </div>
   <table style="page-break-before:always;width:100%" class="prerequisite-print">
     <tr>
@@ -72,6 +72,6 @@
           <div class="prerequisite-caption" style="width: ${prerequisite_length}rem;">${prerequisite_title}</div>
         </div>
       </td>
-      <td><img src="${b.url('/major/prerequisite/image?rotateDegree=-90&program.id='+program.id)}" style="max-height: 240mm;"/></td>
+      <td><img src="${b.url('/major/prerequisite/image?rotateDegree=-90&program.id='+program.id+'&t='+b.now?string('yyyyMMddHHmmss'))}" style="max-height: 240mm;"/></td>
     </tr>
   </table>
