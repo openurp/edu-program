@@ -17,7 +17,7 @@
 
 package org.openurp.edu.program.web.helper
 
-import org.beangle.commons.lang.Strings
+import org.beangle.commons.lang.{Locales, Strings}
 import org.beangle.commons.text.seq.SeqNumStyle.{ARABIC, HANZI}
 import org.beangle.commons.text.seq.{MultiLevelSeqGenerator, RomanSeqStyle, SeqPattern}
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
@@ -49,7 +49,7 @@ class ProgramReportHelper(entityDao: EntityDao, configService: ProjectConfigServ
     put("doc", doc)
     if (doc.nonEmpty) {
       var topSeq: SeqPattern = null
-      if (doc.head.docLocale == new Locale("zh", "CN")) topSeq = new SeqPattern(HANZI, "{1}")
+      if (doc.head.docLocale == Locales.chinese) topSeq = new SeqPattern(HANZI, "{1}")
       else topSeq = new SeqPattern(new RomanSeqStyle, "{1}")
       put("topSeq", topSeq)
     }

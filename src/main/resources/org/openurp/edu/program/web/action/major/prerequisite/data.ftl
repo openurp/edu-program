@@ -1,5 +1,11 @@
 [
+  [#if program.terms = 8 ]
   [#assign termNames=["第一学期","第二学期","第三学期","第四学期","第五学期","第六学期","第七学期","第八学期"] /]
+  [#elseif program.terms = 6]
+  [#assign termNames=["第一学期","第二学期","第三学期","第四学期","第五学期","第六学期"] /]
+  [#elseif program.terms = 4]
+  [#assign termNames=["第一学期","第二学期","第三学期","第四学期"] /]
+  [/#if]
   [#list termNames as termName]
   {
     "id": "term${termName_index+1}",

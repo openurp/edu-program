@@ -37,13 +37,15 @@
     [/@]
     [#assign cj = (planCourse.course.getJournal(plan.program.grade))!/]
     [@b.col width="8%" title="学时"]
-      ${cj.creditHours}
-      [#if cj.hours?size>1]<span class="text-muted">([#list cj.hours as h]${h.creditHours}[#sep]+[/#list])</span>[/#if]
+      [#if cj.weeks??]${cj.weeks}周[#else]
+        ${cj.creditHours}
+        [#if cj.hours?size>1]<span class="text-muted">([#list cj.hours as h]${h.creditHours}[#sep]+[/#list])</span>[/#if]
+      [/#if]
     [/@]
-    [@b.col width="9%" title="开课学期"]
+    [@b.col width="11%" title="开课学期"]
         ${termHelper.getTermText(planCourse)}
     [/@]
-    [@b.col width="10%" title="考核方式"]
+    [@b.col width="8%" title="考核方式"]
        ${(cj.examMode.name)!}
     [/@]
     [@b.col width="10%" title="开课院系"]

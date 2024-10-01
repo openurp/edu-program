@@ -122,6 +122,9 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     if (autoname) {
       program.name = ProgramNamingHelper(entityDao).name(program.grade, program.major, program.direction)
     }
+    program.stdTypes.clear()
+    val stdTypes = entityDao.find(classOf[StdType], getIntIds("stdType"))
+    program.stdTypes.addAll(stdTypes)
     program.updatedAt = Instant.now
     program.project = getProject
     program.degreeCertificates.clear()

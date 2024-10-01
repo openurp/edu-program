@@ -176,7 +176,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
     code.add("课程信息").data(courses)
     val os = new ByteArrayOutputStream()
     schema.generate(os)
-    Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx.toString, "学生个人替代课程模板.xlsx")
+    Stream(new ByteArrayInputStream(os.toByteArray), MediaTypes.ApplicationXlsx, "学生个人替代课程模板.xlsx")
   }
 
   protected override def configImport(setting: ImportSetting): Unit = {

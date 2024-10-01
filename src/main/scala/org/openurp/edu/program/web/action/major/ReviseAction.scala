@@ -145,7 +145,7 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
     options.scale = 0.95d
     SPDConverter.getInstance().convert(URI.create(url), pdf, options)
 
-    Stream(pdf, program.grade.code + "级 " + program.name + " 培养方案.pdf").cleanup(() => pdf.delete())
+    Stream(pdf, program.grade.code + "级 " + program.name + " " + program.level.name + " 培养方案.pdf").cleanup(() => pdf.delete())
   }
 
   /** 查看本院系开课情况

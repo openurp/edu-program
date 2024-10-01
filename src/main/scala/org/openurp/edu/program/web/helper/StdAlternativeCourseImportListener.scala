@@ -38,7 +38,7 @@ class StdAlternativeCourseImportListener(entityDao: EntityDao, project: Project)
   override def onItemFinish(tr: ImportResult): Unit = {
     transfer.curData.get("stdCode") foreach { stdCode =>
       val query = OqlBuilder.from(classOf[Student], "s")
-      query.where("s.project=:project and s.user.code=:code", project, stdCode)
+      query.where("s.project=:project and s.code=:code", project, stdCode)
       val stds = entityDao.search(query)
       val sc = new StdAlternativeCourse
       sc.std = stds.head

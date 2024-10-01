@@ -211,7 +211,7 @@
 [#macro planCourseCreditInfo planCourse]
     [#local plan= planCourse.group.plan/]
     [#list plan.program.startTerm..plan.program.endTerm as i]
-        <td>[#if planCourse.terms.contains(i?int)]${(planCourse.course.getCredits(plan.program.level))?if_exists}[#else]&nbsp;[/#if]</td>
+      <td>[#if planCourse.terms.contains(i?int)]√[#else]&nbsp;[/#if]</td>
     [/#list]
 [/#macro]
 [#-- 课程学分要求的叫法--]
@@ -250,7 +250,7 @@
             <td style="text-align: center;">${planCourse.course.code!}</td>
             <td class="course">&nbsp;${courseCount}&nbsp;[@displayCourse courseGroup.plan,planCourse.course/][#if courseGroup.plan.program.degreeCourses?seq_contains(planCourse.course)]<span style="color:red" title="学位课程">*</span>[/#if]</td>
             <td>${(planCourse.course.getCredits(courseGroup.plan.program.level))?default(0)}</td>
-            [#if displayCreditHour]<td>${(planCourse.course.creditHours)?default(0)}</td>[/#if]
+            [#if displayCreditHour]<td>[#assign j = planCourse.journal/][#if j.weeks?exists && j.weeks>0]${j.weeks}周[#else]${(j.creditHours)?default(0)}[/#if]</td>[/#if]
             [@courseTermInfoMacro planCourse /]
             [#if displayTeachDepart]<td>[#if planCourse.department??][@i18nName planCourse.department/][#else][@i18nName planCourse.course.department!/][/#if]</td>[/#if]
             <td class="remark">[#if planCourse.compulsory && !courseGroup.rank.compulsory]必修 [/#if][#if planCourse.remark?exists]${planCourse.remark!}[#else]&nbsp;[/#if]</td>

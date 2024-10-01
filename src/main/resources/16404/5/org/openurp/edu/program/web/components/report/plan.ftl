@@ -143,8 +143,9 @@
     <tr>
       <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">${program.grade.name}级${program.major.name}[#if program.direction??]（${program.direction.name?replace("方向","")}）[/#if]专业${program.level.name}指导性教学计划表</th>
     </tr>
+    [#assign levelEnName][#if program.level.name=='本科']Undergraduate[#elseif program.level.name='专升本']ZHUANSHENGBEN[#elseif program.level.name=='二学位']ERXUEWEI[#else]${program.level.name}[/#if][/#assign]
     <tr>
-      <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">Education Guiding Schedule for ${program.major.enName!'--无英文名--'} Undergraduate of Grade ${program.grade.code}</th>
+      <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">Education Guiding Schedule for ${program.major.enName!'--无英文名--'}[#if program.direction??](${program.direction.enName!'--无英文名--'})[/#if] ${levelEnName} of Grade ${program.grade.code}</th>
     </tr>
     <tr>
       <th rowspan="2" colspan="${branchSpan}">课程<br>模块<br>Course<br>Module</th>

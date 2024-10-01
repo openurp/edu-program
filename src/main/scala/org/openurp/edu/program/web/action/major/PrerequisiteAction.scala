@@ -18,6 +18,7 @@
 package org.openurp.edu.program.web.action.major
 
 import jakarta.servlet.http.Part
+import org.beangle.commons.activation.MediaTypes
 import org.beangle.commons.codec.binary.Base64
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.io.IOs
@@ -176,7 +177,7 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
         case Some(degree) =>
           val bytes = new ByteArrayOutputStream()
           ImageUtil.rotate(file, bytes, degree)
-          Stream(new ByteArrayInputStream(bytes.toByteArray), "image/png", "prerequisite.png")
+          Stream(new ByteArrayInputStream(bytes.toByteArray), MediaTypes.ImagePng, "prerequisite.png")
         case None => Stream(file)
     } else {
       getBoolean("autoCreate", false) match

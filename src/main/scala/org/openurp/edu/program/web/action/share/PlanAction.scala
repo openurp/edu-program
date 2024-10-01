@@ -18,10 +18,14 @@
 package org.openurp.edu.program.web.action.share
 
 import org.beangle.data.dao.OqlBuilder
+import org.beangle.ems.app.Ems
+import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
+import org.openurp.base.model.Project
 import org.openurp.base.std.model.Grade
 import org.openurp.edu.program.model.SharePlan
+import org.openurp.edu.service.Features
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.time.Instant
@@ -44,6 +48,18 @@ class PlanAction extends RestfulAction[SharePlan], ProjectSupport {
     query.orderBy("g.code desc")
     put("grades", entityDao.search(query))
     put("project", project)
+  }
+
+  @mapping(value = "{id}")
+  override def info(@param("id") id: String): View = {
+    put("ems_base", Ems.base)
+    val plan = entityDao.get(classOf[SharePlan], id.toLong)
+
+    given project: Project = plan.project
+
+    put("enableLinkCourseInfo", getConfig(Features.Program.LinkCourseEnabled))
+    put("plan", plan)
+    forward()
   }
 
   override protected def getQueryBuilder: OqlBuilder[SharePlan] = {
