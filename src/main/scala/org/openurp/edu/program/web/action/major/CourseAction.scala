@@ -17,9 +17,11 @@
 
 package org.openurp.edu.program.web.action.major
 
+import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
+import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, RestfulAction}
-import org.openurp.base.edu.model.Major
+import org.openurp.base.edu.model.{Course, Major, Terms}
 import org.openurp.base.model.Project
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.EducationType
@@ -53,7 +55,7 @@ class CourseAction extends RestfulAction[MajorPlanCourse], ProjectSupport, Expor
   }
 
   override protected def getQueryBuilder: OqlBuilder[MajorPlanCourse] = {
-    put("termHelper",new TermHelper)
+    put("termHelper", new TermHelper)
     val q = super.getQueryBuilder
     val project = getProject
     queryByDepart(q, "pc.group.plan.program.department")
@@ -65,5 +67,39 @@ class CourseAction extends RestfulAction[MajorPlanCourse], ProjectSupport, Expor
     query.where("g.project=:project", project)
     query.orderBy("g.code desc")
     entityDao.search(query)
+  }
+
+  def batchEdit(): View = {
+    val project = getProject
+    val pcs = entityDao.find(classOf[MajorPlanCourse], getLongIds("pc"))
+    put("planCourses", pcs)
+    put("courses", pcs.map(_.course).toSet)
+    put("project", project)
+    forward()
+  }
+
+  def saveBatchEdit(): View = {
+    val project = getProject
+    val pcs = entityDao.find(classOf[MajorPlanCourse], getLongIds("pc"))
+    getLong("course.id") foreach { courseId =>
+      val course = entityDao.get(classOf[Course], courseId)
+      pcs foreach { pc => pc.course = course }
+    }
+
+    get("planCourse.terms") foreach { terms =>
+      if (Strings.isNotBlank(terms)) {
+        val t = Terms(terms)
+        pcs.foreach { pc => pc.terms = t }
+      }
+    }
+
+    get("planCourse.termText") foreach { termText =>
+      if (Strings.isNotBlank(termText)) {
+        val t = if "null" == termText then None else Some(termText)
+        pcs.foreach { pc => pc.termText = t }
+      }
+    }
+    entityDao.saveOrUpdate(pcs)
+    redirect("search", "设置成功")
   }
 }

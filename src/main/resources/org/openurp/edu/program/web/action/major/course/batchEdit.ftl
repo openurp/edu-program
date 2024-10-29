@@ -1,0 +1,15 @@
+[#ftl]
+[@b.form name="courseSearchForm" method="post" action="!saveBatchEdit" theme="list"]
+  [@b.field label="计划课程"]
+    批量更改 ${courses?size}门课程 ${planCourses?size} 门次
+  [/@]
+  [@base.course name="course.id" label="更改为课程" required="false" style="width:400px;"/]
+  [@b.textfield name="planCourse.terms" label="开课学期"/]
+  [@b.textfield name="planCourse.termText" label="开课学期说明"/]
+  [@b.formfoot]
+    [#list planCourses as pc]
+      <input type="hidden" name="pc.id" value="${pc.id}"/>
+    [/#list]
+    [@b.submit text="批量设置"/]
+  [/@]
+[/@]

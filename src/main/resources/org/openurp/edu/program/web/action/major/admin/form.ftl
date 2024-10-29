@@ -21,7 +21,7 @@
     [#if project.eduTypes?size>1]
     [@b.select name='program.eduType.id' label="培养类型" items=project.eduTypes value=program.eduType! required='true' /]
     [/#if]
-    [@b.select label="学生类别" name="stdTypeId" multiple="multiple" values=program.stdTypes items=project.stdTypes style="width:400px"/]
+    [@b.select label="学生类别" name="stdType.id" multiple="multiple" values=program.stdTypes items=project.stdTypes style="width:400px"/]
     [@b.select id="major" name='program.major.id' label='专业' items=majors value=program.major required='true' style="width:200px"/]
     [@b.select name='program.direction.id' label='专业方向' items=directions value=program.direction! style="width:200px" /]
     [@base.code type="study-types" name="program.studyType.id" label="学习形式" value=program.studyType required="true" style="width:200px"/]

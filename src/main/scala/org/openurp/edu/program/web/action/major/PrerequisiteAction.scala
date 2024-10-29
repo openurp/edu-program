@@ -165,8 +165,23 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
    */
   def graph(): View = {
     val program = entityDao.get(classOf[Program], getLongId("program"))
-    put("program", program)
+    prepareImageData(program)
     forward()
+  }
+
+  private def prepareImageData(program:Program):Unit={
+    put("program", program)
+    val pres = entityDao.findBy(classOf[ProgramPrerequisite], "program", program).toBuffer
+    val plan = entityDao.findBy(classOf[MajorPlan], "program", program).head
+
+    val ignoreTermGap = getBoolean("ignoreTermGap", true)
+    val preData = PrerequisiteHelper.build(plan, pres, ignoreTermGap, false)
+
+    put("prerequisites", preData.pres)
+    put("courses", preData.courses)
+    put("termGroups", preData.groups)
+    put("courseTerms", preData.courseTerms)
+    put("Chars", Chars)
   }
 
   def image(): View = {
@@ -183,7 +198,7 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
       getBoolean("autoCreate", false) match
         case true =>
           put("upload", true)
-          put("program", program)
+          prepareImageData(program)
           forward("graph")
         case false => Status.NotFound
     }

@@ -23,7 +23,7 @@ import org.beangle.commons.io.Files.stringWriter
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.EntityDao
 import org.beangle.template.freemarker.Configurer
-import org.openurp.base.edu.model.Course
+import org.openurp.base.edu.model.{Course, Terms}
 import org.openurp.edu.program.model.{MajorPlan, PlanCourse, Program, ProgramPrerequisite}
 
 import java.io.File
@@ -164,6 +164,10 @@ object PrerequisiteHelper {
     OptionFlags.getInstance().setSystemExit(false)
     Run.main(Array(dir.getAbsolutePath, "-charset", "UTF-8"))
     depsText.delete()
+  }
+
+  def main(args: Array[String]): Unit = {
+    println(Terms("1,2,3,4").value)
   }
 }
 

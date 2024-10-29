@@ -216,7 +216,7 @@
 [/#macro]
 [#-- 课程学分要求的叫法--]
 [#macro requireLabel courseGroup]
-  [#if courseGroup.rank.compulsory]学分小计[#else]应修学分[/#if]
+  [#if courseGroup.rank?? && courseGroup.rank.compulsory]学分小计[#else]应修学分[/#if]
 [/#macro]
 [#-- 需要完善，画出一个课程组 --]
 [#macro drawGroup courseGroup courseTermInfoMacro groupTermInfoMacro]
@@ -253,7 +253,7 @@
             [#if displayCreditHour]<td>[#assign j = planCourse.journal/][#if j.weeks?exists && j.weeks>0]${j.weeks}周[#else]${(j.creditHours)?default(0)}[/#if]</td>[/#if]
             [@courseTermInfoMacro planCourse /]
             [#if displayTeachDepart]<td>[#if planCourse.department??][@i18nName planCourse.department/][#else][@i18nName planCourse.course.department!/][/#if]</td>[/#if]
-            <td class="remark">[#if planCourse.compulsory && !courseGroup.rank.compulsory]必修 [/#if][#if planCourse.remark?exists]${planCourse.remark!}[#else]&nbsp;[/#if]</td>
+            <td class="remark">[#if planCourse.compulsory && courseGroup.rank?? && !courseGroup.rank.compulsory]必修 [/#if][#if planCourse.remark?exists]${planCourse.remark!}[#else]&nbsp;[/#if]</td>
           </tr>
          [/#if]
         [/#list]
@@ -265,14 +265,7 @@
         <tr>
             [@drawAllAncestor courseGroup /]
             <td colspan="${mustSpan + maxFenleiSpan - HierarchyFenleiSpanSum(maxFenleiSpan, courseGroup)}" class="credit_hour summary">[@requireLabel courseGroup/]</td>
-            <td class="credit_hour summary">
-              [#if courseGroup.rank.compulsory]${courseGroup.credits}
-              [#else]
-                <font color="#1F3D83">
-                ${courseGroup.credits}
-                </font>
-              [/#if]
-            </td>
+            <td class="credit_hour summary">${courseGroup.credits}</td>
             [#if displayCreditHour]<td class="credit_hour summary">[#if courseGroup.creditHours>0]${courseGroup.creditHours!}[/#if]</td>[/#if]
             [@groupTermInfoMacro courseGroup /]
             [#if courseGroup.remark??]

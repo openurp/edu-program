@@ -17,7 +17,9 @@
     [@b.select label='课程类别' name='courseGroup.courseType.id' items=unusedCourseTypeList?sort_by('name') required="true" value=(courseGroup.courseType.id)! empty="..."  style="width:300px" onchange="changeDefaultAutoAddup(this)"/]
     [@b.textfield label="自定义名称" name="courseGroup.givenName"  value=courseGroup.givenName /]
     [@b.textfield label="顺序号" name="index"  check="match('integer')" value=courseGroup.index required="true"/]
-    [#if stages?size>0][@b.select label="学期阶段" name="courseGroup.stage.id"  items=stages value=courseGroup.stage! required="false" /][/#if]
+    [#if stages?size>0]
+    [@b.select label="学期阶段" name="courseGroup.stage.id"  items=stages value=courseGroup.stage! required="false" /]
+    [/#if]
     [@b.select label="课程属性" name="courseGroup.rank.id" id="courseGroup_rank_id" items=ranks value=courseGroup.rank! required="false" onchange="displayCredit(this)"/]
     [@b.textfield label="完成子组" name="courseGroup.subCount"  value=courseGroup.subCount required="true"/]
     [@b.textfield label='要求学分' name='courseGroup.credits' maxlength='6' required='true' check="match('number').greaterThanOrEqualTo(0)" value=courseGroup.credits! /]
@@ -80,17 +82,19 @@
   var courseTypeOptionals={[#list unusedCourseTypeList as t]"${t.id}":${t.optional?c}[#if t_has_next],[/#if][/#list]};
   function changeDefaultAutoAddup(ele){
     if(courseTypeOptionals[ele.value]){
-      jQuery("#courseGroup_rank_id").val("1")
-    }else{
       jQuery("#courseGroup_rank_id").val("4")
+    }else{
+      jQuery("#courseGroup_rank_id").val("1")
     }
     displayCredit(document.getElementById('courseGroup_rank_id'));
   }
 
   function displayCredit(ele){
-    var hidden=jQuery(ele).val()=='1';
+    var hidden = jQuery(ele).val()=='1';
     [#--从完成子组到开课学期--]
-    for(var i=5;i<=9;i++){
+    var startElem = 5;
+    [#if stages?size>0]startElem=6;[/#if]
+    for(var i=startElem;i<=startElem+5;i++){
       if(hidden){
         jQuery(ele).parents("ol").children("li:nth("+i+")").hide();
       }else{

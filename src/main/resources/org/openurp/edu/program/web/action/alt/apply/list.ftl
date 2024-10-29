@@ -32,7 +32,7 @@
             [#list apply.news as course]${course.code} ${course.name} (${course.defaultCredits})[#if course_has_next]&nbsp;[/#if][/#list]
         [/@]
         [@b.col title="理由" property="remark"]
-          <div data-toggle="tooltip" data-placement="top" class="text-ellipsis" title="${apply.remark?js_string}">${apply.remark!}</div>
+          <div data-toggle="tooltip" data-placement="top" class="text-ellipsis" title="${(apply.remark!'--')?js_string}">${apply.remark!}</div>
         [/@]
         [@b.col width='8%' title="更新日期" property="updatedAt"]
            ${(apply.updatedAt?string('yy-MM-dd'))!}
