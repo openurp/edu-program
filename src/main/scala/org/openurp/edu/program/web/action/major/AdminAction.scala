@@ -19,14 +19,14 @@ package org.openurp.edu.program.web.action.major
 
 import com.google.gson.Gson
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.annotation.{mapping, param}
-import org.beangle.web.action.context.ActionContext
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.annotation.{mapping, param}
+import org.beangle.webmvc.context.ActionContext
 import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.{Direction, Major}
 import org.openurp.base.model.{AuditStatus, Project}
 import org.openurp.base.std.model.Grade
-import org.openurp.code.edu.model.{Certificate, Degree, EducationType}
+import org.openurp.code.edu.model.*
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.model.{ExecutivePlan, MajorPlan, Program, ProgramDoc}
 import org.openurp.edu.program.service.{CoursePlanService, ProgramNamingHelper}
@@ -269,4 +269,41 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     }
     redirect("search", "统计成功")
   }
+
+  /** 比较同一年级下的方案中，某一类别的课程内容的相似性
+   *
+   * @return
+   */
+  def compare(): View = {
+    given project: Project = getProject
+
+    val grades = getGrades(project)
+    put("grades", grades)
+    put("levels", project.levels)
+    put("allCourseTypes", getCodes(classOf[CourseType]))
+    val grade = getLong("grade.id").map(id => entityDao.get(classOf[Grade], id)).getOrElse(grades.head)
+    val level = getInt("level.id").map(id => entityDao.get(classOf[EducationLevel], id)).getOrElse(project.levels.head)
+    put("grade", grade)
+    put("level", level)
+
+    val courseTypeIds = getIntIds("courseType")
+    if (courseTypeIds.nonEmpty) {
+      import org.openurp.edu.program.web.helper.MajorPlanCompareHelper
+      val q = OqlBuilder.from(classOf[MajorPlan], "plan")
+      q.where("plan.program.grade=:grade", grade)
+      q.where("plan.program.project=:project", project)
+      q.where("plan.program.level=:level", level)
+      q.orderBy("plan.program.department.code,plan.program.major.name")
+      val plans = entityDao.search(q)
+      put("plans", plans)
+      put("departPlans", plans.groupBy(_.program.department))
+      val courseTypes = entityDao.find(classOf[CourseType], courseTypeIds)
+      put("courseTypes", courseTypes)
+      put("compareHelper", new MajorPlanCompareHelper(courseTypes))
+    } else {
+      put("courseTypes", List.empty)
+    }
+    forward()
+  }
+
 }

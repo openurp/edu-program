@@ -25,8 +25,8 @@ import org.beangle.commons.io.IOs
 import org.beangle.commons.lang.Chars
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.Ems
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.{Status, Stream, View}
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.{Status, Stream, View}
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.Course
 import org.openurp.edu.program.model.*

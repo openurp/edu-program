@@ -23,7 +23,7 @@ import org.beangle.commons.text.seq.{MultiLevelSeqGenerator, RomanSeqStyle, SeqP
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.Ems
 import org.beangle.template.freemarker.ProfileTemplateLoader
-import org.beangle.web.action.context.ActionContext
+import org.beangle.webmvc.context.ActionContext
 import org.openurp.base.model.{Department, Project}
 import org.openurp.base.service.{Feature, ProjectConfigService}
 import org.openurp.base.std.model.Grade
@@ -33,6 +33,7 @@ import org.openurp.code.service.CodeService
 import org.openurp.edu.program.model.{CreditHours, MajorPlan, Program, ProgramDoc}
 import org.openurp.edu.program.service.*
 import org.openurp.edu.service.Features
+import org.openurp.starter.web.helper.ProjectProfile
 
 import java.util.Locale
 
@@ -56,7 +57,7 @@ class ProgramReportHelper(entityDao: EntityDao, configService: ProjectConfigServ
     put("displayCreditHour", getConfig(Features.Program.DisplayCreditHour))
     put("enableLinkCourseInfo", getConfig(Features.Program.LinkCourseEnabled))
     put("ems_base", Ems.base)
-    ProfileTemplateLoader.setProfile(s"${project.school.id}/${project.id}")
+    ProjectProfile.set(project)
     val natures = getCodes(classOf[TeachingNature])
     put("natures", natures)
     put("tags", getCodes(classOf[ProgramCourseTag]))
@@ -92,7 +93,7 @@ class ProgramReportHelper(entityDao: EntityDao, configService: ProjectConfigServ
   def prepareData(project: Project, grade: Grade, depart: Department): Unit = {
     given p: Project = project
 
-    ProfileTemplateLoader.setProfile(s"${project.school.id}/${project.id}")
+    ProjectProfile.set(project)
     val query = OqlBuilder.from(classOf[MajorPlan], "plan")
     query.where("plan.program.project=:project", project)
     query.where("plan.program.department=:depart", depart)

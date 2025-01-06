@@ -19,7 +19,8 @@ package org.openurp.edu.program.web.action.major
 
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
+import org.beangle.doc.transfer.exporter.ExportContext
+import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, RestfulAction}
 import org.openurp.base.edu.model.{Course, Major, Terms}
 import org.openurp.base.model.Project
@@ -28,6 +29,7 @@ import org.openurp.code.edu.model.EducationType
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.model.MajorPlanCourse
 import org.openurp.edu.program.service.TermHelper
+import org.openurp.edu.program.web.helper.MajorPlanCoursePropertyExtractor
 import org.openurp.starter.web.support.ProjectSupport
 
 /** 计划内课程列表
@@ -101,5 +103,10 @@ class CourseAction extends RestfulAction[MajorPlanCourse], ProjectSupport, Expor
     }
     entityDao.saveOrUpdate(pcs)
     redirect("search", "设置成功")
+  }
+
+  override protected def configExport(context: ExportContext): Unit = {
+    super.configExport(context)
+    context.extractor = new MajorPlanCoursePropertyExtractor()
   }
 }

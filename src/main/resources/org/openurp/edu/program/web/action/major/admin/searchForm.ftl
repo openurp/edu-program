@@ -8,7 +8,7 @@
     [@b.select name="program.department.id" items=departments empty="..." label="院系"/]
     [@b.select name="program.major.id" items=majors empty="..." label="专业"/]
     [@b.textfield name="program.direction.name" label="方向"/]
-    [@b.select name="fake.status" items={}  label="审核状态"]
+    [@b.select name="program.status" items={}  label="审核状态"]
         <option value="">...</option>
         [#list statuses as state]
         <option value="${state.id}">${state.name}</option>

@@ -20,7 +20,7 @@ package org.openurp.edu.program.web.action.alt
 import org.beangle.commons.collection.{Collections, Order}
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.edu.model.{Course, Direction, Major}
 import org.openurp.base.model.Project

@@ -19,7 +19,7 @@ package org.openurp.edu.program.web.helper
 
 import org.beangle.data.dao.EntityDao
 import org.beangle.template.freemarker.ProfileTemplateLoader
-import org.beangle.web.action.context.ActionContext
+import org.beangle.webmvc.context.ActionContext
 import org.openurp.base.model.Project
 import org.openurp.base.service.{Feature, ProjectConfigService}
 import org.openurp.code.Code
@@ -27,6 +27,7 @@ import org.openurp.code.edu.model.{ProgramCourseTag, TeachingNature}
 import org.openurp.code.service.CodeService
 import org.openurp.edu.program.model.{MajorPlan, Program, ProgramDoc}
 import org.openurp.edu.program.service.{PlanCategoryStat, TermHelper}
+import org.openurp.starter.web.helper.ProjectProfile
 
 class ProgramInfoHelper(entityDao: EntityDao, configService: ProjectConfigService, codeService: CodeService) {
   def prepareData(program: Program): Unit = {
@@ -37,7 +38,7 @@ class ProgramInfoHelper(entityDao: EntityDao, configService: ProjectConfigServic
     val plan = entityDao.findBy(classOf[MajorPlan], "program", program).head
     put("plan", plan)
     put("doc", entityDao.findBy(classOf[ProgramDoc], "program", program).headOption)
-    ProfileTemplateLoader.setProfile(s"${project.school.id}/${project.id}")
+    ProjectProfile.set(project)
     val natures = getCodes(classOf[TeachingNature])
     put("natures", natures)
     put("tags", getCodes(classOf[ProgramCourseTag]))

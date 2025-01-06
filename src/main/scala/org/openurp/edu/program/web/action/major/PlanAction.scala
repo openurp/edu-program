@@ -23,10 +23,10 @@ import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.WeekState
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.Ems
-import org.beangle.web.action.annotation.{mapping, param, response}
-import org.beangle.web.action.context.ActionMessages
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.annotation.{mapping, param, response}
+import org.beangle.webmvc.context.ActionMessages
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.{Course, CourseJournal, Terms}
 import org.openurp.base.model.{CalendarStage, Department, Project}

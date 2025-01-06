@@ -15,10 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.openurp.edu.program.web.action.major
+package org.openurp.edu.program.web.helper
 
-import org.beangle.webmvc.support.ActionSupport
+import org.beangle.commons.bean.DefaultPropertyExtractor
+import org.openurp.edu.program.model.MajorPlanCourse
 
-class SettingAction extends ActionSupport {
-
+class MajorPlanCoursePropertyExtractor extends DefaultPropertyExtractor {
+  override def get(bean: AnyRef, name: String): Any = {
+    if (name == "labels") {
+      val mpc = bean.asInstanceOf[MajorPlanCourse]
+      val program = mpc.group.plan.program
+      val grade = mpc.group.plan.program.grade
+      val journal = mpc.course.getJournal(grade)
+      val tags = program.labels.filter(x => x.course == mpc.course).map(_.tag.name) ++ journal.tags.map(_.name)
+      tags.mkString("\n")
+    } else {
+      super.get(bean, name)
+    }
+  }
 }

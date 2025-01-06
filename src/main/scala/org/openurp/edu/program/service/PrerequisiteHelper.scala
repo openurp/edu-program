@@ -22,7 +22,7 @@ import org.beangle.commons.collection.Collections
 import org.beangle.commons.io.Files.stringWriter
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.EntityDao
-import org.beangle.template.freemarker.Configurer
+import org.beangle.template.freemarker.Configurator
 import org.openurp.base.edu.model.{Course, Terms}
 import org.openurp.edu.program.model.{MajorPlan, PlanCourse, Program, ProgramPrerequisite}
 
@@ -140,7 +140,7 @@ object PrerequisiteHelper {
 
   def generateDependencyImg(entityDao: EntityDao, program: Program, dir: File): Unit = {
     dir.mkdirs()
-    val cfg = Configurer.newConfig
+    val cfg = Configurator.newConfig
 
     val pres = entityDao.findBy(classOf[ProgramPrerequisite], "program", program).toBuffer
     val plan = entityDao.findBy(classOf[MajorPlan], "program", program).head

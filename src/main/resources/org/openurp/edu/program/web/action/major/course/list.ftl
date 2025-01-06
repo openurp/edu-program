@@ -6,7 +6,7 @@
         "credits:学分,journal.creditHours:学时,journal.examMode.name:考核方式,terms:学期,group.name:课程类别,"+
         "journal.department.name:开课院系,group.plan.program.grade.code:年级,group.plan.program.major.name:专业,"+
         "group.plan.program.direction.name:方向,group.plan.program.level.name:培养层次,"+
-        "group.plan.program.eduType.name:培养类型",null,'fileName=计划课程信息'));
+        "group.plan.program.eduType.name:培养类型,labels:课程标签",null,'fileName=计划课程信息'));
   [/@]
   [@b.row]
     [@b.boxcol /]

@@ -19,9 +19,9 @@ package org.openurp.edu.program.web.action.info
 
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.Ems
-import org.beangle.web.action.annotation.{mapping, param}
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.annotation.{mapping, param}
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.{Direction, Major}
 import org.openurp.base.model.Project

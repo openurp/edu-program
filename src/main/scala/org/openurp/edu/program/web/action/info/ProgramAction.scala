@@ -18,8 +18,8 @@
 package org.openurp.edu.program.web.action.info
 
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.View
 import org.openurp.base.model.{Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.edu.program.model.Program

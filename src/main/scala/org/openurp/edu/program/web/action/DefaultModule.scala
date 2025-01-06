@@ -17,7 +17,7 @@
 
 package org.openurp.edu.program.web.action
 
-import org.beangle.cdi.bind.BindModule
+import org.beangle.commons.cdi.BindModule
 import org.openurp.edu.program.service.impl.*
 import org.openurp.edu.program.service.lixin.{EnglishCourseCountPlanChecker, MajorOptionalPlanChecker, StagePlanChecker}
 import org.openurp.edu.program.web.action.major.PlanAction
