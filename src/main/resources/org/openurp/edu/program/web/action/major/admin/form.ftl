@@ -30,8 +30,14 @@
     [@b.textfield label='结束学期' name='program.endTerm' check="match('integer').greaterThan(0)" required='true' value=program.endTerm
          style='width:40px' maxlength='2' comment='正整数(最多两位)'/]
     [@b.select items=degrees name='program.degree.id' label='学位' empty="..." value=program.degree! width="200px"/]
+    [#if degreeGpaSupport]
     [@b.textfield name='program.degreeGpa' label='学位绩点' maxlength="3" size="3" required="false" value=program.degreeGpa! /]
+    [/#if]
+    [#if degreeCourseSupport]
+    [@b.select label="学位课程" style="width:300px;" name="degreeCourse.id" items=degreeCourses values=program.degreeCourses multiple="true"/]
+    [/#if]
     [@b.select name='degreeCertificate.id' label='学位要求的校外证书' required="false" values=program.degreeCertificates! items=certificates multiple="true"/]
+
     [@b.startend label="起止日期" name="program.beginOn,program.endOn" required="true" start=program.beginOn end=program.endOn/]
     [@b.textarea name='program.remark' cols='80' rows='3' maxlength='800' label='备注' comment="(限800字)" value=program.remark!/]
     [@b.formfoot]

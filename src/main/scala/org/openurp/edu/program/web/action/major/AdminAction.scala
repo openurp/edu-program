@@ -18,12 +18,13 @@
 package org.openurp.edu.program.web.action.major
 
 import com.google.gson.Gson
+import org.beangle.commons.collection.Collections
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.webmvc.annotation.{mapping, param}
 import org.beangle.webmvc.context.ActionContext
 import org.beangle.webmvc.support.action.RestfulAction
 import org.beangle.webmvc.view.View
-import org.openurp.base.edu.model.{Direction, Major}
+import org.openurp.base.edu.model.{Course, Direction, Major}
 import org.openurp.base.model.{AuditStatus, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.*
@@ -98,11 +99,28 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
 
     if (program.persisted) {
       put("docs", entityDao.findBy(classOf[ProgramDoc], "program", program))
-      entityDao.findBy(classOf[MajorPlan], "program", program).headOption match
-        case Some(plan) => put("plan", plan)
+
+      val hasDegreeCourse = program.degreeCourses.nonEmpty
+      val degreeGpaSupport = getConfig("edu.program.degree_gpa_supported", false)
+
+      var degreeCourseSupport = hasDegreeCourse
+      if (!degreeCourseSupport) degreeCourseSupport = getConfig("edu.program.degree_course_supported", false)
+      put("degreeCourseSupport", degreeCourseSupport)
+      put("degreeGpaSupport", degreeGpaSupport)
+
+      val plan = entityDao.findBy(classOf[MajorPlan], "program", program).headOption match
+        case Some(plan) => plan
         case None => val plan = new MajorPlan(program)
           entityDao.saveOrUpdate(plan)
-          put("plan", plan)
+          plan
+      put("plan", plan)
+      if (degreeCourseSupport) {
+        val planCourses = Collections.newSet[Course]
+        for (cg <- plan.groups; pc <- cg.planCourses) {
+          planCourses.add(pc.course)
+        }
+        put("degreeCourses", planCourses)
+      }
     }
     put("degrees", getCodes(classOf[Degree]))
     put("certificates", getCodes(classOf[Certificate]))
@@ -125,6 +143,9 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     program.stdTypes.clear()
     val stdTypes = entityDao.find(classOf[StdType], getIntIds("stdType"))
     program.stdTypes.addAll(stdTypes)
+
+    program.degreeCourses.clear()
+    program.degreeCourses.addAll(entityDao.find(classOf[Course], getLongIds("degreeCourse")))
     program.updatedAt = Instant.now
     program.project = getProject
     program.degreeCertificates.clear()
