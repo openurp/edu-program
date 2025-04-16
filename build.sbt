@@ -23,10 +23,10 @@ ThisBuild / developers := List(
 ThisBuild / description := "OpenURP Edu Learning"
 ThisBuild / homepage := Some(url("http://openurp.github.io/edu-program/index.html"))
 
-val apiVer = "0.41.14"
-val starterVer = "0.3.51"
-val baseVer = "0.4.46"
-val eduCoreVer = "0.3.7"
+val apiVer = "0.42.0"
+val starterVer = "0.3.54"
+val baseVer = "0.4.48"
+val eduCoreVer = "0.3.8"
 
 val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starterVer
@@ -43,7 +43,7 @@ lazy val root = (project in file("."))
     name := "openurp-edu-program-webapp",
     common,
     libraryDependencies ++= Seq(openurp_stater_web, openurp_edu_core, beangle_doc_pdf),
-    libraryDependencies ++= Seq(openurp_edu_api, beangle_ems_app, openurp_base_tag),
-    libraryDependencies ++= Seq(plantuml, beangle_webmvc, beangle_doc_excel),
-    libraryDependencies ++= Seq(guava, word_checker,beangle_template,beangle_model,hibernate_community)
+    libraryDependencies ++= Seq(openurp_edu_api, openurp_base_tag),
+    libraryDependencies ++= Seq(plantuml, beangle_doc_excel),
+    libraryDependencies ++= Seq(guava, word_checker, hibernate_community)
   )
