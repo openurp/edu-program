@@ -89,7 +89,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     query2.where("m.project=:project", project)
     query2.where("exists(from m.journals as mj where mj.depart in(:departs))", departs)
     query2.orderBy("m.code")
-    val directions = entityDao.search(query)
+    val directions = entityDao.search(query2)
 
     put("grades", getGrades(project))
     put("departs", departs)
@@ -264,7 +264,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     query2.where("m.project=:project", project)
     query2.where("exists(from m.journals as mj where mj.depart in(:departs))", departs)
     query2.orderBy("m.code")
-    val directions = entityDao.search(query)
+    val directions = entityDao.search(query2)
 
     put("grades", getGrades(project))
     put("departs", departs)
