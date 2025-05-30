@@ -20,15 +20,15 @@ package org.openurp.edu.program.web.action.major
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.doc.transfer.exporter.ExportContext
-import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.{ExportSupport, RestfulAction}
+import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.{Course, Major, Terms}
 import org.openurp.base.model.Project
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.EducationType
 import org.openurp.code.std.model.StdType
-import org.openurp.edu.program.model.MajorPlanCourse
-import org.openurp.edu.program.service.TermHelper
+import org.openurp.edu.program.model.{MajorPlan, MajorPlanCourse}
+import org.openurp.edu.program.service.{CoursePlanService, TermHelper}
 import org.openurp.edu.program.web.helper.MajorPlanCoursePropertyExtractor
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -37,6 +37,8 @@ import org.openurp.starter.web.support.ProjectSupport
 class CourseAction extends RestfulAction[MajorPlanCourse], ProjectSupport, ExportSupport[MajorPlanCourse] {
 
   override protected def simpleEntityName: String = "pc"
+
+  var planService: CoursePlanService = _
 
   override def indexSetting(): Unit = {
     given project: Project = getProject
@@ -102,7 +104,22 @@ class CourseAction extends RestfulAction[MajorPlanCourse], ProjectSupport, Expor
       }
     }
     entityDao.saveOrUpdate(pcs)
+    val planIds = pcs.map(_.group.plan.id)
+    val plans = entityDao.find(classOf[MajorPlan], planIds)
+    plans foreach { plan =>
+      planService.statPlanCredits(plan)
+    }
     redirect("search", "设置成功")
+  }
+
+  override protected def removeAndRedirect(pcs: Seq[MajorPlanCourse]): View = {
+    val planIds = pcs.map(_.group.plan.id)
+    val v = super.removeAndRedirect(pcs)
+    val plans = entityDao.find(classOf[MajorPlan], planIds)
+    plans foreach { plan =>
+      planService.statPlanCredits(plan)
+    }
+    v
   }
 
   override protected def configExport(context: ExportContext): Unit = {

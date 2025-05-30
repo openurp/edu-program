@@ -20,15 +20,16 @@ package org.openurp.edu.program.web.action.major
 import org.beangle.commons.collection.Collections
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.doc.transfer.exporter.ExcelWriter
-import org.beangle.webmvc.support.ActionSupport
-import org.beangle.webmvc.view.View
 import org.beangle.web.servlet.util.RequestUtils
+import org.beangle.webmvc.support.ActionSupport
 import org.beangle.webmvc.support.action.EntityAction
-import org.openurp.base.model.Project
-import org.openurp.base.std.model.Grade
+import org.beangle.webmvc.view.View
+import org.openurp.base.model.{Department, Project}
+import org.openurp.base.std.model.{Grade, Squad}
 import org.openurp.code.edu.model.{CourseType, EducationLevel, TeachingNature}
 import org.openurp.edu.program.model.{CourseGroup, MajorPlan, Program}
 import org.openurp.edu.program.service.{CoursePlanService, PlanCategoryStat}
+import org.openurp.edu.program.web.helper.PlanTask
 import org.openurp.starter.web.support.ProjectSupport
 
 import scala.collection.mutable
@@ -225,6 +226,36 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     null
   }
 
+  def ranks(): View = {
+    given project: Project = getProject
+
+    val grade = entityDao.get(classOf[Grade], getLongId("grade"))
+    val level = entityDao.get(classOf[EducationLevel], getIntId("level"))
+    val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "level" -> level)
+    val natures = getCodes(classOf[TeachingNature])
+    put("natures", natures)
+    val plans = entityDao.findBy(classOf[MajorPlan], "program", programs).sortBy(x => x.program.level.code + x.program.department.code + x.program.major.code)
+    val stats = Collections.newMap[MajorPlan, PlanCategoryStat]
+    var hasDesignated = false
+    plans foreach { plan =>
+      planService.statPlanCredits(plan)
+      val stat = PlanCategoryStat.stat(plan, natures)
+      if (!hasDesignated && stat.designatedSelectiveStat.credits > 0) {
+        hasDesignated = true
+      }
+      stats.put(plan, stat)
+    }
+    put("hasDesignated", hasDesignated)
+    put("plans", plans)
+    put("stats", stats)
+    put("grade", grade)
+    put("level", level)
+    put("minTerm", programs.map(_.startTerm).min)
+    put("maxTerm", programs.map(_.endTerm).max)
+    put("programs", programs)
+    forward()
+  }
+
   private def getGrades(project: Project) = {
     val query = OqlBuilder.from(classOf[Grade], "g")
     query.where("g.project=:project", project)
@@ -232,4 +263,74 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     entityDao.search(query)
   }
 
+  /** 交叉开课统计
+   *
+   * @return
+   */
+  def tasks(): View = {
+    given project: Project = getProject
+
+    val grade = entityDao.get(classOf[Grade], getLongId("grade"))
+    val level = entityDao.get(classOf[EducationLevel], getIntId("level"))
+    val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "level" -> level)
+    val plans = entityDao.findBy(classOf[MajorPlan], "program", programs).sortBy(x => x.program.department.code + x.program.major.code)
+    val departs = Collections.newSet[Department]
+    val stats = Collections.newMap[MajorPlan, PlanTask]
+    plans foreach { plan =>
+      val p = plan.program
+      val q = OqlBuilder.from(classOf[Squad], "s")
+      q.where("s.project=:project and s.grade=:grade", p.project, p.grade)
+      q.where("s.department=:depart and s.major=:major", p.department, p.major)
+      q.where("s")
+      q.where("s.stdCount>0")
+      p.direction match {
+        case None => q.where("s.direction is null")
+        case Some(d) => q.where("s.direction=:direction", d)
+      }
+      q.where("s.level=:level", p.level)
+      val squadCount = entityDao.search(q).size
+      val task = statDepartTask(plan, squadCount)
+      departs.addAll(task.departTasks.keys)
+      stats.put(plan, task)
+    }
+    val programDeparts = plans.map(_.program.department).toSet
+    val otherDeparts = departs.filter(x => !programDeparts.contains(x))
+    departs.subtractAll(otherDeparts)
+
+    put("plans", plans)
+    put("stats", stats)
+    put("grade", grade)
+    put("level", level)
+    put("otherDeparts", otherDeparts)
+    put("departs", departs.toBuffer.sortBy(_.code))
+    put("programs", programs)
+    forward()
+  }
+
+  private def statDepartTask(plan: MajorPlan, squadCount: Int): PlanTask = {
+    val pt = new PlanTask(plan.program, squadCount)
+    val tasks = Collections.newMap[Department, Float]
+    plan.topGroups foreach { g =>
+      statGroupDepartTask(g, plan.program, tasks)
+    }
+    pt.add(tasks)
+    pt
+  }
+
+  private def statGroupDepartTask(g: CourseGroup, program: Program, tasks: mutable.Map[Department, Float]): Unit = {
+    if (!g.optional && g.planCourses.nonEmpty) {
+      g.planCourses foreach { pc =>
+        val j = pc.journal
+        val courseCredits = pc.course.getCredits(program.level)
+        if (courseCredits > 0) {
+          var credits = tasks.getOrElseUpdate(j.department, 0f)
+          credits += courseCredits
+          tasks.put(j.department, credits)
+        }
+      }
+    }
+    g.children foreach { c =>
+      statGroupDepartTask(c, program, tasks)
+    }
+  }
 }

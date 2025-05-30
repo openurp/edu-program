@@ -22,12 +22,12 @@ import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.{Numbers, Objects, Strings}
 import org.beangle.data.dao.EntityDao
 import org.beangle.data.orm.MappingMacro.target
-import org.openurp.base.edu.model.Course
+import org.openurp.base.edu.model.{Course, Terms}
 import org.openurp.code.edu.model.TeachingNature
 import org.openurp.code.service.CodeService
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.PlanDiff.*
-import org.openurp.edu.program.service.{PlanDiff, PlanGroupStat, CoursePlanService}
+import org.openurp.edu.program.service.{CoursePlanService, PlanDiff, PlanGroupStat}
 
 import java.time.Instant
 import scala.collection.mutable

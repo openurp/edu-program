@@ -331,7 +331,7 @@ function mergeCourseTypeCell(tableId) {
 [/#macro]
 
 [#macro planFoot plan]
-    <p style="text-align:center;color:#6c757d;">生效日期：${plan.program.beginOn?string('yyyy-MM-dd')}~${(plan.program.endOn?string('yyyy-MM-dd'))!}&nbsp;
+    <p style="text-align:center;color:#6c757d;font-size:10pt;">生效日期：${plan.program.beginOn?string('yyyy-MM-dd')}~${(plan.program.endOn?string('yyyy-MM-dd'))!}&nbsp;
     [#if plan.program.degree??]学位：${plan.program.degree.name }&nbsp;[/#if]
     [#if plan.program.degreeGpa??]学位绩点：${plan.program.degreeGpa }&nbsp;[/#if]
     最后修改时间：${(plan.program.updatedAt?string('yyyy-MM-dd HH:mm:ss'))!}</p>

@@ -26,13 +26,13 @@ import org.beangle.ems.app.Ems
 import org.beangle.webmvc.annotation.{mapping, param, response}
 import org.beangle.webmvc.context.ActionMessages
 import org.beangle.webmvc.support.ActionSupport
-import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.EntityAction
+import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.{Course, CourseJournal, Terms}
 import org.openurp.base.model.{CalendarStage, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.*
-import org.openurp.edu.clazz.domain.NumSeqParser
+import org.openurp.edu.clazz.domain.WeekTimeBuilder
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.*
 import org.openurp.edu.program.service.impl.EnNameChecker
@@ -54,7 +54,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     }
     put("plan", plan)
     put("program", plan.program)
-    put("stages", entityDao.findBy(classOf[CalendarStage],"school",plan.program.project.school))
+    put("stages", entityDao.findBy(classOf[CalendarStage], "school", plan.program.project.school))
     forward()
   }
 
@@ -187,6 +187,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     put("departments", project.departments)
     put("stages", entityDao.getAll(classOf[CalendarStage]))
     put("termHelper", new TermHelper)
+    put("weekstateBuilder", WeekTimeBuilder)
     forward()
   }
 
@@ -331,9 +332,8 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     }
     val terms = get("planCourse.terms", "")
     planCourse.terms = Terms(terms)
-    val weekstate = get("planCourse.weekstate", "")
-    if (Strings.isEmpty(weekstate)) planCourse.weekstate = WeekState.Zero
-    else planCourse.weekstate = WeekState.of(NumSeqParser.parse(weekstate))
+
+    if (null == planCourse.weekstate) planCourse.weekstate = WeekState.Zero
     val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id + "&program.id=" + plan.program.id
     val target = if getBoolean("toGroups", false) then "groups" else "edit"
     if (planCourse.persisted) {

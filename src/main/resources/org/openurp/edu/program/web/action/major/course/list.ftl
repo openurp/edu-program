@@ -1,6 +1,7 @@
 [@b.grid items=pcs var="pc"]
   [@b.gridbar]
     bar.addItem("批量设置",action.multi('batchEdit'));
+    bar.addItem("删除",action.remove());
     bar.addItem("${b.text("action.export")}",
         action.exportData("course.code:课程代码,course.name:课程名称,journal.department.name:开课院系,"+
         "credits:学分,journal.creditHours:学时,journal.examMode.name:考核方式,terms:学期,group.name:课程类别,"+

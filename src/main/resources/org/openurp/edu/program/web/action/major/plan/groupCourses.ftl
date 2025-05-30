@@ -37,7 +37,7 @@
     [/@]
     [#assign cj = (planCourse.course.getJournal(plan.program.grade))!/]
     [@b.col width="8%" title="学时"]
-      [#if cj.weeks??]${cj.weeks}周[#else]
+      [#if cj.weeks?? && cj.weeks > 0]${cj.weeks}周[#else]
         ${cj.creditHours}
         [#if cj.hours?size>1]<span class="text-muted">([#list cj.hours as h]${h.creditHours}[#sep]+[/#list])</span>[/#if]
       [/#if]
@@ -60,7 +60,7 @@
     var planCourses ={};
     [#list courseGroup.planCourses as pc]
       [#assign c=pc.course/]
-      planCourses['pc${pc.id}']={'id':'${pc.id}','groupId':'${pc.group.id}','terms':'${pc.terms}','compulsory':${pc.compulsory?c},'course':{'id':'${c.id}','code':'${c.code}','name':'${c.name}','defaultCredits':'${c.defaultCredits}','creditHours':'${c.creditHours}','weekHours':'${c.weekHours}','department':{'id':'${c.department.id}','name':'${c.department.name}'}},'termText':'${(pc.termText!"")?js_string}','remark':'${(pc.remark!"")?js_string}','idx':'${pc.idx}'[#if pc.stage??],'stageId':'${pc.stage.id}'[/#if]}
+      planCourses['pc${pc.id}']={'id':'${pc.id}','groupId':'${pc.group.id}','terms':'${pc.terms}','weekstate':'${weekstateBuilder.digest(pc.weekstate)!}','compulsory':${pc.compulsory?c},'course':{'id':'${c.id}','code':'${c.code}','name':'${c.name}','defaultCredits':'${c.defaultCredits}','creditHours':'${c.creditHours}','weekHours':'${c.weekHours}','department':{'id':'${c.department.id}','name':'${c.department.name}'}},'termText':'${(pc.termText!"")?js_string}','remark':'${(pc.remark!"")?js_string}','idx':'${pc.idx}'[#if pc.stage??],'stageId':'${pc.stage.id}'[/#if]}
     [/#list]
     function editCourse(){
       jQuery("#planDialogBody").html("");//否则影响这个选择

@@ -30,7 +30,6 @@ import org.openurp.base.model.{AuditStatus, CalendarStage, Department, Project}
 import org.openurp.base.std.model.{Grade, Student, StudentState}
 import org.openurp.code.edu.model.*
 import org.openurp.code.std.model.StdType
-import org.openurp.edu.clazz.domain.NumSeqParser
 import org.openurp.edu.program.domain.CoursePlanProvider
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.*
@@ -286,9 +285,11 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     }
     val terms = get("planCourse.terms", "")
     planCourse.terms = Terms(terms)
-    val weekstate = get("planCourse.weekstate", "")
-    if (Strings.isEmpty(weekstate)) planCourse.weekstate = WeekState.Zero
-    else planCourse.weekstate = WeekState.of(NumSeqParser.parse(weekstate))
+
+//    val weekstate = get("planCourse.weekstate", "")
+//    if (Strings.isEmpty(weekstate)) planCourse.weekstate = WeekState.Zero
+//    else planCourse.weekstate = WeekState.of(NumSeqParser.parse(weekstate))
+
     val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id
     if (planCourse.persisted) {
       if (group.planCourses.exists(x => x.course == planCourse.course && planCourse.id != x.id)) {

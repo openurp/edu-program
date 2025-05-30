@@ -36,6 +36,8 @@
      [@b.tabs]
        [@b.tab href="!modules?grade.id=${grade.id}&level.id=${level.id}" label="课程模块"/]
        [@b.tab href="!natures?grade.id=${grade.id}&level.id=${level.id}" label="理论/实践"/]
+       [@b.tab href="!ranks?grade.id=${grade.id}&level.id=${level.id}" label="必修/选修"/]
+       [@b.tab href="!tasks?grade.id=${grade.id}&level.id=${level.id}" label="交叉开课"/]
      [/@]
     </div>
   </div>

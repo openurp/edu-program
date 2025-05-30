@@ -63,6 +63,7 @@
            <th>专业和方向</th>
            <th>学制</th>
            <th>学位类型</th>
+           <th>学生类别</th>
            <th>要求学分</th>
            <th width="300px">修订操作</th>
            <th>查看/预览</th>
@@ -79,6 +80,7 @@
          <td>${program.major.name} ${(program.direction.name)!}</td>
          <td>${program.duration}年</td>
          <td>${(program.degree.name)!'--'}</td>
+         <td>[#list program.stdTypes as stdType]${stdType.name}[#sep],[/#list]</td>
          <td>${program.credits}</td>
          <td>
             [#if reviseOpening && editables?seq_contains(program.status)]

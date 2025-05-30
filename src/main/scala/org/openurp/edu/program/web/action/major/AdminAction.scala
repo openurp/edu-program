@@ -29,7 +29,7 @@ import org.openurp.base.model.{AuditStatus, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.*
 import org.openurp.code.std.model.StdType
-import org.openurp.edu.program.model.{ExecutivePlan, MajorPlan, Program, ProgramDoc}
+import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.{CoursePlanService, ProgramNamingHelper}
 import org.openurp.edu.program.web.helper.ProgramInfoHelper
 import org.openurp.starter.web.support.ProjectSupport
@@ -155,14 +155,26 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     getLong("copyFrom.id") match
       case Some(id) =>
         val copyForm = entityDao.get(classOf[Program], id)
+        //复制教学计划
         entityDao.findBy(classOf[MajorPlan], "program", copyForm).foreach { p =>
           if entityDao.findBy(classOf[MajorPlan], "program", program).isEmpty then
             val plan = new MajorPlan(program, p)
             entityDao.saveOrUpdate(plan)
         }
+        //复制培养方案文本
         entityDao.findBy(classOf[ProgramDoc], "program", copyForm) foreach { d =>
           val doc = new ProgramDoc(program, d)
           entityDao.saveOrUpdate(doc)
+        }
+        //复制先修课程
+        entityDao.findBy(classOf[ProgramPrerequisite], "program", copyForm) foreach { d =>
+          val pp = new ProgramPrerequisite(program, d.course, d.prerequisite)
+          entityDao.saveOrUpdate(pp)
+        }
+        //复制标签
+        entityDao.findBy(classOf[ProgramCourseLabel], "program", copyForm) foreach { d =>
+          val pcl = new ProgramCourseLabel(program, d.course, d.tag)
+          entityDao.saveOrUpdate(pcl)
         }
       case None =>
         if entityDao.findBy(classOf[MajorPlan], "program", program).isEmpty then

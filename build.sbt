@@ -23,10 +23,10 @@ ThisBuild / developers := List(
 ThisBuild / description := "OpenURP Edu Learning"
 ThisBuild / homepage := Some(url("http://openurp.github.io/edu-program/index.html"))
 
-val apiVer = "0.42.0"
-val starterVer = "0.3.54"
-val baseVer = "0.4.48"
-val eduCoreVer = "0.3.8"
+val apiVer = "0.42.1"
+val starterVer = "0.3.56"
+val baseVer = "0.4.49"
+val eduCoreVer = "0.3.9"
 
 val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starterVer
@@ -35,7 +35,7 @@ val openurp_edu_core = "org.openurp.edu" % "openurp-edu-core" % eduCoreVer
 val plantuml = "net.sourceforge.plantuml" % "plantuml" % "1.2024.4"
 val word_checker = "org.languagetool" % "language-en" % "6.4"
 val guava = "com.google.guava" % "guava" % "33.2.1-jre"
-val hibernate_community = "org.hibernate.orm" % "hibernate-community-dialects" % "6.4.9.Final" exclude("org.hibernate.orm", "hibernate-core")
+val hibernate_community = "org.hibernate.orm" % "hibernate-community-dialects" % "6.6.17.Final" exclude("org.hibernate.orm", "hibernate-core")
 
 lazy val root = (project in file("."))
   .enablePlugins(WarPlugin, TomcatPlugin)

@@ -13,7 +13,7 @@
 [/@]
 [#include "planGroupFunctions.ftl" /]
 <link rel="stylesheet" type="text/css" href="${b.base}/static/css/plan.css?v=20230522" />
-<script type="text/javascript" charset="utf-8" src="${b.base}/static/edu/program/js/plan.js?v=1"></script>
+<script type="text/javascript" charset="utf-8" src="${b.base}/static/edu/program/js/plan.js?v=3"></script>
 [@b.messages slash="2"/]
 <div class="row">
   <div class="col-3">

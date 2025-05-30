@@ -18,6 +18,7 @@
 package org.openurp.edu.program.service.impl
 
 import org.beangle.commons.collection.Collections
+import org.openurp.base.edu.model.Terms
 import org.openurp.code.edu.model.TeachingNature
 import org.openurp.code.service.CodeService
 import org.openurp.edu.program.model.MajorPlan
