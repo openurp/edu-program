@@ -286,10 +286,7 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     val terms = get("planCourse.terms", "")
     planCourse.terms = Terms(terms)
 
-//    val weekstate = get("planCourse.weekstate", "")
-//    if (Strings.isEmpty(weekstate)) planCourse.weekstate = WeekState.Zero
-//    else planCourse.weekstate = WeekState.of(NumSeqParser.parse(weekstate))
-
+    if (null == planCourse.weekstate) planCourse.weekstate = WeekState.Zero
     val extra = "&courseGroup.id=" + group.id + "&plan.id=" + plan.id
     if (planCourse.persisted) {
       if (group.planCourses.exists(x => x.course == planCourse.course && planCourse.id != x.id)) {

@@ -73,7 +73,7 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
     val depart = getInt("department.id").map(id => entityDao.get(classOf[Department], id)).getOrElse(departs.head)
     val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "department" -> depart)
     val sortedPrograms = programs.sortBy(x => x.level.code + "_" + x.major.name + "_" + x.direction.map(_.name).getOrElse(""))
-    put("reviseOpening", grade.endOn.isAfter(LocalDate.now))
+    put("reviseOpening", grade.endIn.atDay(1).isAfter(LocalDate.now))
     put("programs", sortedPrograms)
     put("plans", planService.getMajorPlans(programs))
     put("depart", depart)

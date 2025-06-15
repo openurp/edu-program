@@ -60,7 +60,7 @@ class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
 
     val depart = getInt("department.id").map(id => entityDao.get(classOf[Department], id)).getOrElse(departs.head)
     val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "department" -> depart)
-    put("reviseOpening", grade.endOn.isAfter(LocalDate.now))
+    put("reviseOpening", grade.beginIn.atDay(1).isAfter(LocalDate.now))
     val auditMessages = programs.map(x => (x, programChecker.check(x))).toMap
     val sortedPrograms = programs.sortBy(x => x.level.code + "_" + x.major.name + "_" + x.direction.map(_.name).getOrElse(""))
     put("programs", sortedPrograms)
@@ -142,9 +142,9 @@ class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
               x.major == right.get.major &&
               x.direction == right.get.direction &&
               !right.contains(x) &&
-              x.grade.beginOn.isBefore(right.get.grade.beginOn)
+              x.grade.beginIn.isBefore(right.get.grade.beginIn)
           }
-          left = sameMajors.sortBy(_.grade.beginOn).reverse.headOption
+          left = sameMajors.sortBy(_.grade.beginIn).reverse.headOption
         }
       case id@i => left = lefts.find(_.id.toString == id)
     }

@@ -123,7 +123,7 @@
         [@b.a href="revise!info?id="+program.id class="nav-link" target="_blank"]查看核对[/@]
       </li>
       <li class="nav-item">
-        <a href="#"class="nav-link" onclick="return toggleEnCourseName(this)">显示课程英文名</a>
+        <a href="#" class="nav-link" onclick="return toggleEnCourseName(this)">显示课程英文名</a>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false" id="term_nav">

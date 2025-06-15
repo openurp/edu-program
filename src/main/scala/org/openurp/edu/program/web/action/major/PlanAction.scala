@@ -460,9 +460,9 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
               x.major == right.get.major &&
               x.direction == right.get.direction &&
               !right.contains(x) &&
-              x.grade.beginOn.isBefore(right.get.grade.beginOn)
+              x.grade.beginIn.isBefore(right.get.grade.beginIn)
           }
-          left = sameMajors.sortBy(_.grade.beginOn).reverse.headOption
+          left = sameMajors.sortBy(_.grade.beginIn).reverse.headOption
         }
       case id@i => left = lefts.find(_.id.toString == id)
     }
