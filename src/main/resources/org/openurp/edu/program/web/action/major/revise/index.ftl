@@ -47,7 +47,7 @@
             <a href="#" class="nav-link" onclick="return displayCourses()"><i class="fas fa-list"></i>开课列表</a>
           </li>
           <li class="nav-item">
-            <a href="/edu/course/admin/journal" class="nav-link" title="修改标签、课时、考核方式" onclick="return bg.Go(this,null)"><i class="fas fa-flag"></i>课程信息</a>
+            <a href="/edu/course/admin/journal?grade.id=${grade.id}&journal.department.id=${depart.id}&planIncluded=1" class="nav-link" title="修改标签、课时、考核方式" onclick="return bg.Go(this,null)"><i class="fas fa-flag"></i>课程信息</a>
           </li>
         </ul>
       </nav>

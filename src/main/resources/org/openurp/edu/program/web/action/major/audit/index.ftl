@@ -34,7 +34,7 @@
             [@b.a href="!diffIndex?right.grade.id=${grade.id}" class="nav-link"]<i class="fa-solid fa-arrow-right-arrow-left"></i>计划对比[/@]
           </li>
           <li class="nav-item">
-            <a href="/edu/course/admin/journal" class="nav-link" title="修改标签、课时、考核方式" onclick="return bg.Go(this,null)"><i class="fas fa-flag"></i>课程信息</a>
+            <a href="/edu/course/admin/journal?grade.id=${grade.id}&journal.department.id=${depart.id}&planIncluded=1" class="nav-link" title="修改标签、课时、考核方式" onclick="return bg.Go(this,null)"><i class="fas fa-flag"></i>课程信息</a>
           </li>
         </ul>
       </nav>
