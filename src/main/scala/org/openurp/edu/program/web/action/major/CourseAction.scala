@@ -24,7 +24,6 @@ import org.beangle.webmvc.support.action.{ExportSupport, RestfulAction}
 import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.{Course, Major, Terms}
 import org.openurp.base.model.Project
-import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.EducationType
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.model.{MajorPlan, MajorPlanCourse}
@@ -64,13 +63,6 @@ class CourseAction extends RestfulAction[MajorPlanCourse], ProjectSupport, Expor
     val project = getProject
     queryByDepart(q, "pc.group.plan.program.department")
     q.where("pc.group.plan.program.project=:project", project)
-  }
-
-  private def getGrades(project: Project) = {
-    val query = OqlBuilder.from(classOf[Grade], "g")
-    query.where("g.project=:project", project)
-    query.orderBy("g.code desc")
-    entityDao.search(query)
   }
 
   def batchEdit(): View = {

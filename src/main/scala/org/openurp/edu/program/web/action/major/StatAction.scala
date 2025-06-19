@@ -29,7 +29,7 @@ import org.openurp.base.std.model.{Grade, Squad}
 import org.openurp.code.edu.model.{CourseType, EducationLevel, TeachingNature}
 import org.openurp.edu.program.model.{CourseGroup, MajorPlan, Program}
 import org.openurp.edu.program.service.{CoursePlanService, PlanCategoryStat}
-import org.openurp.edu.program.web.helper.PlanTask
+import org.openurp.edu.program.web.helper.{GradeHelper, PlanTask}
 import org.openurp.starter.web.support.ProjectSupport
 
 import scala.collection.mutable
@@ -41,7 +41,7 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   def index(): View = {
     given project: Project = getProject
 
-    val grades = getGrades(project)
+    val grades = new GradeHelper(entityDao).getGrades(project)
     val grade = getLong("grade.id").map(id => entityDao.get(classOf[Grade], id)).getOrElse(grades.head)
     put("grades", grades)
     put("grade", grade)
@@ -254,13 +254,6 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     put("maxTerm", programs.map(_.endTerm).max)
     put("programs", programs)
     forward()
-  }
-
-  private def getGrades(project: Project) = {
-    val query = OqlBuilder.from(classOf[Grade], "g")
-    query.where("g.project=:project", project)
-    query.orderBy("g.code desc")
-    entityDao.search(query)
   }
 
   /** 交叉开课统计

@@ -26,11 +26,11 @@ import org.beangle.doc.pdf.SPDConverter
 import org.beangle.doc.transfer.exporter.ExportContext
 import org.beangle.ems.app.Ems
 import org.beangle.security.Securities
+import org.beangle.web.servlet.util.RequestUtils
 import org.beangle.webmvc.context.ActionContext
 import org.beangle.webmvc.support.ActionSupport
-import org.beangle.webmvc.view.{Status, Stream, View}
-import org.beangle.web.servlet.util.RequestUtils
 import org.beangle.webmvc.support.action.EntityAction
+import org.beangle.webmvc.view.{Status, Stream, View}
 import org.openurp.base.model.{AuditStatus, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.TeachingNature
@@ -52,7 +52,7 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
   def index(): View = {
     given project: Project = getProject
 
-    val grades = getGrades(project)
+    val grades = new GradeHelper(entityDao).getGrades(project)
     val grade = getLong("grade.id").map(id => entityDao.get(classOf[Grade], id)).getOrElse(grades.head)
 
     var departs = getDeparts
@@ -82,13 +82,6 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
 
     put("teachingNatures", getCodes(classOf[TeachingNature]))
     forward()
-  }
-
-  private def getGrades(project: Project) = {
-    val query = OqlBuilder.from(classOf[Grade], "g")
-    query.where("g.project=:project", project)
-    query.orderBy("g.code desc")
-    entityDao.search(query)
   }
 
   def info(): View = {

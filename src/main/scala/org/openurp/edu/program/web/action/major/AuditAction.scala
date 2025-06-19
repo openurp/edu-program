@@ -19,14 +19,14 @@ package org.openurp.edu.program.web.action.major
 
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.webmvc.support.ActionSupport
-import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.EntityAction
+import org.beangle.webmvc.view.View
 import org.openurp.base.model.AuditStatus.{PassedByDepart, RejectedByDepart}
 import org.openurp.base.model.{AuditStatus, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.edu.program.model.{MajorPlan, Program}
 import org.openurp.edu.program.service.{CoursePlanService, ProgramChecker, TermHelper}
-import org.openurp.edu.program.web.helper.{ProgramInfoHelper, ProgramReportHelper}
+import org.openurp.edu.program.web.helper.{GradeHelper, ProgramInfoHelper, ProgramReportHelper}
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.time.LocalDate
@@ -40,7 +40,7 @@ class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   def index(): View = {
     given project: Project = getProject
 
-    val grades = getGrades(project)
+    val grades = new GradeHelper(entityDao).getGrades(project)
     val grade = getLong("grade.id").map(id => entityDao.get(classOf[Grade], id)).getOrElse(grades.head)
 
     var departs = getDeparts
@@ -64,19 +64,12 @@ class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     val auditMessages = programs.map(x => (x, programChecker.check(x))).toMap
     val sortedPrograms = programs.sortBy(x => x.level.code + "_" + x.major.name + "_" + x.direction.map(_.name).getOrElse(""))
     put("programs", sortedPrograms)
-    put("plans",planService.getMajorPlans(programs))
+    put("plans", planService.getMajorPlans(programs))
     put("auditMessages", auditMessages)
     put("depart", depart)
     put("grade", grade)
     put("auditables", Set(AuditStatus.Submited, AuditStatus.PassedByDepart, AuditStatus.RejectedByDepart))
     forward()
-  }
-
-  private def getGrades(project: Project) = {
-    val query = OqlBuilder.from(classOf[Grade], "g")
-    query.where("g.project=:project", project)
-    query.orderBy("g.code desc")
-    entityDao.search(query)
   }
 
   def auditSetting(): View = {

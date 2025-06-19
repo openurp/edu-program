@@ -31,7 +31,7 @@ import org.openurp.code.edu.model.*
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.{CoursePlanService, ProgramNamingHelper}
-import org.openurp.edu.program.web.helper.ProgramInfoHelper
+import org.openurp.edu.program.web.helper.{GradeHelper, ProgramInfoHelper}
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.time.{Instant, LocalDate}
@@ -91,7 +91,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     query2.orderBy("m.code")
     val directions = entityDao.search(query2)
 
-    put("grades", getGrades(project))
+    put("grades", new GradeHelper(entityDao).getGrades(project))
     put("departs", departs)
     put("majors", majors)
     put("directions", directions)
@@ -126,13 +126,6 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     put("certificates", getCodes(classOf[Certificate]))
 
     super.editSetting(program)
-  }
-
-  private def getGrades(project: Project) = {
-    val query = OqlBuilder.from(classOf[Grade], "g")
-    query.where("g.project=:project", project)
-    query.orderBy("g.code desc")
-    entityDao.search(query)
   }
 
   override protected def saveAndRedirect(program: Program): View = {
@@ -278,7 +271,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     query2.orderBy("m.code")
     val directions = entityDao.search(query2)
 
-    put("grades", getGrades(project))
+    put("grades", new GradeHelper(entityDao).getGrades(project))
     put("departs", departs)
     put("majors", majors)
     put("directions", directions)
@@ -310,7 +303,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
   def compare(): View = {
     given project: Project = getProject
 
-    val grades = getGrades(project)
+    val grades = new GradeHelper(entityDao).getGrades(project)
     put("grades", grades)
     put("levels", project.levels)
     put("allCourseTypes", getCodes(classOf[CourseType]))
