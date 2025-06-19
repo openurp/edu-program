@@ -46,7 +46,7 @@
       switchAutoName();
       var gradeBeginOns = {}
       [#list grades as grade]
-         gradeBeginOns["${grade.id}"]="${grade.beginOn?string('yyyy-MM-dd')}";
+         gradeBeginOns["${grade.id}"]="${grade.beginIn?string('yyyy-MM-01')}";
       [/#list]
       /*
        * 当年级发生变化的时候，自动更新开始时间，结束时间

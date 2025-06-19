@@ -438,7 +438,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     val q = OqlBuilder.from(classOf[Program], "program")
     q.where("program.project=:project", project)
     queryByDepart(q, "program.department")
-    q.orderBy("program.grade.beginOn desc,program.department.code,program.major.name")
+    q.orderBy("program.grade.beginIn desc,program.department.code,program.major.name")
     val plans = entityDao.search(q)
     val lefts = plans.toSeq
     var rights = plans.toSeq
