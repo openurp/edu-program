@@ -3,6 +3,7 @@
     [@b.gridbar]
         bar.addItem("${b.text("action.modify")}",action.edit());
         bar.addItem("${b.text("action.delete")}",action.remove());
+        bar.addItem("导出excel",action.multi("report",null,null,"_blank"));
     [/@]
     [@b.row]
         [@b.boxcol/]

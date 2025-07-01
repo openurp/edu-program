@@ -4,7 +4,7 @@
 [#assign chineseNums=['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六']/]
 
 [#assign displayTeachDepart=true/]
-[#assign displayCreditHour=true/]
+[#if !displayCreditHour??][#assign displayCreditHour=true/][/#if]
 [#-- 有时候必须跨的列数，在这里是课程名称和课程代码两列 --]
 [#assign mustSpan = 2/]
 [#assign courseCount = 0 /]

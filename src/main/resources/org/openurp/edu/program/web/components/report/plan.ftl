@@ -3,23 +3,40 @@
 [@include_optional path="/org/openurp/edu/program/web/components/report/planMacros.ftl"/]
 [#--以下输出内容--]
 [@planHead plan/]
-<table id="planInfoTable${plan.id}" class="plan-table" style="vnd.ms-excel.numberformat:@" width="100%">
+
+[#assign program = plan.program/]
+<table id="planInfoTable${plan.id}" class="plan-table" style="vnd.ms-excel.numberformat:@" width="100%"
+       data-sheet-name="${program.grade.name} ${program.level.name} ${program.major.name}[#if program.direction??] ${(program.direction.name)!}[/#if]"
+       data-repeating-rows="1:2" data-zoom="80" data-print-scale="57">
     [#assign maxTerm=plan.terms /]
     [#if !courseTypeWidth??][#assign courseTypeWidth=5*maxFenleiSpan/][/#if]
     [#if !courseTypeMaxWidth??][#assign courseTypeMaxWidth=15/][/#if]
     [#if courseTypeWidth>courseTypeMaxWidth][#assign courseTypeWidth=courseTypeMaxWidth/][/#if]
+    <colgroup>
+      <col width="${courseTypeWidth}%" span="${maxFenleiSpan}"/>
+      <col width="10%"/>
+      [#assign courseWidth = 100-courseTypeWidth-10-5-3.5*maxTerm-remarkWidth!7/]
+      [#if displayCreditHour][#assign courseWidth = courseWidth -5/][/#if]
+      [#if displayTeachDepart][#assign courseWidth = courseWidth -10/][/#if]
+      <col width="${courseWidth}%"/>
+      <col width="5%"/>
+      [#if displayCreditHour]<col width="5%"/>[/#if]
+      [#list 1..maxTerm as i]<col width="3.5%"/>[/#list]
+      [#if displayTeachDepart]<col width="10%"/>[/#if]
+      <col width="${remarkWidth!7}%"/>
+    </colgroup>
     <thead>
         <tr align="center">
-            <th rowspan="2" colspan="${maxFenleiSpan}" width="${courseTypeWidth}%">类别</th>
-            <th rowspan="2" width="10%">序号</th>
+            <th rowspan="2" colspan="${maxFenleiSpan}">类别</th>
+            <th rowspan="2">课程代码</th>
             <th rowspan="2">课程名称</th>
-            <th rowspan="2" width="5%">学分</th>
-            [#if displayCreditHour]<th rowspan="2" width="5%">学时</th>[/#if]
-            <th colspan="${maxTerm}" width="${maxTerm*3.5}%">开课学期</th>
+            <th rowspan="2">学分</th>
+            [#if displayCreditHour]<th rowspan="2">学时</th>[/#if]
+            <th colspan="${maxTerm}">开课学期</th>
             [#if displayTeachDepart]
-            <th rowspan="2" width="10%">开课院系</th>
+            <th rowspan="2">开课院系</th>
             [/#if]
-            <th rowspan="2" width="${remarkWidth!7}%">备注</th>
+            <th rowspan="2">备注</th>
         </tr>
         <tr>
         [#assign total_term_credit={} /]

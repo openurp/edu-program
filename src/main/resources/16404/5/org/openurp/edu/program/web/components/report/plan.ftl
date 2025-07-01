@@ -119,7 +119,7 @@
 [#assign tableIdx= tableIdx+1 ]
 <table id="plan-table-${plan.id}_${tableIdx}" style="page-break-before:always;" width="100%" class="plan-table"
        data-sheet-name="${program.major.name}[#if program.direction??] ${(program.direction.name)!}[/#if][#if program.level.name!='本科'] ${program.level.name}[/#if]"
-       data-repeating-rows="2:3" data-zoom="80" data-print-scale="57">
+       data-repeating-rows="2:5" data-zoom="80" data-print-scale="57">
   <colgroup>
     [#list 1..branchSpan as i]<col width="32px"/>[/#list]
     <col width="2.8%"/>

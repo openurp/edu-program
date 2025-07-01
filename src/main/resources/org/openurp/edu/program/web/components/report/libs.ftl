@@ -95,7 +95,7 @@
 [#macro planSubTitle plan]${("("+ plan.program.direction.name + ")&nbsp;")!}&nbsp; ${plan.program.level.name}&nbsp;培养方案&nbsp;(${plan.program.grade.code})[/#macro]
 
 [#assign displayTeachDepart=true/]
-[#assign displayCreditHour=true/]
+[#if !displayCreditHour??][#assign displayCreditHour=true/][/#if]
 [#macro i18nName(entity)]${entity.name}[/#macro]
 
 [#macro displayCourse plan,course]
