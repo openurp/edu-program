@@ -111,7 +111,10 @@
 [/#macro]
 <header>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    [@b.a href="!edit?plan.id="+plan.id class="navbar-brand"]${program.grade.code}级 ${program.level.name} ${program.department.name} ${program.major.name}  ${(program.direction.name)!}教学计划[/@]
+    [@b.a href="!edit?plan.id="+plan.id class="navbar-brand"]
+      ${program.grade.code}级 ${program.level.name} ${program.department.name} ${program.major.name} ${(program.direction.name)!}教学计划
+      [#if program.stdTypes?size>0]<span class="text-muted text-sm">（[#list program.stdTypes as st]${st.name}[#sep]，[/#list]）</span>[/#if]
+    [/@]
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
         [@b.a href="doc!edit?program.id="+program.id class="nav-link" target="_blank"]修改文本内容[/@]

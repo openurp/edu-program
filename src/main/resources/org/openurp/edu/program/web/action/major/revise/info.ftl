@@ -32,7 +32,11 @@
 
 <header>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    [@b.a href="!info?id="+program.id class="navbar-brand"]${program.grade.code}级 ${program.level.name} ${program.department.name} ${program.major.name}  ${(program.direction.name)!} 专业培养方案[/@]
+    [@b.a href="!info?id="+program.id class="navbar-brand"]
+      ${program.grade.code}级 ${program.level.name}
+      ${program.department.name} ${program.major.name}  ${(program.direction.name)!} 专业培养方案
+       [#if program.stdTypes?size>0]<span class="text-muted text-sm">（[#list program.stdTypes as st]${st.name}[#sep]，[/#list]）</span>[/#if]
+    [/@]
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
         [@b.a href="!report?id="+program.id class="nav-link"]<i class="fa-solid fa-print"></i>打印预览[/@]

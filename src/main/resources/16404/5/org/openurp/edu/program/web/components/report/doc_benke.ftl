@@ -59,7 +59,7 @@
     [#include "cert_table.ftl"/]
   [/#list]
 
-  [#assign prerequisite_title]${program.grade.code}级${program.major.name}[#if program.directions??] ${(program.direction.name)!}[/#if]课程关系图[/#assign]
+  [#assign prerequisite_title]${program.grade.code}级 ${program.major.name}专业[#if program.directions??] ${(program.direction.name)!}[/#if] [#if stdTypeNames?contains(program.level.name)]${stdTypeNames}[#else]${program.level.name}[/#if] 课程关系图[/#assign]
   [#assign prerequisite_length=prerequisite_title?length-2/][#--2024 算作2个汉字--]
   <div style="margin:auto;text-align:center;page-break-before:always;width:100%" class="prerequisite-screen">
     <div class="section">${prerequisite_title}</div>

@@ -3,7 +3,7 @@
     <script src="${b.base}/static/antv-x6/2.0.0/js/plugin-export.js"></script>
     <div class="card card-info card-primary card-outline">
       [@b.card_header style="text-align: center;"]
-        ${program.grade.code}级 ${program.major.name} ${(program.direction.name)!} 课程学期关系图
+        ${program.grade.code}级 ${program.major.name}[#if program.direction??]（${program.direction.name}）[/#if] 课程学期关系图
         <a href="${b.url('!graph')}?program.id=${program.id}&ignoreTermGap=[#if (Parameters['ignoreTermGap']!"1")=="1"]0[#else]1[/#if]"
          style="color: #17a2b8;border: 1px solid #17a2b8;padding: .25rem .5rem;border-radius: .2rem;text-decoration: none;font-weight: 400;">
            <i class="fa-solid fa-floppy-disk"></i>[#if (Parameters['ignoreTermGap']!"1")=="1"]显示跨学期先修关系[#else]忽略跨学期先修关系[/#if]

@@ -116,9 +116,9 @@
 [/#function]
 
 [#macro tableHeader plan]
-[#assign tableIdx= tableIdx+1 ]
+[#assign tableIdx= tableIdx+1]
 <table id="plan-table-${plan.id}_${tableIdx}" style="page-break-before:always;" width="100%" class="plan-table"
-       data-sheet-name="${program.major.name}[#if program.direction??] ${(program.direction.name)!}[/#if][#if program.level.name!='本科'] ${program.level.name}[/#if]"
+       data-sheet-name="${program.major.name}[#if program.direction??] ${(program.direction.name)!}[/#if][#if stdTypeNames?contains(program.level.name)] ${stdTypeNames}[#else]${program.level.name}[/#if]"
        data-repeating-rows="2:5" data-zoom="80" data-print-scale="57">
   <colgroup>
     [#list 1..branchSpan as i]<col width="32px"/>[/#list]
@@ -141,9 +141,9 @@
     </tr>
     [/#if]
     <tr>
-      <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">${program.grade.name}级${program.major.name}[#if program.direction??]（${program.direction.name?replace("方向","")}）[/#if]专业${program.level.name}指导性教学计划表</th>
+      <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">${program.grade.name}级${program.major.name}[#if program.direction??]（${program.direction.name?replace("方向","")}）[/#if]专业[#if stdTypeNames?contains(program.level.name)]${stdTypeNames}[#else]${program.level.name}[/#if]指导性教学计划表</th>
     </tr>
-    [#assign levelEnName][#if program.level.name=='本科']Undergraduate[#elseif program.level.name='专升本']ZHUANSHENGBEN[#elseif program.level.name=='二学位']ERXUEWEI[#else]${program.level.name}[/#if][/#assign]
+    [#assign levelEnName]${program.level.enName!program.level.name}[/#assign]
     <tr>
       <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">Education Guiding Schedule for ${program.major.enName!'--无英文名--'}[#if program.direction??](${program.direction.enName!'--无英文名--'})[/#if] ${levelEnName} of Grade ${program.grade.code}</th>
     </tr>

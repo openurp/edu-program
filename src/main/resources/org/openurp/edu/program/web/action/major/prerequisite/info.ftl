@@ -1,7 +1,7 @@
 [@b.head/]
 <div class="card card-info card-primary card-outline">
     [@b.card_header]
-      <div class="card-title">${program.grade.code}级 ${program.major.name} ${(program.direction.name)!} 先修课程</div>
+      <div class="card-title">${program.grade.code}级 ${program.level.name} ${program.major.name} ${(program.direction.name)!} <span class="text-muted">（${program.stdTypeNames}）</span>先修课程</div>
 
         <ul class="navbar-nav" style="width:300px;display:inline-block;">
           <li class="nav-item dropdown">
@@ -10,7 +10,7 @@
             </a>
             <div class="dropdown-menu">
               [#list others as d]
-              [@b.a class="dropdown-item" href="!info?program.id="+d.id]${d.grade.name} ${d.major.name} ${(d.direction.name)!}[/@]
+              [@b.a class="dropdown-item" href="!info?program.id="+d.id]${d.grade.name} ${d.level.name} ${d.major.name} ${(d.direction.name)!} <span class="text-muted">${d.stdTypeNames}</span>[/@]
               [/#list]
             </div>
           </li>

@@ -4,8 +4,7 @@
 [/@]
 <div class="card card-info card-primary card-outline">
     [@b.card_header]
-      <div class="card-title">${program.grade.code}级 ${program.major.name} ${(program.direction.name)!} 指定课程先修关系
-      </div>
+      <div class="card-title">${program.grade.code}级 ${program.level.name} ${program.major.name} ${(program.direction.name)!} <span class="text-muted">${program.stdTypeNames}</span> 指定课程先修关系</div>
      [/@]
     <div class="card-body">
       [@b.form name="courseListForm" action="!save" theme="list"]
