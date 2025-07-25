@@ -7,6 +7,13 @@
 [#assign rowsPerPage=35/]
 [/#if]
 
+[#if !stdTypeNames??]
+  [#assign stdTypeNames]${program.stdTypeNames}[/#assign]
+  [#if stdTypeNames?ends_with('生')][#assign stdTypeNames=stdTypeNames[0..stdTypeNames?length-2]/][/#if]
+  [#assign stdTypeNames][#if stdTypeNames?contains(program.level.name)]${stdTypeNames}[#else]${program.level.name}（${stdTypeNames}）[/#if][/#assign]
+  [#if stdTypeNames=="二学位（第二学士学位）"][#assign stdTypeNames]本科（二学位）[/#assign][/#if]
+[/#if]
+
 [#assign shortGroupNames={
        '长学段-通识课模块':'通识课模块',
        '长学段-通识必修课':'长学段/必修',
@@ -118,7 +125,7 @@
 [#macro tableHeader plan]
 [#assign tableIdx= tableIdx+1]
 <table id="plan-table-${plan.id}_${tableIdx}" style="page-break-before:always;" width="100%" class="plan-table"
-       data-sheet-name="${program.major.name}[#if program.direction??] ${(program.direction.name)!}[/#if][#if stdTypeNames?contains(program.level.name)] ${stdTypeNames}[#else]${program.level.name}[/#if]"
+       data-sheet-name="${program.major.name}[#if program.direction??] ${(program.direction.name)!}[/#if] ${stdTypeNames}"
        data-repeating-rows="2:5" data-zoom="80" data-print-scale="57">
   <colgroup>
     [#list 1..branchSpan as i]<col width="32px"/>[/#list]
@@ -141,7 +148,7 @@
     </tr>
     [/#if]
     <tr>
-      <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">${program.grade.name}级${program.major.name}[#if program.direction??]（${program.direction.name?replace("方向","")}）[/#if]专业[#if stdTypeNames?contains(program.level.name)]${stdTypeNames}[#else]${program.level.name}[/#if]指导性教学计划表</th>
+      <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">${program.grade.name}级${program.major.name}[#if program.direction??]（${program.direction.name?replace("方向","")}）[/#if]专业${stdTypeNames}指导性教学计划表</th>
     </tr>
     [#assign levelEnName]${program.level.enName!program.level.name}[/#assign]
     <tr>
