@@ -30,6 +30,7 @@ import org.openurp.base.std.model.Grade
 import org.openurp.code.Code
 import org.openurp.code.edu.model.{ProgramCourseTag, TeachingNature}
 import org.openurp.code.service.CodeService
+import org.openurp.edu.program.util.*
 import org.openurp.edu.program.model.{CreditHours, MajorPlan, Program, ProgramDoc}
 import org.openurp.edu.program.service.*
 import org.openurp.edu.service.Features
@@ -61,8 +62,8 @@ class ProgramReportHelper(entityDao: EntityDao, configService: ProjectConfigServ
     val natures = getCodes(classOf[TeachingNature])
     put("natures", natures)
     put("tags", getCodes(classOf[ProgramCourseTag]))
-    put("cluster", new PlanCourseCluster())
-    put("termHelper", new TermHelper)
+    put("cluster", PlanCourseCluster)
+    put("termHelper", TermHelper)
     put("planRender", PlanRender)
     val stat = PlanCategoryStat.stat(plan, natures)
     put("stat", stat)
@@ -106,8 +107,8 @@ class ProgramReportHelper(entityDao: EntityDao, configService: ProjectConfigServ
     val natures = getCodes(classOf[TeachingNature])
     put("natures", natures)
     put("tags", getCodes(classOf[ProgramCourseTag]))
-    put("cluster", new PlanCourseCluster())
-    put("termHelper", new TermHelper)
+    put("cluster", PlanCourseCluster)
+    put("termHelper", TermHelper)
     put("planRender", PlanRender)
   }
 

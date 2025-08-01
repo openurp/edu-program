@@ -18,9 +18,9 @@
 package org.openurp.edu.program.web.action
 
 import org.beangle.commons.cdi.BindModule
+import org.openurp.edu.program.service.ProgramNamingService
+import org.openurp.edu.program.service.checkers.{CourseHourPlanChecker, MajorCourseDocChecker, OptionalCreditHourPlanChecker, TermsPlanChecker}
 import org.openurp.edu.program.service.impl.*
-import org.openurp.edu.program.service.lixin.{EnglishCourseCountPlanChecker, MajorOptionalPlanChecker, StagePlanChecker}
-import org.openurp.edu.program.web.action.major.PlanAction
 
 class DefaultModule extends BindModule {
   override protected def binding(): Unit = {
@@ -52,13 +52,13 @@ class DefaultModule extends BindModule {
 
     bind(classOf[CoursePlanServiceImpl])
     bind(classOf[SharePlanServiceImpl])
+
+    bind("ProgramNamingService.default", classOf[DefaultProgramNamingService])
+
     bind(classOf[DefaultProgramChecker])
       .property("planCheckers",
-        list(ref("PlanChecker.optionalCreditHour"),
-          ref("PlanChecker.creditStat"),
-          ref("PlanChecker.englishCourseCount"),
-          ref("PlanChecker.majorOptional"),
-          ref("PlanChecker.stage"),
+        list(
+          ref("PlanChecker.optionalCreditHour"),
           ref("PlanChecker.courseHour"),
           ref("PlanChecker.terms")
         )
@@ -68,14 +68,9 @@ class DefaultModule extends BindModule {
         )
       )
 
-    bind("PlanChecker.majorOptional", classOf[MajorOptionalPlanChecker])
-    bind("PlanChecker.englishCourseCount", classOf[EnglishCourseCountPlanChecker])
-    bind("PlanChecker.creditStat", classOf[CreditStatPlanChecker])
     bind("PlanChecker.optionalCreditHour", classOf[OptionalCreditHourPlanChecker])
-    bind("PlanChecker.stage", classOf[StagePlanChecker])
     bind("PlanChecker.courseHour", classOf[CourseHourPlanChecker])
     bind("PlanChecker.terms", classOf[TermsPlanChecker])
-
     bind("DocChecker.majorCourse", classOf[MajorCourseDocChecker])
   }
 

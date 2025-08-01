@@ -25,8 +25,8 @@ import org.openurp.base.service.{Feature, ProjectConfigService}
 import org.openurp.code.Code
 import org.openurp.code.edu.model.{ProgramCourseTag, TeachingNature}
 import org.openurp.code.service.CodeService
+import org.openurp.edu.program.util.{PlanCategoryStat, TermHelper}
 import org.openurp.edu.program.model.{MajorPlan, Program, ProgramDoc}
-import org.openurp.edu.program.service.{PlanCategoryStat, TermHelper}
 import org.openurp.starter.web.helper.ProjectProfile
 
 class ProgramInfoHelper(entityDao: EntityDao, configService: ProjectConfigService, codeService: CodeService) {
@@ -42,7 +42,7 @@ class ProgramInfoHelper(entityDao: EntityDao, configService: ProjectConfigServic
     val natures = getCodes(classOf[TeachingNature])
     put("natures", natures)
     put("tags", getCodes(classOf[ProgramCourseTag]))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     val stat = PlanCategoryStat.stat(plan, natures)
     put("stat", stat)
   }

@@ -21,6 +21,7 @@ import jakarta.servlet.http.Part
 import org.beangle.commons.activation.MediaTypes
 import org.beangle.commons.codec.binary.Base64
 import org.beangle.commons.collection.Collections
+import org.beangle.commons.image.Images
 import org.beangle.commons.io.IOs
 import org.beangle.commons.lang.Chars
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
@@ -30,7 +31,7 @@ import org.beangle.webmvc.view.{Status, Stream, View}
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.Course
 import org.openurp.edu.program.model.*
-import org.openurp.edu.program.service.{ImageUtil, PrerequisiteHelper}
+import org.openurp.edu.program.web.helper.PrerequisiteHelper
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, File, FileOutputStream}
@@ -191,7 +192,7 @@ class PrerequisiteAction extends ActionSupport, EntityAction[ProgramPrerequisite
       getInt("rotateDegree") match
         case Some(degree) =>
           val bytes = new ByteArrayOutputStream()
-          ImageUtil.rotate(file, bytes, degree)
+          Images.rotate(file, bytes, degree)
           Stream(new ByteArrayInputStream(bytes.toByteArray), MediaTypes.ImagePng, "prerequisite.png")
         case None => Stream(file)
     } else {

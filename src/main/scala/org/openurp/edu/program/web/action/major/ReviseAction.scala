@@ -35,7 +35,7 @@ import org.openurp.base.model.{AuditStatus, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.TeachingNature
 import org.openurp.edu.program.model.{MajorPlan, Program}
-import org.openurp.edu.program.service.CoursePlanService
+import org.openurp.edu.program.service.{CoursePlanService, ProgramChecker}
 import org.openurp.edu.program.web.helper.*
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -48,6 +48,7 @@ import java.time.LocalDate
 class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   var entityDao: EntityDao = _
   var planService: CoursePlanService = _
+  var programChecker: ProgramChecker = _
 
   def index(): View = {
     given project: Project = getProject
@@ -73,6 +74,8 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
     val depart = getInt("department.id").map(id => entityDao.get(classOf[Department], id)).getOrElse(departs.head)
     val programs = entityDao.findBy(classOf[Program], "project" -> project, "grade" -> grade, "department" -> depart)
     val sortedPrograms = programs.sortBy(x => x.level.code + "_" + x.major.name + "_" + x.direction.map(_.name).getOrElse(""))
+    val auditMessages = programs.map(x => (x, programChecker.check(x))).toMap
+    put("auditMessages", auditMessages)
     put("reviseOpening", grade.endIn.atDay(1).isAfter(LocalDate.now))
     put("programs", sortedPrograms)
     put("plans", planService.getMajorPlans(programs))
@@ -122,7 +125,7 @@ class ReviseAction extends ActionSupport, EntityAction[Program], ProjectSupport 
     val style = get("style", "")
     val tableHtml = get("tableHtml", "")
     val html = "<body>" + style + tableHtml + "</body>"
-    val workbook = TableWriter.writer(html)
+    val workbook = TableWriter.write(html)
     val os = response.getOutputStream
     RequestUtils.setContentDisposition(response, s"${grade.name} ${department.name} 教学计划.xlsx")
     workbook.write(os)

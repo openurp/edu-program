@@ -24,8 +24,9 @@ import org.beangle.webmvc.view.View
 import org.openurp.base.model.AuditStatus.{PassedByDepart, RejectedByDepart}
 import org.openurp.base.model.{AuditStatus, Department, Project}
 import org.openurp.base.std.model.Grade
+import org.openurp.edu.program.util.TermHelper
 import org.openurp.edu.program.model.{MajorPlan, Program}
-import org.openurp.edu.program.service.{CoursePlanService, ProgramChecker, TermHelper}
+import org.openurp.edu.program.service.{CoursePlanService, ProgramChecker}
 import org.openurp.edu.program.web.helper.{GradeHelper, ProgramInfoHelper, ProgramReportHelper}
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -33,6 +34,7 @@ import java.time.LocalDate
 
 class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   var entityDao: EntityDao = _
+
   var programChecker: ProgramChecker = _
 
   var planService: CoursePlanService = _
@@ -155,7 +157,7 @@ class AuditAction extends ActionSupport, EntityAction[Program], ProjectSupport {
     put("left", left)
     put("right", right)
     put("diffResults", planService.diff(left, right))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     forward("../plan/diff")
   }
 }

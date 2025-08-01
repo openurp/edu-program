@@ -33,6 +33,7 @@ import org.openurp.base.std.model.{Grade, Student, StudentState}
 import org.openurp.code.edu.model.*
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.domain.CoursePlanProvider
+import org.openurp.edu.program.util.TermHelper
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.*
 import org.openurp.edu.program.web.helper.ProgramMatching
@@ -219,7 +220,7 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     put("courseGroup", group)
     put("departments", project.departments)
     put("stages", entityDao.getAll(classOf[CalendarStage]))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     forward()
   }
 
@@ -386,7 +387,7 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     put("left", ep)
     put("right", mp)
     put("diffResults", planService.diff(ep, mp))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     forward()
   }
 
@@ -516,7 +517,7 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     val style = get("style", "")
     val tableHtml = get("tableHtml", "")
     val html = "<body>" + style + tableHtml + "</body>"
-    val workbook = TableWriter.writer(html)
+    val workbook = TableWriter.write(html)
     val os = response.getOutputStream
     RequestUtils.setContentDisposition(response, s"${departs.head.name} 执行计划.xlsx")
     workbook.write(os)

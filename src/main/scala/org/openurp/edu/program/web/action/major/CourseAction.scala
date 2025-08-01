@@ -26,8 +26,9 @@ import org.openurp.base.edu.model.{Course, Major, Terms}
 import org.openurp.base.model.Project
 import org.openurp.code.edu.model.EducationType
 import org.openurp.code.std.model.StdType
+import org.openurp.edu.program.util.TermHelper
 import org.openurp.edu.program.model.{MajorPlan, MajorPlanCourse}
-import org.openurp.edu.program.service.{CoursePlanService, TermHelper}
+import org.openurp.edu.program.service.CoursePlanService
 import org.openurp.edu.program.web.helper.MajorPlanCoursePropertyExtractor
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -58,7 +59,7 @@ class CourseAction extends RestfulAction[MajorPlanCourse], ProjectSupport, Expor
   }
 
   override protected def getQueryBuilder: OqlBuilder[MajorPlanCourse] = {
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     val q = super.getQueryBuilder
     val project = getProject
     queryByDepart(q, "pc.group.plan.program.department")

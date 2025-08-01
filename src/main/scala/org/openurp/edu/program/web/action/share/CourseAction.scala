@@ -21,14 +21,15 @@ import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.webmvc.support.ActionSupport
-import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.EntityAction
+import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.{Course, Terms}
 import org.openurp.base.model.{CalendarStage, Project}
 import org.openurp.code.edu.model.*
 import org.openurp.code.person.model.Language
+import org.openurp.edu.program.util.TermHelper
 import org.openurp.edu.program.model.*
-import org.openurp.edu.program.service.{SharePlanService, TermHelper}
+import org.openurp.edu.program.service.SharePlanService
 import org.openurp.starter.web.support.ProjectSupport
 
 class CourseAction extends ActionSupport, EntityAction[SharePlan], ProjectSupport {
@@ -126,7 +127,7 @@ class CourseAction extends ActionSupport, EntityAction[SharePlan], ProjectSuppor
     put("courseGroup", group)
     put("departments", project.departments)
     put("stages", entityDao.getAll(classOf[CalendarStage]))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     forward()
   }
 

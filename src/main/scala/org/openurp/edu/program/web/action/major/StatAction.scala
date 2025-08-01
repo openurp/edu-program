@@ -27,8 +27,9 @@ import org.beangle.webmvc.view.View
 import org.openurp.base.model.{Department, Project}
 import org.openurp.base.std.model.{Grade, Squad}
 import org.openurp.code.edu.model.{CourseType, EducationLevel, TeachingNature}
+import org.openurp.edu.program.util.PlanCategoryStat
 import org.openurp.edu.program.model.{CourseGroup, MajorPlan, Program}
-import org.openurp.edu.program.service.{CoursePlanService, PlanCategoryStat}
+import org.openurp.edu.program.service.CoursePlanService
 import org.openurp.edu.program.web.helper.{GradeHelper, PlanTask}
 import org.openurp.starter.web.support.ProjectSupport
 

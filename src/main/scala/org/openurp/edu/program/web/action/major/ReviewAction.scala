@@ -27,8 +27,9 @@ import org.openurp.base.edu.model.Course
 import org.openurp.base.model.{Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.TeachingNature
+import org.openurp.edu.program.util.TermHelper
 import org.openurp.edu.program.model.{MajorPlan, PlanCourse, Program}
-import org.openurp.edu.program.service.{CoursePlanService, TermHelper}
+import org.openurp.edu.program.service.CoursePlanService
 import org.openurp.edu.program.web.helper.{GradeHelper, PlanCourseHelper, ProgramReportHelper}
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -118,7 +119,7 @@ class ReviewAction extends ActionSupport, EntityAction[MajorPlan], ProjectSuppor
     }
     put("course", course)
     put("planCourses", planCourses.sorted(PropertyOrdering.by("group.plan.program.department.code,group.plan.program.major.name,group.courseType.name")))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     forward()
   }
 

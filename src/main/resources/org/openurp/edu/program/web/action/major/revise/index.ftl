@@ -104,6 +104,11 @@
          <td><span data-toggle="tooltip" title="${program.opinions!}">${program.status}</span></td>
          <td><span class="text-muted">${program.updatedAt?string('MM-dd HH:mm')}</span></td>
        </tr>
+       [#if auditMessages.get(program)?size>0]
+       <tr>
+         <td colspan="12" class="alert alert-warning"><ol style="margin-bottom:0px;">[#list auditMessages.get(program) as msg]<li>${msg}</li>[/#list]</ol></td>
+       </tr>
+       [/#if]
          [/#list]
        </tbody>
       </table>

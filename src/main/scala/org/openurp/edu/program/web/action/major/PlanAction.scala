@@ -33,9 +33,10 @@ import org.openurp.base.model.{CalendarStage, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.*
 import org.openurp.edu.clazz.domain.WeekTimeBuilder
+import org.openurp.edu.program.util.{PlanMerger, TermHelper}
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.*
-import org.openurp.edu.program.service.impl.EnNameChecker
+import org.openurp.edu.program.service.checkers.EnNameChecker
 import org.openurp.edu.service.Features
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -43,9 +44,10 @@ import org.openurp.starter.web.support.ProjectSupport
  */
 class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport {
 
+  var programChecker: ProgramChecker = _
   var planService: CoursePlanService = _
-
   var entityDao: EntityDao = _
+  var planExcelReader: PlanExcelReader = _
 
   def groups(): View = {
     val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
@@ -186,7 +188,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     put("courseGroup", group)
     put("departments", project.departments)
     put("stages", entityDao.getAll(classOf[CalendarStage]))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     put("weekstateBuilder", WeekTimeBuilder)
     forward()
   }
@@ -220,11 +222,10 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     val parts = getAll("plan_file", classOf[Part])
     if (parts.nonEmpty && parts.head.getSize > 0) {
       val is = parts.head.getInputStream
-      val reader = new LixinPlanExcelReader(is)
-      reader.process()
-      val excelPlan = reader.plan
-      val messages = reader.messages
-      val newPlan = excelPlan.convert(plan.program, entityDao, messages)
+      val data = planExcelReader.process(plan.program, is)
+
+      val newPlan = data._1
+      val messages = data._2
       PlanMerger.merge(newPlan, plan)
       plan.credits = plan.topGroups.map(_.credits).sum
       plan.program.credits = plan.credits
@@ -272,7 +273,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     put("enableLinkCourseInfo", getConfig(Features.Program.LinkCourseEnabled))
     put("natures", getCodes(classOf[TeachingNature]))
     put("tags", getCodes(classOf[ProgramCourseTag]))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     put("ems_base", Ems.base)
     put("isAdmin", getDeparts.size > 2)
     forward()
@@ -306,10 +307,12 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     val plan = entityDao.get(classOf[MajorPlan], getLongId("plan"))
     val program = plan.program
 
+    val errors = programChecker.check(program)
     val msg = new ActionMessages
     if (program.labels.isEmpty) {
       msg.errors.addOne("专业核心课程尚未标记")
     }
+    msg.errors.addAll(errors)
     val properties = new Properties()
     properties.put("errors", msg.errors)
     properties.put("messages", msg.messages)
@@ -480,7 +483,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
     put("left", left)
     put("right", right)
     put("diffResults", planService.diff(left, right))
-    put("termHelper", new TermHelper)
+    put("termHelper", TermHelper)
     forward()
   }
 

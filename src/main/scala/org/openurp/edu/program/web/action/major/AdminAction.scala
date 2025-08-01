@@ -30,7 +30,7 @@ import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.*
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.model.*
-import org.openurp.edu.program.service.{CoursePlanService, ProgramNamingHelper}
+import org.openurp.edu.program.service.{CoursePlanService, ProgramNamingService}
 import org.openurp.edu.program.web.helper.{GradeHelper, ProgramInfoHelper}
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -40,6 +40,8 @@ import java.util
 class AdminAction extends RestfulAction[Program], ProjectSupport {
 
   var planService: CoursePlanService = _
+
+  var programNamingService: ProgramNamingService = _
 
   override def indexSetting(): Unit = {
     given project: Project = getProject
@@ -131,7 +133,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
   override protected def saveAndRedirect(program: Program): View = {
     val autoname = getBoolean("autoname", true)
     if (autoname) {
-      program.name = ProgramNamingHelper(entityDao).name(program.grade, program.major, program.direction)
+      program.name = programNamingService.name(program)
     }
     program.stdTypes.clear()
     val stdTypes = entityDao.find(classOf[StdType], getIntIds("stdType"))
