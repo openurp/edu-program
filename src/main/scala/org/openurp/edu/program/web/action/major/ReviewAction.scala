@@ -44,7 +44,7 @@ class ReviewAction extends ActionSupport, EntityAction[MajorPlan], ProjectSuppor
   def index(): View = {
     given project: Project = getProject
 
-    val grades = new GradeHelper(entityDao).getGrades(project)
+    val grades = new GradeHelper(entityDao).getProgramGrades(project)
     val grade = getLong("grade.id").map(id => entityDao.get(classOf[Grade], id)).getOrElse(grades.head)
 
     var departs = project.departments.toSeq

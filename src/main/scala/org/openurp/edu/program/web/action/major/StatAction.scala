@@ -42,7 +42,7 @@ class StatAction extends ActionSupport, EntityAction[Program], ProjectSupport {
   def index(): View = {
     given project: Project = getProject
 
-    val grades = new GradeHelper(entityDao).getGrades(project)
+    val grades = new GradeHelper(entityDao).getProgramGrades(project)
     val grade = getLong("grade.id").map(id => entityDao.get(classOf[Grade], id)).getOrElse(grades.head)
     put("grades", grades)
     put("grade", grade)

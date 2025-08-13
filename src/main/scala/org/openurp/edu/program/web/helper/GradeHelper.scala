@@ -24,11 +24,18 @@ import org.openurp.edu.program.model.Program
 
 class GradeHelper(entityDao: EntityDao) {
 
-  def getGrades(project: Project): Seq[Grade] = {
+  def getProgramGrades(project: Project): Seq[Grade] = {
     val q = OqlBuilder.from[Grade](classOf[Program].getName, "p")
     q.where("p.project=:project", project)
     q.select("distinct p.grade")
     q.orderBy("p.grade.code desc")
+    entityDao.search(q)
+  }
+
+  def getGrades(project: Project): Seq[Grade] = {
+    val q = OqlBuilder.from(classOf[Grade], "g")
+    q.where("g.project=:project", project)
+    q.orderBy("g.code desc")
     entityDao.search(q)
   }
 }

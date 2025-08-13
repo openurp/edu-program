@@ -305,7 +305,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
   def compare(): View = {
     given project: Project = getProject
 
-    val grades = new GradeHelper(entityDao).getGrades(project)
+    val grades = new GradeHelper(entityDao).getProgramGrades(project)
     put("grades", grades)
     put("levels", project.levels)
     put("allCourseTypes", getCodes(classOf[CourseType]))
