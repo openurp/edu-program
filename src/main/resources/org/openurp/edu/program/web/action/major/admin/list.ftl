@@ -9,10 +9,10 @@
         m.addItem("驳回修改",action.multi("audit",'确定驳回修改?',"passed=0"));
         var menu = bar.addMenu("批量操作");
         menu.addItem("生成执行计划", action.multi("gen","如果已经生成计划，则会跳过，确定继续生成?"));
+        menu.addItem("统计学分", action.multi("restat"));
         /**menu.addItem("导出课程", "exportData()");
         menu.addItem("批量打印","printPlans()");
         menu.addItem("批量复制", action.multi("batchCopyPrompt"));
-        menu.addItem("统计学分", action.multi("restat"));
         menu.addItem("修改备注", action.multi("batchUpdateRemarkSetting"));**/
     [/@]
     [@b.row]

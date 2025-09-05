@@ -22,8 +22,8 @@
     [@b.select name='program.eduType.id' label="培养类型" items=project.eduTypes value=program.eduType! required='true' /]
     [/#if]
     [@b.select label="学生类别" name="stdType.id" multiple="multiple" values=program.stdTypes items=project.stdTypes style="width:400px"/]
-    [@b.select id="major" name='program.major.id' label='专业' items=majors value=program.major required='true' style="width:200px"/]
-    [@b.select name='program.direction.id' label='专业方向' items=directions value=program.direction! style="width:200px" /]
+    [@b.select id="major" name='program.major.id' onchange="changeDirections()" label='专业' items=majors value=program.major required='true' style="width:200px"/]
+    [@b.select id="direction" name='program.direction.id' label='专业方向' value=(program.direction.id)! style="width:300px" /]
     [@base.code type="study-types" name="program.studyType.id" label="学习形式" value=program.studyType required="true" style="width:200px"/]
     [@b.textfield label='学制' name="program.duration" check="match('number').greaterThan(0)" value=program.duration! required="true" style="width:40px" maxlength="4" comment="年制"/]
     [@b.textfield label='起始学期' name='program.startTerm' check="match('integer').greaterThan(0)" required='true' value=program.startTerm style='width:40px' maxlength='2' comment='正整数'/]
@@ -49,6 +49,34 @@
     [/@]
   [/@]
   <script type="text/javascript">
+    var directions = [];
+    [#list directions as d]
+    directions.push({"id":"${d.id}","code":"${d.code}","name":"${d.code} ${d.name}","majorId":"${d.major.id}","levelIds":[[#list d.journals as dj]"${dj.level.id}"[#sep],[/#list]],"departIds":[[#list d.journals as dj]"${dj.depart.id}"[#sep],[/#list]]});
+    [/#list]
+    function changeDirections(){
+      var levelId = document.planForm['program.level.id'].value;
+      var departId = document.planForm['program.department.id'].value;
+
+      var majorId = document.planForm['program.major.id'].value;
+      var directionId = document.planForm['program.direction.id'].value;
+      var matched=[];
+      if(majorId){
+        matched = directions.filter(d=> d.majorId == majorId && d.levelIds.includes(levelId) && d.departIds.includes(departId));
+      }
+      if(directionId){
+        if(!matched.filter(d=> d.id == directionId).length>0){
+          directionId="";
+        }
+      }
+      $('#direction option').remove();
+      beangle.load(["chosen"], function() {
+        jQuery("#direction").chosen("destroy");
+        beangle.select.fillin("direction",matched,directionId,"id","name",20);
+      });
+    }
+    jQuery(document).ready(function(){
+      changeDirections();
+    });
     function switchAutoName() {
       if(document.getElementById('autoname').checked) {
         jQuery('#program_name').prop("disabled",true);

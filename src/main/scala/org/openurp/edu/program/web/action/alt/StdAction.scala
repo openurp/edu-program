@@ -23,9 +23,10 @@ import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.doc.excel.schema.ExcelSchema
 import org.beangle.doc.transfer.importer.ImportSetting
+import org.beangle.event.bus.{DataEvent, DataEventBus}
 import org.beangle.webmvc.annotation.response
-import org.beangle.webmvc.view.{Stream, View}
 import org.beangle.webmvc.support.action.{ImportSupport, RestfulAction}
+import org.beangle.webmvc.view.{Stream, View}
 import org.openurp.base.edu.model.Course
 import org.openurp.base.std.model.Student
 import org.openurp.edu.program.domain.CoursePlanProvider
@@ -42,6 +43,7 @@ import java.time.Instant
 class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, ImportSupport[StdAlternativeCourse] {
 
   var coursePlanProvider: CoursePlanProvider = _
+  var databus: DataEventBus = _
 
   override protected def simpleEntityName: String = "alt"
 
@@ -60,12 +62,13 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
 
   def exchange(): View = {
     val ids = getLongIds("alt")
-    val subs = entityDao.find(classOf[StdAlternativeCourse], ids)
-    for (sub <- subs) {
+    val alts = entityDao.find(classOf[StdAlternativeCourse], ids)
+    for (sub <- alts) {
       sub.exchange()
       sub.updatedAt = Instant.now
     }
-    entityDao.saveOrUpdate(subs)
+    entityDao.saveOrUpdate(alts)
+    databus.publish(DataEvent.update(alts))
     redirect("search", "交换成功")
   }
 
@@ -133,6 +136,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
       } else {
         alt.updatedAt = Instant.now()
         if (isDoubleAlternativeCourse(alt)) {
+          databus.publish(DataEvent.update(alt))
           entityDao.saveOrUpdate(alt)
           redirect("search", "info.save.success")
         } else {
@@ -190,5 +194,11 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
       })
     })
     forward()
+  }
+
+  override protected def removeAndRedirect(alts: Seq[StdAlternativeCourse]): View = {
+    remove(alts)
+    databus.publish(DataEvent.remove(alts))
+    redirect("search", "info.remove.success")
   }
 }

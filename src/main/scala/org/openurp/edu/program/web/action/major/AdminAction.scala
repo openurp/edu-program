@@ -84,6 +84,11 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     val query = OqlBuilder.from(classOf[Major], "m")
     query.where("m.project=:project", project)
     query.where("exists(from m.journals as mj where mj.depart in(:departs))", departs)
+    if (program.persisted) {
+      query.where(":beginOn >= m.beginOn and m.endOn is null or :beginOn <= m.endOn", program.endOn)
+    } else {
+      query.where("m.endOn is null")
+    }
     query.orderBy("m.code")
     val majors = entityDao.search(query)
 
@@ -91,6 +96,11 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     query2.where("m.project=:project", project)
     query2.where("exists(from m.journals as mj where mj.depart in(:departs))", departs)
     query2.orderBy("m.code")
+    if (program.persisted) {
+      query2.where(":beginOn >= m.beginOn and m.endOn is null or :beginOn <= m.endOn", program.endOn)
+    } else {
+      query2.where("m.endOn is null")
+    }
     val directions = entityDao.search(query2)
 
     put("grades", new GradeHelper(entityDao).getGrades(project))
