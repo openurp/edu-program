@@ -151,6 +151,9 @@
       <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">${program.grade.name}级${program.major.name}[#if program.direction??]（${program.direction.name?replace("方向","")}）[/#if]专业${stdTypeNames}指导性教学计划表</th>
     </tr>
     [#assign levelEnName]${program.level.enName!program.level.name}[/#assign]
+    [#if stdTypeNames?contains("高本贯通")]
+    [#assign levelEnName](${program.stdTypes?first.enName!'--'})${levelEnName}[/#assign]
+    [/#if]
     <tr>
       <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">Education Guiding Schedule for ${program.major.enName!'--无英文名--'}[#if program.direction??](${program.direction.enName!'--无英文名--'})[/#if] ${levelEnName} of Grade ${program.grade.code}</th>
     </tr>
@@ -223,7 +226,7 @@
   [#else]
 
     [#--顶级课程组(长学段教学，短学段教学下的组)--]
-    [#--添加一个抬头说明类似这样 （一）长学段教学| 1.3长学段-专业与创新实践 Long Semester—Professional and Innovation Practial Education --]
+    [#--添加一个抬头说明类似这样 （一）长学段教学| 1.3长学段-专业与创新实践 Long Semester—Professional and Innovation Practical Education --]
     [#if depthOf(courseGroup)==1 && (courseGroup.parent?? || courseGroup.planCourses?size>0)]
       [#assign courseCount=0/]
       [#assign rowNum=rowNum+1/]
@@ -303,7 +306,7 @@
              [#if groupName=='长学段教学']长学段学分小计<br>Subtotal of Credit Requirement for Long Semesters
              [#elseif groupName=='短学段教学']实践课（短学段）学分要求<br>Credit Requirement for Practical Education (Short Semester)[#assign practicalGroups=practicalGroups+[courseGroup]/]
              [#elseif groupName=='通识课模块']通识课模块学分小计<br>Subtotal of Credit Requirement for Liberal Education
-             [#elseif groupName=='学科专业课模块']学科专业课模块学分小计<br>Subtotal of Credit Requirement for Professsional Education
+             [#elseif groupName=='学科专业课模块']学科专业课模块学分小计<br>Subtotal of Credit Requirement for Professional Education
              [#elseif groupName=='实践课模块']
                [#if courseGroup.courseType.name?contains("长学段")]
                  实践课（长学段）学分要求<br>Credit Requirement for Practical Education (Long Semester)
