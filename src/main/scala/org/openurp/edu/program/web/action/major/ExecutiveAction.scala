@@ -27,15 +27,15 @@ import org.beangle.web.servlet.util.RequestUtils
 import org.beangle.webmvc.annotation.{mapping, param}
 import org.beangle.webmvc.support.action.RestfulAction
 import org.beangle.webmvc.view.{Status, View}
-import org.openurp.base.edu.model.{Course, Direction, Major, Terms}
+import org.openurp.base.edu.model.{Course, Major, MajorDirection, Terms}
 import org.openurp.base.model.{AuditStatus, CalendarStage, Department, Project}
 import org.openurp.base.std.model.{Grade, Student, StudentState}
 import org.openurp.code.edu.model.*
 import org.openurp.code.std.model.StdType
 import org.openurp.edu.program.domain.CoursePlanProvider
-import org.openurp.edu.program.util.TermHelper
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.*
+import org.openurp.edu.program.util.TermHelper
 import org.openurp.edu.program.web.helper.ProgramMatching
 import org.openurp.edu.service.Features
 import org.openurp.starter.web.support.ProjectSupport
@@ -467,7 +467,7 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
         id += "null_"
       }
       if (data(5) != null) {
-        val d = entityDao.get(classOf[Direction], data(5).asInstanceOf[Number].longValue)
+        val d = entityDao.get(classOf[MajorDirection], data(5).asInstanceOf[Number].longValue)
         studentState.direction = Some(d)
         programMatching.direction = Some(d)
         id += data(5).toString + "_"

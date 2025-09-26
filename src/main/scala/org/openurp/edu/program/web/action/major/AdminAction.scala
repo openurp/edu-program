@@ -24,7 +24,7 @@ import org.beangle.webmvc.annotation.{mapping, param}
 import org.beangle.webmvc.context.ActionContext
 import org.beangle.webmvc.support.action.RestfulAction
 import org.beangle.webmvc.view.View
-import org.openurp.base.edu.model.{Course, Direction, Major}
+import org.openurp.base.edu.model.{Course, Major, MajorDirection}
 import org.openurp.base.model.{AuditStatus, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.*
@@ -92,7 +92,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     query.orderBy("m.code")
     val majors = entityDao.search(query)
 
-    val query2 = OqlBuilder.from(classOf[Direction], "m")
+    val query2 = OqlBuilder.from(classOf[MajorDirection], "m")
     query2.where("m.project=:project", project)
     query2.where("exists(from m.journals as mj where mj.depart in(:departs))", departs)
     query2.orderBy("m.code")
@@ -277,7 +277,7 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     query.orderBy("m.code")
     val majors = entityDao.search(query)
 
-    val query2 = OqlBuilder.from(classOf[Direction], "m")
+    val query2 = OqlBuilder.from(classOf[MajorDirection], "m")
     query2.where("m.project=:project", project)
     query2.where("exists(from m.journals as mj where mj.depart in(:departs))", departs)
     query2.orderBy("m.code")

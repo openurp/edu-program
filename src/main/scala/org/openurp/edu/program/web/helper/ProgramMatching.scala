@@ -17,7 +17,7 @@
 
 package org.openurp.edu.program.web.helper
 
-import org.openurp.base.edu.model.{Direction, Major}
+import org.openurp.base.edu.model.{Major, MajorDirection}
 import org.openurp.base.model.Department
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.{EducationLevel, EducationType}
@@ -38,7 +38,7 @@ class ProgramMatching {
 
   var major: Major = _
 
-  var direction: Option[Direction] = None
+  var direction: Option[MajorDirection] = None
 
   var count: Number = _
 }

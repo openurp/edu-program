@@ -152,7 +152,10 @@
     </tr>
     [#assign levelEnName]${program.level.enName!program.level.name}[/#assign]
     [#if stdTypeNames?contains("高本贯通")]
-    [#assign levelEnName](${program.stdTypes?first.enName!'--'})${levelEnName}[/#assign]
+      [#assign levelEnName](${program.stdTypes?first.enName!'--'})${levelEnName}[/#assign]
+    [/#if]
+    [#if program.level.name?contains("二学位")]
+      [#assign levelEnName](${levelEnName}) Undergraduate[/#assign]
     [/#if]
     <tr>
       <th colspan="${11+branchSpan}" class="headline" style="border: 0px;">Education Guiding Schedule for ${program.major.enName!'--无英文名--'}[#if program.direction??](${program.direction.enName!'--无英文名--'})[/#if] ${levelEnName} of Grade ${program.grade.code}</th>

@@ -20,9 +20,9 @@ package org.openurp.edu.program.web.action.alt
 import org.beangle.commons.collection.{Collections, Order}
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.RestfulAction
-import org.openurp.base.edu.model.{Course, Direction, Major}
+import org.beangle.webmvc.view.View
+import org.openurp.base.edu.model.{Course, Major, MajorDirection}
 import org.openurp.base.model.Project
 import org.openurp.base.std.model.Grade
 import org.openurp.edu.program.model.MajorAlternativeCourse
@@ -43,7 +43,7 @@ class MajorAction extends RestfulAction[MajorAlternativeCourse], ProjectSupport 
     put("departs", getDeparts)
 
     put("majors", findInProject(classOf[Major]))
-    put("directions", findInProject(classOf[Direction]))
+    put("directions", findInProject(classOf[MajorDirection]))
     super.indexSetting()
   }
 
@@ -71,7 +71,7 @@ class MajorAction extends RestfulAction[MajorAlternativeCourse], ProjectSupport 
     put("departs", getDeparts)
 
     put("majors", findInProject(classOf[Major]))
-    put("directions", findInProject(classOf[Direction]))
+    put("directions", findInProject(classOf[MajorDirection]))
   }
 
   override def saveAndRedirect(alt: MajorAlternativeCourse): View = {

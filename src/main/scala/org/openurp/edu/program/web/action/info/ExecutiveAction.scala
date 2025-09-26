@@ -21,9 +21,9 @@ import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.Ems
 import org.beangle.webmvc.annotation.{mapping, param}
 import org.beangle.webmvc.support.ActionSupport
-import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.EntityAction
-import org.openurp.base.edu.model.{Direction, Major}
+import org.beangle.webmvc.view.View
+import org.openurp.base.edu.model.{Major, MajorDirection}
 import org.openurp.base.model.Project
 import org.openurp.edu.program.model.{ExecutivePlan, MajorPlan}
 import org.openurp.edu.program.service.CoursePlanService
@@ -43,7 +43,7 @@ class ExecutiveAction extends ActionSupport, EntityAction[ExecutivePlan], Projec
     put("departs", getDeparts)
 
     put("majors", findInProject(classOf[Major]))
-    put("directions", findInProject(classOf[Direction]))
+    put("directions", findInProject(classOf[MajorDirection]))
     forward()
   }
 
