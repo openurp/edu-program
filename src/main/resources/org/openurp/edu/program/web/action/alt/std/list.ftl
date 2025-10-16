@@ -14,7 +14,7 @@
             ${(alt.std.code)!}
         [/@]
         [@b.col width='8%' property="std.name" title="姓名"]
-            ${(alt.std.name)!}
+            <a href="${ems_base}/std/graduation/plan/depart/lastest?student.id=${alt.std.id}" target="_blank" title="查看最新计划完成情况">${alt.std.name}</a>
         [/@]
         [@b.col width='6%' property="std.state.grade" title="年级"]
             ${(alt.std.state.grade)!}

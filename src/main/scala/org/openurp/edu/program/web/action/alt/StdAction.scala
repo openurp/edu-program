@@ -23,6 +23,7 @@ import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.doc.excel.schema.ExcelSchema
 import org.beangle.doc.transfer.importer.ImportSetting
+import org.beangle.ems.app.Ems
 import org.beangle.event.bus.{DataEvent, DataEventBus}
 import org.beangle.webmvc.annotation.response
 import org.beangle.webmvc.support.action.{ImportSupport, RestfulAction}
@@ -103,6 +104,7 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
     queryByDepart(builder, "alt.std.state.department")
     builder.limit(getPageLimit)
     put("alts", entityDao.search(builder))
+    put("ems_base", Ems.base)
     forward()
   }
 
@@ -136,8 +138,8 @@ class StdAction extends RestfulAction[StdAlternativeCourse], ProjectSupport, Imp
       } else {
         alt.updatedAt = Instant.now()
         if (isDoubleAlternativeCourse(alt)) {
-          databus.publish(DataEvent.update(alt))
           entityDao.saveOrUpdate(alt)
+          databus.publish(DataEvent.update(alt))
           redirect("search", "info.save.success")
         } else {
           redirect("search", "原课程与替代课程一样!")
