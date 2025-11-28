@@ -33,10 +33,10 @@ import org.openurp.base.model.{CalendarStage, Department, Project}
 import org.openurp.base.std.model.Grade
 import org.openurp.code.edu.model.*
 import org.openurp.edu.clazz.domain.WeekTimeBuilder
-import org.openurp.edu.program.util.{PlanMerger, TermHelper}
 import org.openurp.edu.program.model.*
 import org.openurp.edu.program.service.*
 import org.openurp.edu.program.service.checkers.EnNameChecker
+import org.openurp.edu.program.util.{PlanMerger, TermHelper}
 import org.openurp.edu.service.Features
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -350,6 +350,7 @@ class PlanAction extends ActionSupport, EntityAction[MajorPlan], ProjectSupport 
       }
       planService.addPlanCourse(planCourse, group)
     }
+    planService.statPlanCredits(plan)
     redirect(target, extra, "info.save.success")
   }
 

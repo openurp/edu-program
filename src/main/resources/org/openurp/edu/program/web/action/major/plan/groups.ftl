@@ -74,7 +74,6 @@
       </div>
       <div class="modal-body" id="planDialogBody" style="padding-top:0px;"></div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
         <button type="button" style="display:none" id="planDialogSubmit" class="btn btn-primary">确定</button>
       </div>
     </div>

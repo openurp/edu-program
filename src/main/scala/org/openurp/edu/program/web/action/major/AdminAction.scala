@@ -103,11 +103,20 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     }
     val directions = entityDao.search(query2)
 
-    put("grades", new GradeHelper(entityDao).getGrades(project))
+    val grades = new GradeHelper(entityDao).getGrades(project)
+    put("grades", grades)
     put("departs", departs)
     put("majors", majors)
     put("directions", directions)
     put("project", project)
+
+    // 推断创建时的默认值
+    if (grades.nonEmpty && program.beginOn == null) {
+      program.beginOn = grades.head.beginIn.atDay(1)
+    }
+    if (program.stdTypes.isEmpty && project.stdTypes.size == 1) {
+      program.stdTypes.addAll(project.stdTypes)
+    }
 
     if (program.persisted) {
       put("docs", entityDao.findBy(classOf[ProgramDoc], "program", program))
@@ -190,7 +199,6 @@ class AdminAction extends RestfulAction[Program], ProjectSupport {
     entityDao.refresh(program)
     entityDao.findBy(classOf[MajorPlan], "program", program) foreach { plan =>
       planService.statPlanCredits(plan)
-      entityDao.saveOrUpdate(plan)
     }
     super.saveAndRedirect(program)
   }

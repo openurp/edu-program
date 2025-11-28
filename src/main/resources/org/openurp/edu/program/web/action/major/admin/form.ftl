@@ -48,6 +48,7 @@
         [@b.reset/]
     [/@]
   [/@]
+
   <script type="text/javascript">
     var directions = [];
     [#list directions as d]
@@ -91,13 +92,11 @@
       [#list grades as grade]
          gradeBeginOns["${grade.id}"]="${grade.beginIn?string('yyyy-MM-01')}";
       [/#list]
-      /*
-       * 当年级发生变化的时候，自动更新开始时间，结束时间
-       */
+      /* 当年级发生变化的时候，自动更新开始时间，结束时间 */
       jQuery("#planForm [name='program.grade.id']").change(function(){
         jQuery("#planForm [name='program.beginOn']").val("");
         var gradeId = jQuery(this).val();
-        var start =gradeBeginOns[gradeId];
+        var start = gradeBeginOns[gradeId];
         jQuery("#planForm [name='program.beginOn']").val(start);
         setEnd(jQuery("#major").val(),jQuery("#level").val(),start);
       });
@@ -127,6 +126,7 @@
               var result = eval('(' + data + ')');
               jQuery("#planForm [name='program.endOn']").val(result.endOn);
               jQuery("#planForm [name='program.duration']").val(result.duration);
+              jQuery("#planForm [name='program.endTerm']").val(result.duration*2);//按照每学年两个学期计算
           }
         });
       }

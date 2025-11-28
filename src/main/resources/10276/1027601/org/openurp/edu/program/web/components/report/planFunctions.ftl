@@ -286,7 +286,7 @@
             <td style="text-align: center;">${planCourse.course.code!}</td>
             <td class="credit_hour">${(planCourse.course.creditHours)?default(0)}</td>
             [#list natures as tn]
-            <td class="credit_hour">${planCourse.course.getJournal(plan.program.grade).getHour(tn)!0}</td>
+            <td class="credit_hour">${planCourse.journal.getHour(tn)!0}</td>
             [/#list]
             <td class="credit_hour">${(planCourse.credits)?default(0)}</td>
             [@courseTermInfoMacro planCourse /]
@@ -449,7 +449,7 @@
             <td class="credit_hour">${(planCourse.course.getCredits(courseGroup.plan.program.level))?default(0)}</td>
             [#if displayCreditHour]<td class="credit_hour">${(planCourse.course.creditHours)?default(0)}</td>[/#if]
             [@courseTermInfoMacro planCourse /]
-            [#if displayTeachDepart]<td class="credit_hour">[#if planCourse.department??][@i18nName planCourse.department/][#else][@i18nName planCourse.course.department!/][/#if]</td>[/#if]
+            [#if displayTeachDepart]<td class="credit_hour">${planCourse.journal.department.name}</td>[/#if]
             <td class="remark">[#if planCourse.compulsory && !courseGroup.autoAddup]必修 [/#if][#if planCourse.remark?exists]${planCourse.remark!}[#else]&nbsp;[/#if]</td>
           </tr>
          [/#if]

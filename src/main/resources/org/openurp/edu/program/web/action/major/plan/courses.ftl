@@ -21,7 +21,13 @@
     [@b.col width="5%" property="defaultCredits" title="学分"]
       ${course.getCredits(plan.program.level)}
     [/@]
-    [@b.col width="5%" property="creditHours" title="学时" /]
+    [@b.col width="11%" property="creditHours" title="学时" ]
+      [#assign cj = course.getJournal(plan.program.grade)/]
+      [#if cj.weeks?? && cj.weeks > 0]${cj.weeks}周[#else]
+        ${cj.creditHours}
+        [#if cj.hours?size>1]<span class="text-muted">([#list cj.hours as h]${h.creditHours}[#sep]+[/#list])</span>[/#if]
+      [/#if]
+    [/@]
     [@b.col width="8%" property="examMode.name" title="考核方式"/]
     [@b.col width="15%" property="department.name" title="开课院系" ]
       [#if course.department??]

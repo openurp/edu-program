@@ -252,7 +252,7 @@
             <td>${(planCourse.course.getCredits(courseGroup.plan.program.level))?default(0)}</td>
             [#if displayCreditHour]<td>[#assign j = planCourse.journal/][#if j.weeks?exists && j.weeks>0]${j.weeks}周[#else]${(j.creditHours)?default(0)}[/#if]</td>[/#if]
             [@courseTermInfoMacro planCourse /]
-            [#if displayTeachDepart]<td>[#if planCourse.department??][@i18nName planCourse.department/][#else][@i18nName planCourse.course.department!/][/#if]</td>[/#if]
+            [#if displayTeachDepart]<td>${planCourse.journal.department.shortName!planCourse.journal.department.name}</td>[/#if]
             <td class="remark">[#if planCourse.compulsory && courseGroup.rank?? && !courseGroup.rank.compulsory]必修 [/#if][#if planCourse.remark?exists]${planCourse.remark!}[#else]&nbsp;[/#if]</td>
           </tr>
          [/#if]

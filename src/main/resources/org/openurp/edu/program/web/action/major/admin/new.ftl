@@ -14,7 +14,7 @@
     [@b.select name='program.eduType.id' label="培养类型"
         items=project.eduTypes value=project.eduTypes?first required='true' /]
     [/#if]
-    [@b.select label="学生类别" name="stdTypeId" multiple="multiple" items=project.stdTypes/]
+    [@b.select label="学生类别" name="stdType.id" multiple="multiple" values=program.stdTypes items=project.stdTypes/]
     [@b.select id="major" name='program.major.id' label='专业' items=majors  required='true' /]
     [@b.select name='program.direction.id' label='专业方向' items=directions  /]
     [@base.code type="study-types" name="program.studyType.id" label="学习形式"  required="true" /]
@@ -23,7 +23,7 @@
     [@b.textfield label='结束学期' name='program.endTerm' check="match('integer').greaterThan(0)" required='true' value='8' style='width:40px' maxlength='2' comment='正整数(最多两位)'/]
     [@base.code type="degree" name='program.degree.id' label='学位' empty="..." /]
     [@b.textfield name='program.degreeGpa' label='学位绩点' maxlength="3" size="3" required="false"/]
-    [@b.startend label="起止日期" name="program.beginOn,program.endOn" required="true"/]
+    [@b.startend label="起止日期" name="program.beginOn,program.endOn" start=program.beginOn required="true"/]
     [@b.textarea name='program.remark' cols='40' rows='2' maxlength='800' label='备注' comment="(限800字)"/]
     [@b.formfoot]
         [#if project.eduTypes?size==1]
@@ -88,6 +88,7 @@
               var result = eval('(' + data + ')');
               jQuery("#planForm [name='program.endOn']").val(result.endOn);
               jQuery("#planForm [name='program.duration']").val(result.duration);
+              jQuery("#planForm [name='program.endTerm']").val(result.duration*2);//按照每学年两个学期计算
           }
         });
       }

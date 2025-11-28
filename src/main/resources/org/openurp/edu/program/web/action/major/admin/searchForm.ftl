@@ -15,7 +15,7 @@
         [/#list]
     [/@]
     [@b.radios label="是否有效" name="fake.valid" value='1' items={'1':'是', '0':'否'}/]
-    <input type="hidden" name="orderBy" value="program.beginOn desc,program.name"/>
+    <input type="hidden" name="orderBy" value="program.beginOn desc,program.department.code,program.name"/>
 [/@]
 
 <script>

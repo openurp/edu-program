@@ -395,6 +395,7 @@ class ExecutiveAction extends RestfulAction[ExecutivePlan], ProjectSupport {
     given project: Project = getProject
 
     val builder = OqlBuilder.from[Grade](classOf[Program].getName, "program")
+    builder.where("program.project=:project", project)
     builder.select("distinct program.grade")
     builder.orderBy("program.grade.code desc")
     val grades = entityDao.search(builder)
