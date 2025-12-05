@@ -3,26 +3,16 @@
 [@include_optional path="/org/openurp/edu/program/web/components/report/planMacros.ftl"/]
 [#--以下输出内容--]
 [@planHead plan/]
-<<<<<<< Updated upstream
-
 [#assign program = plan.program/]
 <table id="planInfoTable${plan.id}" class="plan-table" style="vnd.ms-excel.numberformat:@" width="100%"
        data-sheet-name="${program.grade.name} ${program.level.name} ${program.major.name}[#if program.direction??] ${(program.direction.name)!}[/#if]"
-=======
-<table id="planInfoTable${plan.id}" class="plan-table" style="vnd.ms-excel.numberformat:@" width="100%"
-       data-sheet-name="${plan.program.grade.name} ${program.level.name} ${plan.program.major.name}[#if program.direction??] ${(program.direction.name)!}[/#if]"
->>>>>>> Stashed changes
        data-repeating-rows="1:2" data-zoom="80" data-print-scale="57">
     [#assign maxTerm=plan.terms /]
     [#if !courseTypeWidth??][#assign courseTypeWidth=5*maxFenleiSpan/][/#if]
     [#if !courseTypeMaxWidth??][#assign courseTypeMaxWidth=15/][/#if]
     [#if courseTypeWidth>courseTypeMaxWidth][#assign courseTypeWidth=courseTypeMaxWidth/][/#if]
     <colgroup>
-<<<<<<< Updated upstream
       <col width="${courseTypeWidth}%" span="${maxFenleiSpan}"/>
-=======
-      <col width="${courseTypeWidth}%"/>
->>>>>>> Stashed changes
       <col width="10%"/>
       [#assign courseWidth = 100-courseTypeWidth-10-5-3.5*maxTerm-remarkWidth!7/]
       [#if displayCreditHour][#assign courseWidth = courseWidth -5/][/#if]
@@ -36,11 +26,7 @@
     </colgroup>
     <thead>
         <tr align="center">
-<<<<<<< Updated upstream
             <th rowspan="2" colspan="${maxFenleiSpan}">类别</th>
-=======
-            <th rowspan="2" colspan="${maxFenleiSpan}" >类别</th>
->>>>>>> Stashed changes
             <th rowspan="2">课程代码</th>
             <th rowspan="2">课程名称</th>
             <th rowspan="2">学分</th>
